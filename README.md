@@ -1,8 +1,10 @@
-# Redress Desk — an agent-operable desk for contesting airline refusals
+# Countersign
 
 > **OpenAI WebMCP Challenge submission.**
-> Status: **guidelines captured; product not built yet.** micro1 (`redress-eval`) is submitted.
-> Challenge rules and FAQ: [`GUIDELINES.md`](GUIDELINES.md). Deadline **3 Sep 2026, 1:00pm PDT**.
+> Status: **name + MVP scope locked; not built yet.** micro1 is submitted.
+> Rules: [`GUIDELINES.md`](GUIDELINES.md) · Scope: [`SCOPE.md`](SCOPE.md) · Deadline **3 Sep 2026, 1:00pm PDT**.
+
+**Countersign** — shared decision document: the agent annotates under its own identity; **you** own the send.
 
 **Live app:** _tbd_ · **Demo video:** _tbd_ · **Licence:** _tbd — must be OSS_
 
