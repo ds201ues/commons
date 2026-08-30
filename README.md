@@ -1,8 +1,8 @@
 # Redress Desk — an agent-operable desk for contesting airline refusals
 
 > **OpenAI WebMCP Challenge submission.**
-> Status: **scaffold only — not yet built.** Do not start this until `redress-eval` is submitted
-> (see `../docs/07-timeline.md`).
+> Status: **guidelines captured; product not built yet.** micro1 (`redress-eval`) is submitted.
+> Challenge rules and FAQ: [`GUIDELINES.md`](GUIDELINES.md). Deadline **3 Sep 2026, 1:00pm PDT**.
 
 **Live app:** _tbd_ · **Demo video:** _tbd_ · **Licence:** _tbd — must be OSS_
 
