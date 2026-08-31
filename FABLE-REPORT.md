@@ -47,4 +47,16 @@ Advisory only — not locked until you confirm.
 
 ---
 
-*Team prior lean was Legend. Fable reverses to Swatch on Execution risk + meta-lane crowding. Your call.*
+*Team prior lean was Legend. Fable reverses to Swatch on Execution risk + meta-lane crowding. Your user later rejected Swatch as not a real job. See second pass below.*
+
+---
+
+## Second pass — problem spaces, not win-odds ([Fable](3f2c5c78-9ac8-4196-b39b-fae351dc0f20))
+
+Bar changed: “is this a problem today, not solvable by repo-edit?” Full merge in `PROBLEM-RESEARCH.md`.
+
+**Rank:** (1) soft agent gates fail → page-owned deterministic authority (2) irreversibility ceremony (3) SOP/cross-origin (hard to demo in 2.5d) (4) commerce/blind actuation (real money, crowded/hollow).
+
+**Suggest:** **Holdfire** re-founded — approval is **not a tool**; click mints a single-use token; planted injection in incident logs fails structurally. Do not quote Walmart 3× / Adobe conversion lift until first-party checked.
+
+This pass **withdraws Swatch** as the lock recommendation under the new bar.
