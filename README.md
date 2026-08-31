@@ -1,10 +1,11 @@
-# Countersign
+# Commons (working name)
 
 > **OpenAI WebMCP Challenge submission.**
-> Status: **name + MVP scope locked; not built yet.** micro1 is submitted.
-> Rules: [`GUIDELINES.md`](GUIDELINES.md) · Scope: [`SCOPE.md`](SCOPE.md) · Deadline **3 Sep 2026, 1:00pm PDT**.
+> Status: **product locked; not built yet.** micro1 is submitted.
+> Product: [`PRODUCT.md`](PRODUCT.md) · Contest slice: [`SCOPE.md`](SCOPE.md) · Rules: [`GUIDELINES.md`](GUIDELINES.md)  
+> Deadline **3 Sep 2026, 1:00pm PT**.
 
-**Countersign** — shared decision document: the agent annotates under its own identity; **you** own the send.
+**Commons** — a link is a workspace. Humans and agents (ChatGPT in the browser **or** a local agent) share one document. Day-to-day work sits on a **board**. Irreversible calls sit in **decision packets**. **Only a human can Decide.**
 
 **Live app:** _tbd_ · **Demo video:** _tbd_ · **Licence:** _tbd — must be OSS_
 
@@ -12,78 +13,32 @@
 
 ## What it is
 
-Half of all air-passenger compensation claims that get filed are rejected unlawfully. The refusal
-email cites a real article, uses the correct statutory language, and sounds settled. The passenger
-has no way to audit it, so they drop the claim.
+Agents produce options faster than a team can align. The scarce object is the **one page allowed to say we decided X** — not another generated file, not a Slack “lgtm.”
 
-**Redress Desk lets your agent do it for you.** Forward the refusal, and the agent — working
-through site tools exposed by this page — assesses whether the stated ground is lawful, explains
-the rule it turns on, computes what you're owed, and drafts a rebuttal letter and a regulator
-escalation packet.
+This app hosts that page. A **maker** seat’s agent may propose and attach evidence. A **decider** seat’s agent may challenge. The **Decide** control is not a tool; a human click closes the packet. The same operations are available over HTTP so a local agent (Cursor, Claude Code, and so on) can work the **same room** without a ChatGPT tab.
 
-**You approve before anything is sent.** That gate is enforced server-side, not by prompt.
+A thin **today board** is the same product’s daily surface (now / next / waiting; assign to you, your agent, or them). For the contest it may be a list of open packets. After the hackathon it is the house the packets live in.
+
+All demo data is **synthetic**. Nothing is filed with anyone. This is not legal advice, not email, not Notion.
 
 ## Why WebMCP
 
-- **The manual UI is genuinely painful.** Doing this by hand means reading a regulation, finding
-  case law, computing a great-circle distance band, and drafting a formal letter. Nobody completes
-  that in a web form.
-- **One sentence replaces twenty minutes.** *"My flight to Delhi was delayed six hours last Tuesday
-  and the airline refused — here's their email."*
-- **The decision stays human.** Sending a legal letter in your own name is not an unattended agent
-  action. The approval gate is correct product design, not compliance theatre.
-- **It's a real open-web story:** a passenger's agent, acting for them, contesting an institution's
-  decision.
+- The page is **shared working memory**. Only what is on the board or in the packet is memory.
+- Tools **differ by seat** (never registered, not “please don’t”).
+- Consequential close is **origin-owned**, not a chat confirm.
+- Showcase clones (grocery, notes, maps) already exist. This is a **coordination document**, not a lifestyle canvas.
 
-## Site tools
+## Site tools (contest target)
 
-Registered via `document.modelContext.registerTool()`.
+Registered via `document.modelContext.registerTool()`. Exact list in [`SCOPE.md`](SCOPE.md) / [`PRODUCT.md`](PRODUCT.md).
 
-| Tool | Purpose | Side effects |
-|---|---|---|
-| `assess_denial` | Refusal + flight facts → verdict, ground, amount | none |
-| `explain_ground` | Plain-language explanation of the rule relied on | none |
-| `get_entitlement_breakdown` | Distance band, amount, reductions, arithmetic shown | none |
-| `list_required_evidence` | What to attach, for this specific case | none |
-| `draft_rebuttal` | Produce the letter | creates draft |
-| `draft_neb_escalation` | Produce the regulator packet | creates draft |
-| `request_approval` | Surface a draft for human sign-off | **gate** |
-| `submit_claim` | Simulated submission | **gated** |
-
-### Tool design
-
-Anyone can wrap CRUD endpoints. What we did instead:
-
-- **Intent-level tools.** `assess_denial` is one call, not four.
-- **Tight schemas** — enums for verdicts, causes and regimes, not free text.
-- **Structured repair hints on failure**, so a blocked agent knows its next move:
-  ```json
-  { "error": "missing_fact", "field": "actual_arrival_time",
-    "hint": "Ask the passenger for arrival time from their boarding pass or the airline app" }
-  ```
-- **Writes are unreachable without approval**, enforced server-side. An agent calling
-  `submit_claim` early gets a structured refusal pointing it at `request_approval`.
-- **Every result carries evidence IDs** back to rulepack entries, so the agent can explain rather
-  than assert.
+Writes are attributed patches. `Decide` is unreachable from the model.
 
 ## Human–agent collaboration
 
-The desk is a **shared surface**, not a chat log. Agent actions appear live in the page; the
-passenger watches the assessment fill in, sees which rule was applied, disagrees in place, edits
-the draft, and approves. The agent sees the edit and adapts.
+The room is a **shared surface**, not a chat log. Agent actions appear live. The other person (or their agent, or a local agent with the link) sees the same state on reload.
 
 ---
-
-## Under the hood
-
-**The model never applies the law.** It extracts facts and writes prose. Entitlement arithmetic is
-deterministic; the extraordinary-circumstances classifier may only return a verdict attached to a
-key from a versioned rulepack; and every citation in a drafted letter is mechanically verified
-against that rulepack before the document is allowed to exist.
-
-The rulepack is **versioned by flight date**. The EU reached political agreement in June 2026 on
-revising Regulation 261/2004, with the new rules expected in force in the second half of 2027 — so
-two rulesets will coexist, and this system already knows which one applies.
 
 ## Run locally
 
@@ -92,22 +47,10 @@ npm install
 npm run dev
 ```
 
-Requires HTTPS for `document.modelContext` — use a tunnel or the deployed URL when testing with an
-agent. Set `MODEL_API_KEY` in `.env` (see `.env.example`); it stays server-side.
+Requires HTTPS for `document.modelContext` — use a tunnel or the deployed URL when testing with an agent.
 
 ---
 
-## Compliance & limits
-
-- All demo data is **synthetic**. No real passengers, no real refusal letters, no personal data.
-- **Nothing is actually filed with any airline.** Submission is simulated end to end.
-- If you paste a real refusal email into the live app, its text is sent to a model provider for
-  processing. Don't include anything you wouldn't share.
-- **Not legal advice.** This drafts an argument for you to review and send in your own name. Where
-  a case turns on a fact it doesn't have, it says so rather than guessing.
-- Letters address the legal ground, never the carrier's motives.
-
 ## Related
 
-Built on the same core as `redress-eval`, an evaluation harness submitted to the micro1 Frontier
-Engineering Challenge. Separate repository, separate history.
+Built in the same workspace as `redress-eval` (micro1). **Separate repository, separate history — do not copy that code.**

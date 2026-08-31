@@ -1,6 +1,6 @@
 # WebMCP product brief — 31 Aug 2026 (evening IST)
 
-**Status:** nothing locked. This file is the source of truth for independent researchers. Do not revive killed ideas. Do not implement code.
+**Status:** **superseded for product lock.** Builder locked **Decision Window (primary) + team daily board (feature)** on 31 Aug 2026. Source of truth: [`PRODUCT.md`](PRODUCT.md). Contest cut: [`SCOPE.md`](SCOPE.md). This file remains the research brief (killed ideas, veto list). Do not revive killed ideas. Do not start another research pass unless the lock is explicitly reopened.
 
 **Contest:** OpenAI WebMCP Challenge. Deadline **3 Sep 2026, 1:00pm PT**. Solo. Host: **Vercel Hobby**. Video **&lt;3 min** with audio. Judges may only watch the video. Criteria (equal): WebMCP Leverage, Execution, Potential Impact, Creativity. Direction we must show: *the page is shared working memory; any WebMCP agent is a client; no Drive; not a one-shot file.*
 
