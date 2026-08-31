@@ -1,94 +1,91 @@
-# WebMCP idea brainstorm (in progress)
+# WebMCP idea brainstorm — full merge
 
 Deadline: **3 Sep 2026 1:00pm PT** / **4 Sep 1:30am IST**.  
-Goal: lock one idea with strong novelty + finishable Execution.
+Showcase (from OpenAI collection screenshots, 31 Aug): **Sunday Table** (meals) · **Cubecade**
+(puzzle) · **Paperie** (cards) · **Verdant Market** (grocery storefront) · **Codex Modeling Studio**
+(3D) · **Margin Editor** (notes) · **Crossword Desk** · **Fieldwork // 12** (music) · **WanderNote**
+(trip map) · **Webroom** (agent photo editing). Pattern: polished lifestyle/creative canvases —
+not meta/devtools, not dual-control ops, not “forgetting” UIs.
 
-Showcase already covers: 3D · margin notes · crossword · music · trip · meals/cart · cards · cube.
-
----
-
-## From [weird seeds](d9354910-c8db-4516-925a-47743f5110b7) — done
-
-All three: agent mutates **your** page; human has a move the agent cannot fake.
-
-### Palimpsest
-Shared notebook that **forgets**. Agent text fades (~30s) unless you pin.  
-Tools: `write`, `rewrite`, `ask_to_pin` · Human-only: `pin` / `unpin`.  
-**Remember Friday:** page going blank while the agent begs to save one line.
-
-### Rumor Block
-4×4 neighborhood map. Ungated rumors **bleed** to adjacent lots each tick.  
-Agent: `plant_rumor`, `tick` · Human-only: `stamp_out` (+ optional corroborate).  
-**Remember Friday:** block goes black because nobody stamped the first lie.
-
-### Mise
-Kitchen **counter** is the recipe (no recipe text). Agent places objects; you drag off-board to sabotage; agent adapts or fails with repair hint.  
-Tools: `place`, `advance_step`, `set_timer`.  
-**Remember Friday:** ChatGPT restages dinner while you throw the onion away.
+Probes: [weird](d9354910-c8db-4516-925a-47743f5110b7) · [creative](f0c65d0f-de80-462f-907a-8a6afa3b531e) · [ops](91cf45f0-bc63-4270-9d3c-2b2910679464) · [devtools](cea525f9-c66e-42ff-8af7-f06efb9dbd64) · [social](8fbc5b19-cc4d-443c-a080-7852f4ba4abf)
 
 ---
 
-## From [creative](f0c65d0f-de80-462f-907a-8a6afa3b531e) — done
+## Catalog (all lanes)
 
-### Phosphor
-Live **neon sign shop**. You drag glass; agent holds copy/gas/physics.  
-Tools: `set_legend`, `set_gas`, `bend_tube` (fails &lt;4cm radius), `set_transformer` (VA overload), `night_preview`, `lock_sign` (human gate).  
-**Demo money:** failed bend → repair; don’t only “AI wrote OPEN LATE.”  
-MVP: SVG glow, 8-letter max, 3 gases — no WebGL.
-
-### Rehearsal
-Paper-cutout **animatic** + 8s timeline. Agent poses/beats; you scrub and hand-key.  
-Tools: `cast_puppet`, `set_pose`, `add_beat`, `set_camera`, `play`, `picture_lock` (human gate).  
-**Novel vs Fieldwork/Cubecade:** picture-lock on **time**, not audio grid or puzzle.  
-MVP: 4 puppets × 4 joints, 8s @ 8fps, flipbook if CSS jank. Timeline UI is the schedule risk.
-
-Lane note: pick **one** of Phosphor / Rehearsal — not both.
-
----
-
-## From [ops](91cf45f0-bc63-4270-9d3c-2b2910679464) — done
-
-Stage → authorize → gated commit (same beat as Countersign, different object).
-
-### Holdfire
-Incident board: agent stages rollback/page; **`execute_action` gated**.  
-Tools: `get_incident`, `list_signals`, `simulate_change`, `stage_action`, `request_authorize`, `execute_action`.  
-Buildability ~8 with fixtures. **Kill if** real Datadog/PagerDuty wiring starts.
-
-### Tombstone
-Erasure map: agent finds copies of a synthetic person; **`commit_erasure` irreversible + gated**.  
-Legal-hold as structured blocker. Buildability ~7. **Kill if** real PII/connectors.
-
-Lane note: Holdfire = safer Execution; Tombstone = more visceral. Not both.
+| Idea | Lane | Shared object | Human-only beat |
+|---|---|---|---|
+| **Palimpsest** | weird | fading notebook | pin before text dies |
+| **Rumor Block** | weird | rumor map | stamp out gossip |
+| **Mise** | weird | kitchen counter | drag ingredients off-board |
+| **Phosphor** | creative | neon sign | lock / hang sign |
+| **Rehearsal** | creative | animatic timeline | picture-lock |
+| **Holdfire** | ops | incident board | authorize execute |
+| **Tombstone** | ops | erasure map | commit irreversible delete |
+| **Legend** | meta | capability overlay | export tools |
+| **Swatch** | meta | token + preview | publish tokens |
+| **Ward Purse** | social | civic budget pie | publish budget |
+| **Stoop** | social | blockface pins | post digest |
+| Countersign | prior | decision letter | send |
+| Specimen | prior | UI→code board | export code |
 
 ---
 
-## From [devtools](cea525f9-c66e-42ff-8af7-f06efb9dbd64) — done
+## Ranked shortlist (win odds × 3-day ship)
 
-Aimed at Chrome / MCP-B / OpenAI browser / Next judges.
+Scoring gut: Creativity / Leverage / Execution / Impact for **this** judge panel (Chrome, OpenAI browser, MCP-B, Next, Shopify, CF, Netlify).
 
-### Legend
-Co-author a **capability map** on a live fixture UI → Play tools → gated export of `registerTool` stubs (+ secure-tools hints).  
-Tools: `get_page_map`, `propose_region`, `bind_capability`, `set_side_effect`, `run_play`, `export_tools` (gated).  
-**Do not claim:** infers tools from arbitrary production sites.
+### Tier A — pick one of these
 
-### Swatch
-Component tree **locked**; agent may only change **design tokens**. Contrast is **computed** (not LLM-judged); `apply_token` refuses on fail; publish gated.  
-Optional small codegen blob = UI→code beat without a full Specimen studio.  
-**Do not claim:** Figma/axe replacement.
+| Rank | Idea | Why |
+|---|---|---|
+| **1** | **Legend** | Meta story judges respect; Play + gated `registerTool` export; secure-tools hygiene on camera; not a showcase clone |
+| **2** | **Swatch** | Constraint is the product (tokens only + computed contrast); optional light codegen; engineers lean in |
+| **3** | **Palimpsest** | Instant memorable demo (page goes blank); tiny surface area; human pin is load-bearing |
+| **4** | **Holdfire** | Clearest dual-control ops story; fixture-easy; lower creativity than Legend/Swatch |
+| **5** | **Phosphor** | Visual wow + failed `bend_tube` repair; watch toy-risk in first 15s of video |
 
----
+### Tier B — strong but pick only if you love the vibe
 
-## Still cooking
-
-| Lane | Agent |
+| Idea | Note |
 |---|---|
-| Social / local / education | [social](8fbc5b19-cc4d-443c-a080-7852f4ba4abf) |
+| **Ward Purse** | Civic lock→rebalance is clever; can look like a dashboard if pie is weak |
+| **Stoop** | High creativity; medium risk of “tiny WanderNote” |
+| **Tombstone** | Visceral; map UI costs a day vs Holdfire |
+| **Rehearsal** | Highest creative novelty; timeline UI can eat the week |
+| **Rumor Block** / **Mise** | Sticky Friday memories; easier to dismiss as toys |
 
-Plus earlier seeds: Specimen · Countersign · A11y Pair · Brainstorm board.
+### Tier C — keep as fallback only
+
+| Idea | Note |
+|---|---|
+| **Countersign** | Already scoped; weaker “haven’t seen before” |
+| **Specimen** | Overlaps Swatch/Legend; easy to overclaim “any site → code” |
 
 ---
 
-## Not locked yet
+## Recommendation
 
-Do not change `SCOPE.md` until a full merge + your pick.
+**Lock Legend** unless you strongly prefer a visceral toy (**Palimpsest**) or a design-system constraint (**Swatch**).
+
+- **Legend** maximizes judge-fit (spec, tools, export, gate) without looking like Paperie/Margin/Verdant.  
+- **Swatch** if you want the UI→code / design energy without a full Specimen studio.  
+- **Palimpsest** if the demo must be unforgettable in 10 seconds and you want the smallest build.
+
+Do **not** build two. Withdraw Countersign from `SCOPE.md` only after you pick.
+
+---
+
+## From [social](8fbc5b19-cc4d-443c-a080-7852f4ba4abf) — done
+
+### Ward Purse
+Civic pie + project cards; padlocks force `rebalance`. Publish gated.
+
+### Stoop
+Six-building blockface; pins from fixture WhatsApp; you drag corrections; gated digest post.
+
+---
+
+## Prior lane notes (condensed)
+
+See git history of this file for full tool tables from weird / creative / ops / meta probes.
