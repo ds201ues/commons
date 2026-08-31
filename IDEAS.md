@@ -46,15 +46,46 @@ Lane note: pick **one** of Phosphor / Rehearsal — not both.
 
 ---
 
+## From [ops](91cf45f0-bc63-4270-9d3c-2b2910679464) — done
+
+Stage → authorize → gated commit (same beat as Countersign, different object).
+
+### Holdfire
+Incident board: agent stages rollback/page; **`execute_action` gated**.  
+Tools: `get_incident`, `list_signals`, `simulate_change`, `stage_action`, `request_authorize`, `execute_action`.  
+Buildability ~8 with fixtures. **Kill if** real Datadog/PagerDuty wiring starts.
+
+### Tombstone
+Erasure map: agent finds copies of a synthetic person; **`commit_erasure` irreversible + gated**.  
+Legal-hold as structured blocker. Buildability ~7. **Kill if** real PII/connectors.
+
+Lane note: Holdfire = safer Execution; Tombstone = more visceral. Not both.
+
+---
+
+## From [devtools](cea525f9-c66e-42ff-8af7-f06efb9dbd64) — done
+
+Aimed at Chrome / MCP-B / OpenAI browser / Next judges.
+
+### Legend
+Co-author a **capability map** on a live fixture UI → Play tools → gated export of `registerTool` stubs (+ secure-tools hints).  
+Tools: `get_page_map`, `propose_region`, `bind_capability`, `set_side_effect`, `run_play`, `export_tools` (gated).  
+**Do not claim:** infers tools from arbitrary production sites.
+
+### Swatch
+Component tree **locked**; agent may only change **design tokens**. Contrast is **computed** (not LLM-judged); `apply_token` refuses on fail; publish gated.  
+Optional small codegen blob = UI→code beat without a full Specimen studio.  
+**Do not claim:** Figma/axe replacement.
+
+---
+
 ## Still cooking
 
 | Lane | Agent |
 |---|---|
-| Serious / trust / ops | [ops](91cf45f0-bc63-4270-9d3c-2b2910679464) |
-| Meta / UI→code / a11y | [devtools](cea525f9-c66e-42ff-8af7-f06efb9dbd64) |
 | Social / local / education | [social](8fbc5b19-cc4d-443c-a080-7852f4ba4abf) |
 
-Plus earlier shortlist seeds: Specimen (UI→code) · Countersign · A11y Pair · Brainstorm board.
+Plus earlier seeds: Specimen · Countersign · A11y Pair · Brainstorm board.
 
 ---
 
