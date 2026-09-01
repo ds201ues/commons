@@ -20,13 +20,13 @@ export function PacketPanel({ packet }: Props) {
   const comments = packet.comments ?? [];
 
   return (
-    <article className="packet">
+    <article className="packet" aria-label={isOpen ? "Now deciding" : "Decision"}>
       <header className="packet__header">
         <p
           className={`packet__status packet__status--${packet.status}`}
           aria-label={`Decision status: ${packet.status}`}
         >
-          {isOpen ? "Open" : packet.status === "decided" ? "Closed" : packet.status}
+          {isOpen ? "Now deciding" : packet.status === "decided" ? "Closed" : packet.status}
         </p>
         <h1>{packet.question}</h1>
       </header>

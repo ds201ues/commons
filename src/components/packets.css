@@ -744,6 +744,15 @@
   margin: 0;
 }
 
+.decisions-wall__sub {
+  margin: 0.15rem 0 0;
+  font-size: 0.76rem;
+  color: var(--text-dim);
+  letter-spacing: 0;
+  text-transform: none;
+  font-family: var(--font-body);
+}
+
 .decisions-wall__tally {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -751,11 +760,97 @@
   font-variant-numeric: tabular-nums;
 }
 
-.decisions-wall__empty {
+/* Owner: open a decision outside contribute tabs */
+.open-decision {
   margin: 0;
+}
+
+.open-decision__link {
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  font-size: 0.82rem;
+  color: var(--owner);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.open-decision__link:hover {
+  opacity: 0.85;
+}
+
+.open-decision__link:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: 2px;
+}
+
+.open-decision__hint {
+  margin: 0 0 0.45rem;
   font-size: 0.82rem;
   color: var(--text-dim);
-  line-height: 1.45;
+}
+
+.open-decision__form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  align-items: center;
+}
+
+.open-decision__form input {
+  flex: 1 1 12rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0.4rem 0.55rem;
+  font: inherit;
+  font-size: 0.88rem;
+  color: var(--canvas-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--hairline-strong);
+  border-radius: 0;
+}
+
+.open-decision__form input:focus {
+  outline: none;
+  border-bottom-color: var(--owner);
+}
+
+.open-decision__form button[type="submit"] {
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 0.35rem 0.75rem;
+  color: #fff;
+  background: var(--owner);
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.open-decision__form button[type="submit"]:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.open-decision__cancel {
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+  padding: 0.35rem 0.4rem;
+}
+
+.open-decision__error {
+  margin: 0.4rem 0 0;
+  font-size: 0.8rem;
+  color: var(--stamp);
 }
 
 .decisions-wall__ledger {

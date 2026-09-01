@@ -5,6 +5,7 @@ import { AboutModal } from "@/components/about-modal";
 import { DecideBar } from "@/components/decide-bar";
 import { DecisionsWall } from "@/components/decisions-wall";
 import { DocEditor } from "@/components/doc-editor";
+import { OpenDecisionControl } from "@/components/open-decision-control";
 import { PacketActions } from "@/components/packet-actions";
 import { PacketList } from "@/components/packet-list";
 import { PacketPanel } from "@/components/packet-panel";
@@ -198,8 +199,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   }
 
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
-  const openDecisions = room.packets.filter((p) => p.status === "open");
-  const closedDecisions = room.packets.filter((p) => p.status === "decided");
+  const hasOpenDecision = room.packets.some((p) => p.status === "open");
 
   return (
     <div className={`room shell seat-${seat}`}>
@@ -331,13 +331,19 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
 
           {openPacket ? (
             <PacketPanel packet={openPacket} />
-          ) : (
-            <p className="empty rail-empty">
-              No open decision. Use <strong>New decision</strong> in the composer below.
-            </p>
-          )}
+          ) : seat !== "owner" ? (
+            <p className="empty rail-empty">No open decision in this room yet.</p>
+          ) : null}
 
-          {/* Contribute → Decide → Tasks → Wall (closed calls only) */}
+          {seat === "owner" ? (
+            <OpenDecisionControl
+              roomId={roomId}
+              hasOpenDecision={hasOpenDecision}
+              onUpdated={setRoom}
+            />
+          ) : null}
+
+          {/* Contribute → Decide → Tasks → Closed */}
           <PacketActions
             roomId={roomId}
             seat={seat}
@@ -365,9 +371,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             onUpdated={setRoom}
           />
 
-          {closedDecisions.length > 0 ? (
-            <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
-          ) : null}
+          <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
         </aside>
       </div>
 

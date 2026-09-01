@@ -128,10 +128,8 @@ export function DecideBar({
         <h2 className="decide-bar__title">Decide</h2>
       </div>
       {packet.options.length === 0 ? (
-        <p className="decide-bar__subtitle">Propose an option above, then stamp the call.</p>
-      ) : (
-        <p className="decide-bar__subtitle">Pick an option and stamp — agents cannot Decide.</p>
-      )}
+        <p className="decide-bar__subtitle">Propose an option above, then stamp.</p>
+      ) : null}
       {optionPills}
       <div className="decide-bar__actions">
         {stampButton}

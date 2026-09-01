@@ -13,7 +13,7 @@ type Props = {
 };
 
 function intentNeedsPacket(op: Op): boolean {
-  return op !== "open_decision" && op !== "add_task";
+  return op !== "add_task";
 }
 
 type OpsJson = {
@@ -47,13 +47,6 @@ const OWNER_INTENTS: Intent[] = [
     label: "Evidence",
     placeholder: "Fact or citation that informs the call",
     submitLabel: "Attach",
-  },
-  {
-    id: "open_decision",
-    op: "open_decision",
-    label: "New decision",
-    placeholder: "What should we decide next?",
-    submitLabel: "Open",
   },
   {
     id: "task",
@@ -104,7 +97,7 @@ export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
     const all = seat === "owner" ? OWNER_INTENTS : CONTRIBUTOR_INTENTS;
     return hasOpenPacket ? all : all.filter((i) => !intentNeedsPacket(i.op));
   }, [seat, hasOpenPacket]);
-  const [intentId, setIntentId] = useState(intents[0]?.id ?? "open_decision");
+  const [intentId, setIntentId] = useState(intents[0]?.id ?? "propose");
   const [text, setText] = useState("");
   const [rationale, setRationale] = useState("");
   const [assignee, setAssignee] = useState<Seat>(seat === "owner" ? "contributor" : "owner");
@@ -149,9 +142,6 @@ export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
       case "request_evidence":
         if (!openPacket) return;
         input = { packetId: openPacket.id, what: value };
-        break;
-      case "open_decision":
-        input = { question: value };
         break;
       case "add_task":
         input = { text: value, assignee };

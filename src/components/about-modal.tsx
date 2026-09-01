@@ -25,7 +25,7 @@ const STEPS = [
   {
     n: "3",
     title: "A human closes the call",
-    body: "Decide is never a registered tool. The stamped call goes to the Decisions Wall.",
+    body: "Decide is never a registered tool. Stamped calls land in Closed — the room’s ledger.",
   },
 ];
 
