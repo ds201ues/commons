@@ -68,6 +68,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
             as: seat,
+            via: "human",
             op: "edit_doc",
             input: { markdown },
           }),

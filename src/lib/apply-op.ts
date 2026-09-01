@@ -1,4 +1,5 @@
 import { randomBytes } from "node:crypto";
+import { resolveOpenPacketId } from "./active-packet";
 import { OpError } from "./errors";
 import { fixtureRoom, isFixtureRoomId } from "./fixture";
 import { normalizeRoom } from "./normalize-room";
@@ -76,13 +77,20 @@ function findPacket(room: Room, packetId: string): Packet {
   return packet;
 }
 
-function appendPatch(room: Room, seat: ApplyOpRequest["seat"], op: Op, summary: string): void {
+function appendPatch(
+  room: Room,
+  seat: ApplyOpRequest["seat"],
+  op: Op,
+  summary: string,
+  via: ApplyOpRequest["via"] = "human",
+): void {
   room.log.push({
     seq: room.nextSeq,
     at: nowIso(),
     seat,
     op,
     summary,
+    via: via === "agent" ? "agent" : "human",
   });
   room.nextSeq += 1;
 }
@@ -112,10 +120,13 @@ export async function applyOp(
     throw new OpError("not_found", `Room ${req.roomId} does not exist.`);
   }
 
+  const via = req.via === "agent" ? "agent" : "human";
+  const log = (op: Op, summary: string) => appendPatch(room, req.seat, op, summary, via);
+
   if (req.op === "rename_room") {
     const title = requireText(req.input, "title").slice(0, 120);
     room.title = title;
-    appendPatch(room, req.seat, req.op, `Renamed the room: ${title}`);
+    log(req.op, `Renamed the room: ${title}`);
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { title } };
   }
@@ -123,7 +134,7 @@ export async function applyOp(
   if (req.op === "edit_doc") {
     const markdown = requireText(req.input, "markdown");
     room.docMarkdown = markdown;
-    appendPatch(room, req.seat, req.op, "Edited the document");
+    log(req.op, "Edited the document");
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { chars: String(markdown.length) } };
   }
@@ -141,7 +152,7 @@ export async function applyOp(
       comments: [],
     };
     room.packets.push(packet);
-    appendPatch(room, req.seat, req.op, `Opened decision: ${question}`);
+    log(req.op, `Opened decision: ${question}`);
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { packetId: packet.id } };
   }
@@ -160,7 +171,7 @@ export async function applyOp(
       at: nowIso(),
     };
     room.tasks.push(task);
-    appendPatch(room, req.seat, req.op, `Task for ${assignee}: ${text}`);
+    log(req.op, `Task for ${assignee}: ${text}`);
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { taskId: task.id } };
   }
@@ -172,9 +183,7 @@ export async function applyOp(
       throw new OpError("not_found", `Task ${taskId} is not in this room.`);
     }
     task.done = !task.done;
-    appendPatch(
-      room,
-      req.seat,
+    log(
       req.op,
       task.done ? `Completed: ${task.text}` : `Reopened: ${task.text}`,
     );
@@ -182,7 +191,15 @@ export async function applyOp(
     return { ok: true, room, result: { taskId, done: String(task.done) } };
   }
 
-  const packetId = requireText(req.input, "packetId");
+  let packetId: string;
+  try {
+    packetId = resolveOpenPacketId(room, req.input.packetId);
+  } catch {
+    throw new OpError(
+      "not_found",
+      "No open decision. Open one first, or pass packetId from get_workspace.openPackets.",
+    );
+  }
   const packet = findPacket(room, packetId);
   if (packet.status !== "open") {
     throw new OpError(
@@ -203,7 +220,7 @@ export async function applyOp(
         authorSeat: req.seat,
       };
       packet.comments.push(row);
-      appendPatch(room, req.seat, req.op, `Commented: ${text}`);
+      log(req.op, `Commented: ${text}`);
       result = { packetId, commentId: row.id };
       break;
     }
@@ -217,7 +234,7 @@ export async function applyOp(
         authorSeat: req.seat,
       };
       packet.options.push(option);
-      appendPatch(room, req.seat, req.op, `Proposed option: ${label}`);
+      log(req.op, `Proposed option: ${label}`);
       result = { packetId, optionId: option.id };
       break;
     }
@@ -229,7 +246,7 @@ export async function applyOp(
         authorSeat: req.seat,
       };
       packet.evidence.push(evidence);
-      appendPatch(room, req.seat, req.op, `Attached evidence`);
+      log(req.op, `Attached evidence`);
       result = { packetId, evidenceId: evidence.id };
       break;
     }
@@ -241,7 +258,7 @@ export async function applyOp(
         authorSeat: req.seat,
       };
       packet.challenges.push(challenge);
-      appendPatch(room, req.seat, req.op, `Challenged an assumption`);
+      log(req.op, `Challenged an assumption`);
       result = { packetId, challengeId: challenge.id };
       break;
     }
@@ -253,7 +270,7 @@ export async function applyOp(
         authorSeat: req.seat,
       };
       packet.requests.push(request);
-      appendPatch(room, req.seat, req.op, `Requested evidence`);
+      log(req.op, `Requested evidence`);
       result = { packetId, requestId: request.id };
       break;
     }
@@ -287,7 +304,7 @@ export async function applyOp(
         decidedBySeat: req.seat,
         at: nowIso(),
       };
-      appendPatch(room, req.seat, req.op, `Decided: ${option.label}`);
+      log(req.op, `Decided: ${option.label}`);
       result = { packetId, optionId };
       break;
     }

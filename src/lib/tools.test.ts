@@ -105,6 +105,24 @@ describe("workspaceSnapshot", () => {
     expect(out).toContain('"present"');
     expect(out).toContain("party-live");
   });
+
+  it("lists openPackets and points activePacketId at the newest open", () => {
+    const room = fixtureRoom();
+    room.packets.push({
+      id: "pkt-newer",
+      question: "Newest open?",
+      status: "open",
+      options: [],
+      evidence: [],
+      challenges: [],
+      requests: [],
+      comments: [],
+    });
+    const out = workspaceSnapshot(room);
+    expect(out).toContain('"openPackets"');
+    expect(out).toContain('"activePacketId":"pkt-newer"');
+    expect(out).toContain("Newest open?");
+  });
 });
 
 describe("webmcp-registrar isolation", () => {

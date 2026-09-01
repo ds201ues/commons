@@ -33,6 +33,7 @@ export function OpenDecisionControl({ roomId, hasOpenDecision, onUpdated }: Prop
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
           as: "owner",
+          via: "human",
           op: "open_decision",
           input: { question: value },
         }),

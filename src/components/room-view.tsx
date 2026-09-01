@@ -12,6 +12,7 @@ import { ShareModal } from "@/components/share-modal";
 import { TasksPanel } from "@/components/tasks-panel";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
+import { openPackets, pickUiActivePacket } from "@/lib/active-packet";
 import { canStickyDecide } from "@/lib/decide-sticky";
 import { liveParties, shortPartyLabel } from "@/lib/presence";
 import type { Party, PersistMode, Room, Seat } from "@/lib/types";
@@ -53,15 +54,14 @@ const CONTRIBUTOR_CAPABILITIES: Capability[] = [
   { label: "Complete tasks", tool: "complete_task" },
 ];
 
-function roleLabel(seat: Seat): string {
-  return seat === "owner" ? "Owner" : "Contributor";
-}
-
 export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [room, setRoom] = useState(initialRoom);
   const [shareOpen, setShareOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [highlightPacketId, setHighlightPacketId] = useState<string | null>(null);
+  const [activePacketId, setActivePacketId] = useState<string | null>(
+    () => pickUiActivePacket(initialRoom)?.id ?? null,
+  );
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("light");
@@ -173,7 +173,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       const res = await fetch(`/api/rooms/${roomId}/ops`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ as: seat, op: "rename_room", input: { title } }),
+        body: JSON.stringify({
+          as: seat,
+          via: "human",
+          op: "rename_room",
+          input: { title },
+        }),
       });
       const json = (await res.json()) as { ok: boolean; room?: Room };
       if (json.ok && json.room) setRoom(json.room);
@@ -184,7 +189,21 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   }
 
   const present = useMemo(() => liveParties(room.parties), [room.parties]);
-  const openPacket = room.packets.find((p) => p.status === "open") ?? room.packets[0];
+  const opens = useMemo(() => openPackets(room), [room]);
+
+  useEffect(() => {
+    if (opens.length === 0) {
+      setActivePacketId(null);
+      return;
+    }
+    if (activePacketId && opens.some((p) => p.id === activePacketId)) return;
+    setActivePacketId(pickUiActivePacket(room)?.id ?? null);
+  }, [opens, activePacketId, room]);
+
+  const openPacket =
+    opens.find((p) => p.id === activePacketId) ??
+    pickUiActivePacket(room) ??
+    room.packets[0];
   const stickyDecide = canStickyDecide(openPacket);
 
   function handleDecided(packetId: string) {
@@ -238,28 +257,42 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           ) : (
             <h1 className="room-title">{room.title}</h1>
           )}
-          <span className="role-badge">{roleLabel(seat)}</span>
-          <ul className="presence" aria-label="People in this room">
+          <ul className="presence presence--circles" aria-label="People in this room">
             {present.length === 0 ? (
-              <li className="presence__chip presence__chip--empty">Just you</li>
+              <li
+                className={`presence__avatar presence__avatar--${seat} presence__avatar--self`}
+                title={`You · ${seat}`}
+              >
+                <span className="presence__initial">Y</span>
+              </li>
             ) : (
               present.map((party) => {
                 const mine = selfPartyId === party.id;
-                const label =
-                  party.seat === "owner"
-                    ? mine
-                      ? "You · Owner"
-                      : "Owner"
-                    : mine
-                      ? `You · ${shortPartyLabel(party.id)}`
-                      : `C · ${shortPartyLabel(party.id)}`;
+                const agent = party.lastActor === "agent";
+                const initial =
+                  party.seat === "owner" ? (mine ? "Y" : "O") : mine ? "Y" : "C";
+                const title = [
+                  mine ? "You" : party.seat === "owner" ? "Owner" : `Contributor · ${shortPartyLabel(party.id)}`,
+                  agent ? "Agent active" : "Human",
+                ].join(" · ");
                 return (
                   <li
                     key={party.id}
-                    className={`presence__chip presence__chip--${party.seat}${mine ? " presence__chip--self" : ""}`}
-                    title={`${party.seat} · ${party.id}`}
+                    className={[
+                      "presence__avatar",
+                      `presence__avatar--${party.seat}`,
+                      mine ? "presence__avatar--self" : "",
+                      agent ? "presence__avatar--agent" : "",
+                    ]
+                      .filter(Boolean)
+                      .join(" ")}
+                    title={title}
                   >
-                    {label}
+                    <span className="presence__initial">{initial}</span>
+                    {agent ? (
+                      <span className="presence__agent-dot" aria-hidden="true" />
+                    ) : null}
+                    <span className="visually-hidden">{title}</span>
                   </li>
                 );
               })
@@ -326,15 +359,13 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
         </div>
 
         <aside className="room-desk__rail" aria-label="Decision surface">
-          <PacketList packets={room.packets} />
+          <PacketList
+            packets={room.packets}
+            activePacketId={activePacketId}
+            onSelect={setActivePacketId}
+          />
 
-          {openPacket ? (
-            <PacketPanel packet={openPacket} />
-          ) : seat !== "owner" ? (
-            <p className="empty rail-empty">No open decision in this room yet.</p>
-          ) : null}
-
-          {/* Tabs: Options | Evidence | Tasks | Decisions → Decide → Tasks list */}
+          {/* Tabs → Tasks list → Now deciding (below tasks) → Decide */}
           <ContributeRail
             roomId={roomId}
             seat={seat}
@@ -344,6 +375,19 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             highlightPacketId={highlightPacketId}
             onUpdated={setRoom}
           />
+
+          <TasksPanel
+            roomId={roomId}
+            seat={seat}
+            tasks={room.tasks ?? []}
+            onUpdated={setRoom}
+          />
+
+          {openPacket ? (
+            <PacketPanel packet={openPacket} />
+          ) : seat !== "owner" ? (
+            <p className="empty rail-empty">No open decision in this room yet.</p>
+          ) : null}
 
           {openPacket?.status === "open" && !stickyDecide ? (
             <div className="decide-zone">
@@ -357,13 +401,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
               />
             </div>
           ) : null}
-
-          <TasksPanel
-            roomId={roomId}
-            seat={seat}
-            tasks={room.tasks ?? []}
-            onUpdated={setRoom}
-          />
         </aside>
       </div>
 

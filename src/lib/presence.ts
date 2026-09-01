@@ -1,4 +1,4 @@
-import type { Party, Room, Seat } from "./types";
+import type { ActorKind, Party, Room, Seat } from "./types";
 
 /** Consider a party "in the room" if they heartbeated within this window. */
 export const LIVE_MS = 45_000;
@@ -31,9 +31,16 @@ export function touchParty(
   partyId: string,
   seat: Seat,
   nowIso = new Date().toISOString(),
+  lastActor?: ActorKind,
 ): Room {
   const nowMs = Date.parse(nowIso);
-  const next: Party = { id: partyId, seat, lastSeenAt: nowIso };
+  const previous = (room.parties ?? []).find((p) => p.id === partyId);
+  const next: Party = {
+    id: partyId,
+    seat,
+    lastSeenAt: nowIso,
+    lastActor: lastActor ?? previous?.lastActor,
+  };
   const retained = (room.parties ?? []).filter((p) => {
     if (p.id === partyId) return false;
     const at = Date.parse(p.lastSeenAt);

@@ -22,25 +22,57 @@
   list-style: none;
   padding: 0;
   margin: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1.25rem;
+  display: grid;
+  gap: 0.15rem;
 }
 
 .packet-list__item {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0.35rem 0.15rem;
   font-size: 0.88rem;
   line-height: 1.35;
   color: var(--canvas-ink);
-  max-width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  cursor: pointer;
+}
+
+.packet-list__item:hover {
+  color: var(--owner);
+}
+
+.packet-list__item--active {
+  border-bottom-color: var(--owner);
+  font-weight: 600;
 }
 
 .packet-list__item-id {
   flex-shrink: 0;
   font-family: var(--font-mono);
   font-size: 0.66rem;
+  color: var(--text-dim);
+}
+
+.packet-list__item-q {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.packet-list__item-count {
+  flex-shrink: 0;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
   color: var(--text-dim);
 }
 
@@ -674,6 +706,39 @@
   margin: 0.25rem 0 0;
 }
 
+.decide-bar--sticky.decide-bar--collapsed {
+  gap: 0.5rem;
+  padding: 0.45rem 0.75rem;
+}
+
+.decide-bar__collapsed-meta {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  white-space: nowrap;
+}
+
+.decide-bar__collapse {
+  flex-shrink: 0;
+  padding: 0.25rem 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  cursor: pointer;
+}
+
+.decide-bar__collapse:hover {
+  color: var(--canvas-ink);
+}
+
+.decide-bar--collapsed .decide-bar__collapse {
+  margin-left: auto;
+}
+
 /* ── Tasks panel (flat) ────────────────────────────────────── */
 
 .tasks-panel {
@@ -1104,6 +1169,14 @@
 
 .log__seat--contributor {
   color: var(--contributor);
+}
+
+.log__via {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--stamp);
 }
 
 .log__op {

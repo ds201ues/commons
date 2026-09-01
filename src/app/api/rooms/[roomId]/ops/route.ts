@@ -4,8 +4,10 @@ import { applyOp, peekRoom } from "@/lib/apply-op";
 import { isOpError } from "@/lib/errors";
 import { getStore, persistUnavailableBody } from "@/lib/get-store";
 import { ownerCookieName } from "@/lib/owner";
+import { partyCookieName } from "@/lib/party";
+import { touchParty } from "@/lib/presence";
 import { resolveRole } from "@/lib/role";
-import { ALL_OPS, type Op } from "@/lib/types";
+import { ALL_OPS, type ActorKind, type Op } from "@/lib/types";
 
 type Params = { params: Promise<{ roomId: string }> };
 
@@ -24,6 +26,8 @@ export async function POST(req: Request, { params }: Params) {
   const decideToken = typeof body.decideToken === "string" ? body.decideToken : undefined;
   // Fixture-only demo override. Ignored when the room has ownerTokenHash.
   const asParam = typeof body.as === "string" ? body.as : null;
+  const viaRaw = typeof body.via === "string" ? body.via : "human";
+  const via: ActorKind = viaRaw === "agent" ? "agent" : "human";
 
   const persistFail = persistUnavailableBody();
   if (persistFail) {
@@ -62,7 +66,13 @@ export async function POST(req: Request, { params }: Params) {
       op,
       input,
       decideToken,
+      via,
     });
+    const partyId = jar.get(partyCookieName(roomId))?.value ?? null;
+    if (out.ok && out.room && partyId && /^[A-Za-z0-9_-]{8,64}$/.test(partyId)) {
+      touchParty(out.room, partyId, seat, new Date().toISOString(), via);
+      await store.putRoom(roomId, out.room);
+    }
     return NextResponse.json(out);
   } catch (err) {
     if (isOpError(err)) {

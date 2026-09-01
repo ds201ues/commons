@@ -110,7 +110,7 @@ export function ContributeRail({
       const res = await fetch(`/api/rooms/${roomId}/ops`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ as: seat, op, input }),
+        body: JSON.stringify({ as: seat, via: "human", op, input }),
       });
       const json = (await res.json()) as OpsJson;
       if (!json.ok || !json.room) {

@@ -28,11 +28,12 @@ export function TasksPanel({ roomId, seat, tasks, onUpdated }: Props) {
       const res = await fetch(`/api/rooms/${roomId}/ops`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          as: seat,
-          op: "complete_task",
-          input: { taskId },
-        }),
+          body: JSON.stringify({
+            as: seat,
+            via: "human",
+            op: "complete_task",
+            input: { taskId },
+          }),
       });
       const json = (await res.json()) as OpsJson;
       if (!json.ok || !json.room) {

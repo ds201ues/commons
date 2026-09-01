@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Packet, PersistMode, Seat } from "@/lib/types";
 import "./packets.css";
 
@@ -19,6 +19,10 @@ function truncateQuestion(text: string, max = 72): string {
   return `${text.slice(0, max - 1).trimEnd()}…`;
 }
 
+function collapseStorageKey(roomId: string) {
+  return `commons_decide_collapsed_${roomId}`;
+}
+
 export function DecideBar({
   roomId,
   seat,
@@ -31,8 +35,31 @@ export function DecideBar({
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
   const persistBlocked = persist === "ephemeral";
   const disabled = pending || persistBlocked || !nonce;
+
+  useEffect(() => {
+    setSelectedOptionId(null);
+  }, [packet.id]);
+
+  useEffect(() => {
+    if (variant !== "sticky") return;
+    try {
+      setCollapsed(window.localStorage.getItem(collapseStorageKey(roomId)) === "1");
+    } catch {
+      setCollapsed(false);
+    }
+  }, [roomId, variant]);
+
+  function setCollapsedPersist(next: boolean) {
+    setCollapsed(next);
+    try {
+      window.localStorage.setItem(collapseStorageKey(roomId), next ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
 
   if (packet.status !== "open") return null;
 
@@ -104,6 +131,35 @@ export function DecideBar({
   );
 
   if (variant === "sticky") {
+    if (collapsed) {
+      return (
+        <div
+          className="decide-bar decide-bar--sticky decide-bar--collapsed"
+          role="region"
+          aria-label="Decide"
+        >
+          <span className="decide-bar__seal decide-bar__seal--compact" aria-hidden="true">
+            Human only
+          </span>
+          <p className="decide-bar__question" title={packet.question}>
+            {truncateQuestion(packet.question, 48)}
+          </p>
+          <span className="decide-bar__collapsed-meta">
+            {packet.options.length} option{packet.options.length === 1 ? "" : "s"}
+            {selectedOptionId ? " · selected" : ""}
+          </span>
+          <button
+            type="button"
+            className="decide-bar__collapse"
+            onClick={() => setCollapsedPersist(false)}
+            aria-expanded={false}
+          >
+            Expand
+          </button>
+        </div>
+      );
+    }
+
     return (
       <div className="decide-bar decide-bar--sticky" role="region" aria-label="Decide">
         <span className="decide-bar__seal decide-bar__seal--compact" aria-hidden="true">
@@ -114,6 +170,15 @@ export function DecideBar({
         </p>
         {optionPills}
         {stampButton}
+        <button
+          type="button"
+          className="decide-bar__collapse"
+          onClick={() => setCollapsedPersist(true)}
+          aria-expanded={true}
+          title="Collapse to a single line"
+        >
+          Minimize
+        </button>
         {errorBlock}
       </div>
     );

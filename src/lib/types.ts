@@ -1,5 +1,8 @@
 export type Seat = "owner" | "contributor";
 
+/** Who performed a write — UI humans vs WebMCP agents (same seat cookie). */
+export type ActorKind = "human" | "agent";
+
 export type PacketStatus = "open" | "decided" | "withdrawn";
 
 export type Op =
@@ -78,6 +81,8 @@ export type Patch = {
   seat: Seat
   op: string
   summary: string
+  /** Omitted on legacy rows — treat as human. */
+  via?: ActorKind
 };
 
 /** Per-browser visitor identity stored on the room (presence + audit). */
@@ -85,6 +90,8 @@ export type Party = {
   id: string
   seat: Seat
   lastSeenAt: string
+  /** Last writer on this browser (human UI vs WebMCP agent). */
+  lastActor?: ActorKind
 };
 
 export type Room = {
@@ -114,6 +121,8 @@ export type ApplyOpRequest = {
   op: Op
   input: Record<string, string>
   decideToken?: string
+  /** Defaults to human when omitted. */
+  via?: ActorKind
 };
 
 export type OpErrorCode =

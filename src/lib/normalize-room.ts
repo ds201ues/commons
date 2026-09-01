@@ -56,10 +56,13 @@ export function normalizeRoom(room: Room): Room {
         id: p.id,
         seat: coerceSeat(p.seat),
         lastSeenAt: typeof p.lastSeenAt === "string" ? p.lastSeenAt : "",
+        lastActor:
+          p.lastActor === "agent" || p.lastActor === "human" ? p.lastActor : undefined,
       })),
     log: (room.log ?? []).map((row) => ({
       ...row,
       seat: coerceSeat(row.seat),
+      via: row.via === "agent" || row.via === "human" ? row.via : undefined,
     })),
   };
 }
