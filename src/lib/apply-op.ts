@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { OpError } from "./errors";
 import { fixtureRoom, isFixtureRoomId } from "./fixture";
+import { normalizeRoom } from "./normalize-room";
 import type { RoomStore } from "./store";
 import {
   ALL_OPS,
@@ -31,14 +32,14 @@ function requireText(input: Record<string, string>, key: string): string {
 
 export async function peekRoom(store: RoomStore, roomId: string): Promise<Room | null> {
   const existing = await store.getRoom(roomId);
-  if (existing) return existing;
+  if (existing) return normalizeRoom(existing);
   if (!isFixtureRoomId(roomId)) return null;
   return fixtureRoom();
 }
 
 export async function loadRoom(store: RoomStore, roomId: string): Promise<Room | null> {
   const existing = await store.getRoom(roomId);
-  if (existing) return existing;
+  if (existing) return normalizeRoom(existing);
   if (!isFixtureRoomId(roomId)) return null;
   const seeded = fixtureRoom();
   await store.putRoom(roomId, seeded);
