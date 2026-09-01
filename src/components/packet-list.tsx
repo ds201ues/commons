@@ -9,11 +9,11 @@ export function PacketList({ packets }: Props) {
   const open = packets.filter((p) => p.status === "open");
 
   return (
-    <nav className="packet-list" aria-label="Open packets">
-      <h2>Open packets</h2>
+    <nav className="packet-list" aria-label="Open decisions">
+      <h2>Open decisions</h2>
       {open.length === 0 ? (
         <p className="packet-list__empty">
-          No open packets — open one below to start a decision.
+          No open decisions — start one below.
         </p>
       ) : (
         <ul className="packet-list__items">

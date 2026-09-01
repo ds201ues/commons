@@ -1,5 +1,6 @@
 import Link from "next/link";
 import "@/components/doc-editor.css";
+import "@/components/room-shell.css";
 
 export default function NotFound() {
   return (
@@ -15,12 +16,9 @@ export default function NotFound() {
         <code>?as=contributor</code> to pick your seat.
       </p>
       <div className="not-found-actions">
-        <ul className="seat-links">
-          <li>
-            <Link href="/">Back to Commons home</Link>
-            <span>Create a new room or open the fixture</span>
-          </li>
-        </ul>
+        <Link href="/" className="bar-btn">
+          Back to Commons — opens your room
+        </Link>
       </div>
     </main>
   );

@@ -95,8 +95,8 @@ export function DecideBar({
     <>
       {persistBlocked ? (
         <p className="decide-bar__error">
-          Decide is disabled on this deploy: no Upstash Redis. Packets would not
-          survive the next lambda.
+          Decide is disabled on this deploy: no Upstash Redis. The decision would
+          not survive the next lambda.
         </p>
       ) : null}
       {error ? <p className="decide-bar__error">{error}</p> : null}
@@ -128,7 +128,7 @@ export function DecideBar({
         <h2 className="decide-bar__title">Decide</h2>
       </div>
       <p className="decide-bar__subtitle">
-        Only a human on this seat can close the packet. Decide is not a tool.
+        Only a human on this seat can close this decision. Decide is not a tool.
       </p>
       {optionPills}
       <div className="decide-bar__actions">

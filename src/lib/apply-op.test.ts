@@ -46,7 +46,7 @@ describe("applyOp", () => {
       ["propose_option", { packetId: FIXTURE_PACKET_ID, label: "Hold" }],
       ["attach_evidence", { packetId: FIXTURE_PACKET_ID, text: "A note" }],
       ["edit_doc", { markdown: "# Changed" }],
-      ["open_packet", { question: "A new question?" }],
+      ["open_decision", { question: "A new question?" }],
     ] as const) {
       await expect(
         applyOp(db, {
@@ -114,11 +114,11 @@ describe("applyOp", () => {
     });
   });
 
-  it("lets the owner open an empty decision packet", async () => {
+  it("lets the owner open an empty decision", async () => {
     const out = await applyOp(store(), {
       roomId: FIXTURE_ROOM_ID,
       seat: "owner",
-      op: "open_packet",
+      op: "open_decision",
       input: { question: "  Which launch window?  " },
     });
     const packet = out.room.packets.at(-1);
@@ -133,7 +133,7 @@ describe("applyOp", () => {
     });
     expect(packet?.id).toMatch(/^pkt-/);
     expect(out.result.packetId).toBe(packet?.id);
-    expect(out.room.log.at(-1)?.summary).toBe("Opened packet: Which launch window?");
+    expect(out.room.log.at(-1)?.summary).toBe("Opened decision: Which launch window?");
   });
 
   it.each(["owner", "contributor"] as const)(

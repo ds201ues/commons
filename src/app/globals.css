@@ -1,6 +1,7 @@
-/* Commons — workshop desk for decisions */
+/* Commons — flat canvas for decisions. No cards: hairlines separate sections. */
 
 :root {
+  color-scheme: dark;
   --bg: #0f1419;
   --bg-elev: #1a222c;
   --paper: #f7f3ea;
@@ -15,6 +16,11 @@
   --owner: var(--accent);
   --contributor: var(--accent-2);
   --card: var(--paper);
+
+  /* flat-canvas tokens */
+  --hairline: color-mix(in srgb, var(--paper) 13%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--paper) 26%, transparent);
+  --text-dim: color-mix(in srgb, var(--paper) 62%, transparent);
 
   --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
   --font-body: var(--font-figtree), "Figtree", system-ui, sans-serif;
@@ -79,7 +85,7 @@ a {
   color: inherit;
 }
 
-/* ── shared utilities (for components) ── */
+/* ── shared utilities ── */
 
 .focus-ring:focus-visible {
   outline: none;
@@ -126,26 +132,6 @@ a {
   background: color-mix(in srgb, var(--accent) 88%, #fff);
 }
 
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--rule);
-}
-
-.btn-ghost:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--rule) 35%, transparent);
-  border-color: var(--ink);
-}
-
-.card {
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-paper);
-  padding: 1.25rem 1.35rem 1.5rem;
-}
-
 .eyebrow {
   margin: 0;
   font-family: var(--font-mono);
@@ -153,17 +139,16 @@ a {
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--muted);
+  color: var(--text-dim);
 }
 
 .empty-state,
 .empty {
-  color: var(--muted);
-  font-style: italic;
+  color: var(--text-dim);
   font-size: 0.9rem;
 }
 
-/* decision stamp — signature closed-state treatment */
+/* decision stamp — signature closed-state treatment, the one flourish on the flat canvas */
 .stamp,
 .stamp-mark {
   position: relative;
@@ -180,7 +165,7 @@ a {
   border: 3px double var(--stamp);
   border-radius: 3px;
   box-shadow: var(--shadow-stamp);
-  background: color-mix(in srgb, var(--stamp) 6%, var(--paper));
+  background: color-mix(in srgb, var(--stamp) 6%, transparent);
 }
 
 .stamp::before,
@@ -197,9 +182,13 @@ a {
 
 .landing,
 .room {
-  max-width: 980px;
+  max-width: 1100px;
   margin: 0 auto;
-  padding: 2.75rem 1.5rem 5rem;
+  padding: 0 1.5rem 4rem;
+}
+
+.landing {
+  padding-top: 2.75rem;
 }
 
 .brand {
@@ -210,7 +199,7 @@ a {
   text-transform: uppercase;
   font-size: 0.78rem;
   font-weight: 800;
-  margin: 0 0 1.25rem;
+  margin: 0;
   color: color-mix(in srgb, var(--paper) 75%, var(--accent));
 }
 
@@ -223,196 +212,17 @@ a {
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 35%, transparent);
 }
 
-.landing h1,
-.room h1 {
-  font-size: clamp(2rem, 5vw, 2.75rem);
-  line-height: 1.08;
-  margin: 0 0 0.75rem;
-  color: var(--paper);
-}
-
-.lede,
-.tools-hint {
-  color: color-mix(in srgb, var(--paper) 68%, var(--muted));
+.lede {
+  color: var(--text-dim);
   font-size: 1.05rem;
   max-width: 38rem;
   line-height: 1.6;
 }
 
-/* ── landing seat links ── */
-
-.seat-links {
-  list-style: none;
-  padding: 0;
-  display: grid;
-  gap: 0.85rem;
-  margin-top: 2rem;
-}
-
-.seat-links a {
-  display: block;
-  padding: 1rem 1.15rem;
-  text-decoration: none;
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-paper);
-  transition:
-    transform var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.seat-links a:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lift);
-}
-
-.seat-links a:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring), var(--shadow-paper);
-}
-
-.seat-links strong,
-.seat-links a {
-  font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 700;
-}
-
-.seat-links span {
-  display: block;
-  color: var(--muted);
-  margin-top: 0.3rem;
-  font-size: 0.82rem;
-  font-family: var(--font-body);
-  font-weight: 400;
-}
-
-/* ── room chrome ── */
-
-.seat-chrome {
-  display: grid;
-  gap: 0.4rem;
-  margin-bottom: 1.75rem;
-  padding-bottom: 1.25rem;
-  border-bottom: 1px dashed color-mix(in srgb, var(--paper) 22%, transparent);
-}
-
-.seat-label {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 3.5vw, 1.85rem);
-  font-weight: 700;
-  margin: 0;
-  color: var(--paper);
-}
-
-.seat-owner .seat-label {
-  color: color-mix(in srgb, var(--accent) 55%, var(--paper));
-}
-
-.seat-contributor .seat-label {
-  color: color-mix(in srgb, var(--accent-2) 50%, var(--paper));
-}
-
-/* ── paper islands (content cards on dark desk) ── */
-
-.packet-list,
-.decisions-wall,
-.doc-editor,
-.packet,
-.log,
-.patch-log,
-.decide-bar,
-.packet-actions,
-.create-room {
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-paper);
-}
-
-.packet-list {
-  margin: 0 0 1.25rem;
-  padding: 1rem 1.15rem;
-}
-
-.packet-list ul {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0;
-}
-
-.packet-list li {
-  padding: 0.45rem 0;
-  border-bottom: 1px dotted color-mix(in srgb, var(--rule) 70%, transparent);
-}
-
-.packet-list li:last-child {
-  border-bottom: 0;
-}
-
-.packet-list a {
-  text-decoration: none;
-  font-weight: 600;
-  color: var(--ink);
-  transition: color var(--transition-fast);
-}
-
-.packet-list a:hover {
-  color: var(--accent);
-}
-
-.packet-list a:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: var(--radius-sm);
-}
-
-/* ── decisions wall ── */
-
-.decisions-wall {
-  margin: 0 0 1.25rem;
-  padding: 1rem 1.15rem 1.25rem;
-}
-
-.decisions-wall ol {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0;
-}
-
-.decisions-wall li {
-  background: color-mix(in srgb, var(--paper) 92%, var(--stamp) 8%);
-  border: 1px solid color-mix(in srgb, var(--rule) 80%, var(--stamp) 20%);
-  border-radius: var(--radius-md);
-  padding: 1rem 1.1rem 1.15rem;
-  margin-bottom: 0.75rem;
-}
-
-.decisions-wall li:last-child {
-  margin-bottom: 0;
-}
-
-.decisions-wall .wall-question {
-  font-family: var(--font-display);
-  font-size: 1.12rem;
-  font-weight: 600;
-  margin: 0.25rem 0 0.6rem;
-  line-height: 1.3;
-}
-
-.decisions-wall .stamp {
-  margin-top: 0.5rem;
-  font-size: 0.88rem;
-}
-
-/* ── document editor (open / writable) ── */
+/* ── document editor (flat: hairline box on the canvas) ── */
 
 .doc-editor {
-  padding: 1.35rem 1.45rem 1.55rem;
-  margin-bottom: 1.25rem;
+  padding: 0 0 0.25rem;
 }
 
 .doc-editor textarea,
@@ -420,45 +230,46 @@ a {
   width: 100%;
   min-height: 11rem;
   margin: 0;
-  padding: 1rem 1.05rem;
+  padding: 0.85rem 0.95rem;
   font-family: var(--font-body);
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-md);
+  color: var(--paper);
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
   resize: vertical;
   white-space: pre-wrap;
   word-break: break-word;
-  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.8) inset;
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.doc-editor textarea::placeholder {
+  color: color-mix(in srgb, var(--paper) 38%, transparent);
 }
 
 .doc-editor textarea:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 18%, transparent);
 }
 
 .doc-editor-actions {
   display: flex;
   flex-wrap: wrap;
   gap: 0.65rem;
-  margin-top: 0.85rem;
+  margin-top: 0.75rem;
 }
 
 .doc-editor button {
   font-family: var(--font-display);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 600;
   background: var(--accent);
   color: #fff;
   border: 1.5px solid color-mix(in srgb, var(--accent) 75%, #000);
   border-radius: var(--radius-sm);
-  padding: 0.55rem 1rem;
+  padding: 0.45rem 0.9rem;
   cursor: pointer;
   transition: background var(--transition-fast);
 }
@@ -477,298 +288,8 @@ a {
   cursor: not-allowed;
 }
 
-/* ── room desk (layout lives in room-shell.css) ── */
-
-/* ── decision packet (open state — airy) ── */
-
-.packet {
-  padding: 1.35rem 1.45rem 1.6rem;
-}
-
-.packet h1 {
-  font-size: clamp(1.5rem, 3vw, 1.9rem);
-  line-height: 1.15;
-  margin: 0.4rem 0 0.85rem;
-}
-
-.status {
-  display: inline-block;
-  border: 1.5px solid currentColor;
-  border-radius: var(--radius-pill);
-  padding: 0.15rem 0.6rem;
-  text-transform: uppercase;
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  font-weight: 500;
-  letter-spacing: 0.05em;
-}
-
-.status-decided {
-  color: var(--stamp);
-  background: color-mix(in srgb, var(--stamp) 8%, var(--paper));
-}
-
-.options {
-  padding-left: 1.1rem;
-}
-
-.options li {
-  margin-bottom: 0.9rem;
-  padding: 0.35rem 0.5rem;
-  border-radius: var(--radius-sm);
-  transition: background var(--transition-fast);
-}
-
-.options .picked {
-  outline: 2px solid var(--stamp);
-  outline-offset: 2px;
-  background: color-mix(in srgb, var(--stamp) 6%, var(--paper));
-  padding: 0.45rem 0.55rem;
-}
-
-.opt-id {
-  display: block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  color: var(--muted);
-  margin-bottom: 0.15rem;
-}
-
-/* ── patch log ── */
-
-.log,
-.patch-log {
-  padding: 1.1rem 1.2rem 1.3rem;
-}
-
-.log ol {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.log li {
-  display: grid;
-  grid-template-columns: 2rem 4.5rem 1fr;
-  grid-template-rows: auto auto;
-  gap: 0.2rem 0.55rem;
-  padding: 0.5rem 0;
-  border-bottom: 1px dotted color-mix(in srgb, var(--rule) 75%, transparent);
-  font-size: 0.78rem;
-}
-
-.log li:last-child {
-  border-bottom: 0;
-}
-
-.log .seq {
-  grid-row: 1 / span 2;
-  font-family: var(--font-mono);
-  color: var(--muted);
-  font-size: 0.72rem;
-}
-
-.log .seat,
-.log .op {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-}
-
-.log .sum {
-  grid-column: 2 / span 2;
-  color: var(--ink);
-}
-
-/* ── decide bar (human closes the call) ── */
-
-.decide-bar {
-  margin-top: 1.75rem;
-  padding: 1.1rem 1.2rem 1.2rem;
-  border: 2px solid var(--stamp);
-  background: color-mix(in srgb, var(--paper) 94%, var(--stamp) 6%);
-}
-
-.decide-actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.65rem;
-  margin-top: 0.8rem;
-}
-
-.decide-bar button {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 700;
-  background: var(--stamp);
-  color: #fff;
-  border: 1.5px solid color-mix(in srgb, var(--stamp) 70%, #000);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 1rem;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.decide-bar button:hover:not(:disabled) {
-  background: color-mix(in srgb, var(--stamp) 90%, #fff);
-}
-
-.decide-bar button:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.decide-bar button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* ── packet actions / forms ── */
-
-.packet-actions {
-  margin-top: 1.25rem;
-  padding: 1.1rem 1.2rem 1.25rem;
-  display: grid;
-  gap: 1rem;
-}
-
-.packet-actions h2 {
-  margin: 0 0 0.5rem;
-  font-family: var(--font-display);
-  font-size: 1.1rem;
-}
-
-.packet-actions form {
-  display: grid;
-  gap: 0.55rem;
-  padding-bottom: 0.85rem;
-  border-bottom: 1px dotted color-mix(in srgb, var(--rule) 75%, transparent);
-}
-
-.packet-actions form:last-of-type {
-  border-bottom: 0;
-  padding-bottom: 0;
-}
-
-.packet-actions label,
-.create-room label {
-  display: grid;
-  gap: 0.3rem;
-  color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 500;
-}
-
-.packet-actions input,
-.packet-actions textarea,
-.create-room input {
-  width: 100%;
-  font-family: var(--font-body);
-  font-size: 0.92rem;
-  color: var(--ink);
-  background: #fff;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.65rem;
-  transition:
-    border-color var(--transition-fast),
-    box-shadow var(--transition-fast);
-}
-
-.packet-actions input:focus,
-.packet-actions textarea:focus,
-.create-room input:focus {
-  outline: none;
-  border-color: var(--accent-2);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-2) 20%, transparent);
-}
-
-.packet-actions textarea {
-  min-height: 4.25rem;
-  resize: vertical;
-}
-
-.packet-actions button,
-.create-room button {
-  font-family: var(--font-display);
-  font-size: 0.95rem;
-  font-weight: 600;
-  background: var(--accent);
-  color: #fff;
-  border: 1.5px solid color-mix(in srgb, var(--accent) 75%, #000);
-  border-radius: var(--radius-sm);
-  padding: 0.55rem 1rem;
-  cursor: pointer;
-  justify-self: start;
-  transition: background var(--transition-fast);
-}
-
-.seat-contributor .packet-actions button {
-  background: var(--accent-2);
-  border-color: color-mix(in srgb, var(--accent-2) 75%, #000);
-}
-
-.packet-actions button:hover:not(:disabled),
-.create-room button:hover:not(:disabled) {
-  filter: brightness(1.06);
-}
-
-.packet-actions button:focus-visible,
-.create-room button:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.packet-actions button:disabled,
-.create-room button:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-/* ── create room ── */
-
-.create-room {
-  max-width: 30rem;
-  margin: 1.75rem 0 2.25rem;
-  padding: 1.2rem 1.3rem;
-  display: grid;
-  gap: 0.85rem;
-}
-
-.linkish {
-  font-family: var(--font-display);
-  font-size: 0.9rem;
-  font-weight: 600;
-  border: 1.5px solid color-mix(in srgb, var(--paper) 35%, transparent);
-  background: transparent;
-  color: var(--paper);
-  border-radius: var(--radius-sm);
-  padding: 0.45rem 0.85rem;
-  cursor: pointer;
-  transition:
-    background var(--transition-fast),
-    border-color var(--transition-fast);
-}
-
-.linkish:hover {
-  background: color-mix(in srgb, var(--paper) 8%, transparent);
-  border-color: color-mix(in srgb, var(--paper) 55%, transparent);
-}
-
-.linkish:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.share-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  align-items: center;
-  margin-top: 0.55rem;
-}
-
 .muted {
-  color: color-mix(in srgb, var(--paper) 60%, var(--muted));
+  color: var(--text-dim);
   font-size: 0.88rem;
 }
 
@@ -781,7 +302,7 @@ a {
 /* ── persist warning ── */
 
 .persist-warn {
-  max-width: 980px;
+  max-width: 1100px;
   margin: 0 auto;
   padding: 0.7rem 1.5rem;
   font-size: 0.85rem;
@@ -796,11 +317,11 @@ a {
 @media (max-width: 800px) {
   .landing,
   .room {
-    padding: 1.75rem 1rem 3.5rem;
+    padding: 0 1rem 3.5rem;
   }
 
-  .seat-links a {
-    padding: 0.9rem 1rem;
+  .landing {
+    padding-top: 1.75rem;
   }
 
   .doc-editor textarea,
@@ -825,10 +346,6 @@ a {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
-  }
-
-  .seat-links a:hover {
-    transform: none;
   }
 
   .stamp,

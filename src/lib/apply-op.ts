@@ -120,7 +120,7 @@ export async function applyOp(
     return { ok: true, room, result: { chars: String(markdown.length) } };
   }
 
-  if (req.op === "open_packet") {
+  if (req.op === "open_decision") {
     const question = requireText(req.input, "question");
     const packet: Packet = {
       id: newId("pkt"),
@@ -133,7 +133,7 @@ export async function applyOp(
       comments: [],
     };
     room.packets.push(packet);
-    appendPatch(room, req.seat, req.op, `Opened packet: ${question}`);
+    appendPatch(room, req.seat, req.op, `Opened decision: ${question}`);
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { packetId: packet.id } };
   }

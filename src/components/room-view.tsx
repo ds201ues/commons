@@ -22,8 +22,6 @@ type Props = {
   nonce?: string
   persist: PersistMode
   initialRoom: Room
-  /** Freshly created room: open the share modal on arrival. */
-  autoShare?: boolean
 };
 
 type Capability = {
@@ -34,7 +32,7 @@ type Capability = {
 const OWNER_CAPABILITIES: Capability[] = [
   { label: "Read workspace", tool: "get_workspace" },
   { label: "Edit document", tool: "edit_doc" },
-  { label: "Open packets", tool: "open_packet" },
+  { label: "Open decisions", tool: "open_decision" },
   { label: "Propose options", tool: "propose_option" },
   { label: "Attach evidence", tool: "attach_evidence" },
   { label: "Assign tasks", tool: "add_task" },
@@ -54,7 +52,7 @@ function roleLabel(seat: Seat): string {
   return seat === "owner" ? "Owner" : "Contributor";
 }
 
-export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare }: Props) {
+export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [room, setRoom] = useState(initialRoom);
   const [shareOpen, setShareOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
@@ -75,12 +73,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare 
     }, 1200);
     return () => window.clearInterval(id);
   }, [refresh]);
-
-  useEffect(() => {
-    if (!autoShare) return;
-    setShareOpen(true);
-    window.history.replaceState(null, "", window.location.pathname);
-  }, [autoShare]);
 
   useEffect(() => {
     return () => {
@@ -138,9 +130,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare 
               <button
                 type="button"
                 className="bar-btn"
-                onClick={() => focusComposer("open_packet")}
+                onClick={() => focusComposer("open_decision")}
               >
-                New packet
+                New decision
               </button>
             ) : null}
             <button
@@ -198,7 +190,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare 
           {openPacket ? (
             <PacketPanel packet={openPacket} />
           ) : (
-            <p className="empty">No packet in this room.</p>
+            <p className="empty">No open decision in this room.</p>
           )}
 
           {openPacket?.status === "open" ? (
@@ -251,7 +243,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare 
         roomId={roomId}
         onClose={() => setShareOpen(false)}
         returnFocusRef={shareBtnRef}
-        autoCopy={autoShare}
       />
 
       <AboutModal

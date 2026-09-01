@@ -39,7 +39,7 @@ export default function HomePage() {
         }
         const roomId = json.url.split("/").pop() ?? "";
         if (roomId) window.localStorage.setItem(LAST_ROOM_KEY, roomId);
-        router.replace(`${json.url}?new=1`);
+        router.replace(json.url);
       } catch {
         setError(
           "Could not open a room. Check your connection, then reload to retry.",

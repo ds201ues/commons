@@ -23,7 +23,7 @@ export function DecisionsWall({ packets, highlightPacketId }: Props) {
       {decided.length === 0 ? (
         <div className="decisions-wall__empty">
           <strong>No calls yet</strong>
-          <p>Stamp a packet to pin it here.</p>
+          <p>Stamp a decision to pin it here.</p>
         </div>
       ) : (
         <ol className="decisions-wall__ledger">

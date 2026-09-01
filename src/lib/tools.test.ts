@@ -11,7 +11,7 @@ describe("toolsForSeat", () => {
     expect(names).toEqual([
       "get_workspace",
       "edit_doc",
-      "open_packet",
+      "open_decision",
       "propose_option",
       "attach_evidence",
       "add_task",

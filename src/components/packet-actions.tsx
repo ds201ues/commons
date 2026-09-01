@@ -44,9 +44,9 @@ const OWNER_INTENTS: Intent[] = [
     submitLabel: "Attach",
   },
   {
-    id: "open_packet",
-    op: "open_packet",
-    label: "New packet",
+    id: "open_decision",
+    op: "open_decision",
+    label: "New decision",
     placeholder: "What should we decide next?",
     submitLabel: "Open",
   },
@@ -134,7 +134,7 @@ export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
       case "request_evidence":
         input = { packetId: packet.id, what: value };
         break;
-      case "open_packet":
+      case "open_decision":
         input = { question: value };
         break;
       case "add_task":

@@ -22,14 +22,13 @@ export function PacketPanel({ packet }: Props) {
   return (
     <article className="packet">
       <header className="packet__header">
-        <p className="eyebrow">Decision packet · {packet.id}</p>
-        <h1>{packet.question}</h1>
         <p
           className={`packet__status packet__status--${packet.status}`}
-          aria-label={`Packet status: ${packet.status}`}
+          aria-label={`Decision status: ${packet.status}`}
         >
           {isOpen ? "Open" : packet.status === "decided" ? "Closed" : packet.status}
         </p>
+        <h1>{packet.question}</h1>
       </header>
 
       <div className="packet__body">
@@ -39,9 +38,8 @@ export function PacketPanel({ packet }: Props) {
             <span className="packet__count">{options.length}</span>
           </div>
           {options.length === 0 ? (
-            <p className="packet__empty">
-              <strong>No options yet</strong>
-              Propose at least one path forward before this packet can be decided.
+            <p className="packet__empty-inline">
+              No options yet — propose a path forward below.
             </p>
           ) : (
             <ol className="packet__options">
@@ -54,7 +52,6 @@ export function PacketPanel({ packet }: Props) {
                       : "packet__option"
                   }
                 >
-                  <span className="packet__option-id">{opt.id}</span>
                   <strong className="packet__option-label">{opt.label}</strong>
                   {opt.body ? <p className="packet__option-body">{opt.body}</p> : null}
                 </li>
@@ -63,17 +60,12 @@ export function PacketPanel({ packet }: Props) {
           )}
         </section>
 
-        <section className="packet__section" aria-labelledby="evidence-heading">
-          <div className="packet__section-head">
-            <h2 id="evidence-heading">Evidence</h2>
-            <span className="packet__count">{evidence.length}</span>
-          </div>
-          {evidence.length === 0 ? (
-            <p className="packet__empty">
-              <strong>Nothing attached</strong>
-              Facts and citations land here — attach evidence to strengthen the record.
-            </p>
-          ) : (
+        {evidence.length > 0 ? (
+          <section className="packet__section" aria-labelledby="evidence-heading">
+            <div className="packet__section-head">
+              <h2 id="evidence-heading">Evidence</h2>
+              <span className="packet__count">{evidence.length}</span>
+            </div>
             <ul className="packet__feed">
               {evidence.map((ev) => (
                 <li key={ev.id} className="packet__feed-item packet__feed-item--evidence">
@@ -82,20 +74,15 @@ export function PacketPanel({ packet }: Props) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
+          </section>
+        ) : null}
 
-        <section className="packet__section" aria-labelledby="challenges-heading">
-          <div className="packet__section-head">
-            <h2 id="challenges-heading">Challenges</h2>
-            <span className="packet__count">{challenges.length}</span>
-          </div>
-          {challenges.length === 0 ? (
-            <p className="packet__empty">
-              <strong>No challenges</strong>
-              Contributors can contest assumptions before a decision is stamped.
-            </p>
-          ) : (
+        {challenges.length > 0 ? (
+          <section className="packet__section" aria-labelledby="challenges-heading">
+            <div className="packet__section-head">
+              <h2 id="challenges-heading">Challenges</h2>
+              <span className="packet__count">{challenges.length}</span>
+            </div>
             <ul className="packet__feed">
               {challenges.map((ch) => (
                 <li key={ch.id} className="packet__feed-item packet__feed-item--challenge">
@@ -104,20 +91,15 @@ export function PacketPanel({ packet }: Props) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
+          </section>
+        ) : null}
 
-        <section className="packet__section" aria-labelledby="requests-heading">
-          <div className="packet__section-head">
-            <h2 id="requests-heading">Evidence requested</h2>
-            <span className="packet__count">{requests.length}</span>
-          </div>
-          {requests.length === 0 ? (
-            <p className="packet__empty">
-              <strong>No open requests</strong>
-              Ask for missing facts before closing — requests show up here.
-            </p>
-          ) : (
+        {requests.length > 0 ? (
+          <section className="packet__section" aria-labelledby="requests-heading">
+            <div className="packet__section-head">
+              <h2 id="requests-heading">Evidence requested</h2>
+              <span className="packet__count">{requests.length}</span>
+            </div>
             <ul className="packet__feed">
               {requests.map((rq) => (
                 <li key={rq.id} className="packet__feed-item packet__feed-item--request">
@@ -126,20 +108,15 @@ export function PacketPanel({ packet }: Props) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
+          </section>
+        ) : null}
 
-        <section className="packet__section" aria-labelledby="comments-heading">
-          <div className="packet__section-head">
-            <h2 id="comments-heading">Comments</h2>
-            <span className="packet__count">{comments.length}</span>
-          </div>
-          {comments.length === 0 ? (
-            <p className="packet__empty">
-              <strong>No comments</strong>
-              Contributors can leave notes on this packet without changing the options.
-            </p>
-          ) : (
+        {comments.length > 0 ? (
+          <section className="packet__section" aria-labelledby="comments-heading">
+            <div className="packet__section-head">
+              <h2 id="comments-heading">Comments</h2>
+              <span className="packet__count">{comments.length}</span>
+            </div>
             <ul className="packet__feed">
               {comments.map((cm) => (
                 <li key={cm.id} className="packet__feed-item packet__feed-item--comment">
@@ -148,8 +125,8 @@ export function PacketPanel({ packet }: Props) {
                 </li>
               ))}
             </ul>
-          )}
-        </section>
+          </section>
+        ) : null}
       </div>
 
       {packet.decision ? (

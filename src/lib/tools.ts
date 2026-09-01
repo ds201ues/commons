@@ -37,9 +37,9 @@ const editDoc: ToolDef = {
   },
 };
 
-const openPacket: ToolDef = {
-  name: "open_packet",
-  description: "Open a new decision packet with a question.",
+const openDecision: ToolDef = {
+  name: "open_decision",
+  description: "Open a new decision with a question.",
   untrustedContentHint: true,
   inputSchema: {
     type: "object",
@@ -57,7 +57,7 @@ const proposeOption: ToolDef = {
   inputSchema: {
     type: "object",
     properties: {
-      packetId: { type: "string", description: "Packet id" },
+      packetId: { type: "string", description: "Decision id (packetId from get_workspace)" },
       label: { type: "string", description: "Short option name" },
       body: { type: "string", description: "Why this option" },
     },
@@ -72,7 +72,7 @@ const attachEvidence: ToolDef = {
   inputSchema: {
     type: "object",
     properties: {
-      packetId: { type: "string", description: "Packet id" },
+      packetId: { type: "string", description: "Decision id (packetId from get_workspace)" },
       text: { type: "string", description: "Evidence text" },
     },
     required: ["packetId", "text"],
@@ -86,7 +86,7 @@ const comment: ToolDef = {
   inputSchema: {
     type: "object",
     properties: {
-      packetId: { type: "string", description: "Packet id" },
+      packetId: { type: "string", description: "Decision id (packetId from get_workspace)" },
       text: { type: "string", description: "Comment text" },
     },
     required: ["packetId", "text"],
@@ -100,7 +100,7 @@ const challenge: ToolDef = {
   inputSchema: {
     type: "object",
     properties: {
-      packetId: { type: "string", description: "Packet id" },
+      packetId: { type: "string", description: "Decision id (packetId from get_workspace)" },
       text: { type: "string", description: "The challenge" },
     },
     required: ["packetId", "text"],
@@ -114,7 +114,7 @@ const requestEvidence: ToolDef = {
   inputSchema: {
     type: "object",
     properties: {
-      packetId: { type: "string", description: "Packet id" },
+      packetId: { type: "string", description: "Decision id (packetId from get_workspace)" },
       what: { type: "string", description: "What evidence you need" },
     },
     required: ["packetId", "what"],
@@ -150,7 +150,7 @@ const completeTask: ToolDef = {
 
 export function toolsForSeat(seat: Seat): ToolDef[] {
   if (seat === "owner") {
-    return [getWorkspace, editDoc, openPacket, proposeOption, attachEvidence, addTask, completeTask];
+    return [getWorkspace, editDoc, openDecision, proposeOption, attachEvidence, addTask, completeTask];
   }
   return [getWorkspace, comment, challenge, requestEvidence, addTask, completeTask];
 }

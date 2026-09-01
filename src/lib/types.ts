@@ -9,7 +9,7 @@ export type Op =
   | "request_evidence"
   | "decide"
   | "edit_doc"
-  | "open_packet"
+  | "open_decision"
   | "comment"
   | "add_task"
   | "complete_task";
@@ -140,7 +140,7 @@ export const ALL_OPS: Op[] = [
   "request_evidence",
   "decide",
   "edit_doc",
-  "open_packet",
+  "open_decision",
   "comment",
   "add_task",
   "complete_task",
@@ -150,7 +150,7 @@ export const OWNER_OPS: ReadonlySet<Op> = new Set([
   "propose_option",
   "attach_evidence",
   "edit_doc",
-  "open_packet",
+  "open_decision",
 ]);
 
 export const CONTRIBUTOR_OPS: ReadonlySet<Op> = new Set([

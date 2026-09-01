@@ -8,50 +8,47 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 0.75rem 1.25rem;
-  margin-bottom: 0.85rem;
+  margin-bottom: 0.75rem;
 }
 
 .doc-editor-header h2 {
   margin: 0;
-  font-size: 1.35rem;
+  font-size: 1.2rem;
+  letter-spacing: -0.015em;
 }
 
 .doc-editor-sub {
   margin: 0.2rem 0 0;
   font-size: 0.82rem;
-  color: var(--muted);
+  color: var(--text-dim);
   max-width: 28rem;
 }
 
 .doc-editor-badge {
   display: inline-block;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--contributor);
-  border: 1px solid var(--contributor);
-  padding: 0.2rem 0.45rem;
-  margin-top: 0.15rem;
+  margin-top: 0.25rem;
 }
 
 .doc-editor-status {
-  font-size: 0.8rem;
-  color: var(--muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--text-dim);
   min-height: 1.25rem;
   text-align: right;
   flex-shrink: 0;
 }
 
-.doc-editor-status[data-tone="pending"] {
-  color: var(--muted);
-}
-
-.doc-editor-status[data-tone="saving"] {
+.doc-editor-status[data-tone="saving"],
+.doc-editor-status[data-tone="saved"] {
   color: var(--owner);
 }
 
 .doc-editor-status[data-tone="saved"] {
-  color: var(--owner);
   animation: doc-saved-flash 2.2s ease forwards;
 }
 
@@ -72,32 +69,33 @@
 .doc-editor-textarea {
   display: block;
   width: 100%;
-  min-height: 18rem;
+  min-height: 12rem;
   margin: 0;
-  padding: 1rem 1.05rem;
+  padding: 0.6rem 0.1rem;
   font-family: inherit;
   font-size: 0.92rem;
-  line-height: 1.55;
-  color: var(--ink);
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
+  line-height: 1.6;
+  color: var(--paper);
+  background: transparent;
+  border: 0;
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  border-radius: 0;
   resize: vertical;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 }
 
 .doc-editor-textarea:focus {
   outline: none;
-  border-color: var(--owner);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--owner) 18%, transparent);
+  border-bottom-color: var(--owner);
 }
 
 .doc-editor-textarea::placeholder {
-  color: color-mix(in srgb, var(--muted) 75%, transparent);
+  color: color-mix(in srgb, var(--paper) 38%, transparent);
 }
 
 .doc-editor-textarea[data-dirty="true"] {
-  border-color: color-mix(in srgb, var(--owner) 55%, var(--rule));
+  border-bottom-color: color-mix(in srgb, var(--owner) 60%, transparent);
 }
 
 .doc-editor-footer {
@@ -105,26 +103,24 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.65rem 1rem;
-  margin-top: 0.8rem;
+  margin-top: 0.7rem;
 }
 
 .doc-editor-save {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 0.85rem;
+  font-weight: 600;
   background: var(--owner);
   color: #fff;
   border: 0;
-  padding: 0.55rem 1rem;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.95rem;
   cursor: pointer;
-  transition: opacity 0.15s ease, transform 0.1s ease;
+  transition: opacity 0.15s ease;
 }
 
 .doc-editor-save:hover:not(:disabled) {
   opacity: 0.92;
-}
-
-.doc-editor-save:active:not(:disabled) {
-  transform: translateY(1px);
 }
 
 .doc-editor-save:disabled {
@@ -132,82 +128,59 @@
   cursor: not-allowed;
 }
 
+.doc-editor-save:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .doc-editor-hint {
-  font-size: 0.78rem;
-  color: var(--muted);
+  font-size: 0.74rem;
+  color: var(--text-dim);
 }
 
 .doc-editor-error {
-  margin: 0.75rem 0 0;
-  padding: 0.55rem 0.7rem;
+  margin: 0.6rem 0 0;
   font-size: 0.85rem;
   color: var(--stamp);
-  background: color-mix(in srgb, var(--stamp) 8%, var(--card));
-  border-left: 3px solid var(--stamp);
 }
 
-.doc-editor--contributor {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--card) 92%, var(--contributor)) 0%,
-    var(--card) 2.5rem
-  );
-}
-
-.doc-paper {
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  overflow: hidden;
-}
+/* contributor read-only brief */
 
 .doc-ribbon {
-  margin: 0;
-  padding: 0.4rem 1.05rem;
-  font-size: 0.65rem;
+  margin: 0 0 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
   font-weight: 500;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--accent-2);
-  background: color-mix(in srgb, var(--accent-2) 8%, var(--paper));
-  border-top: 3px solid var(--accent-2);
+  color: var(--contributor);
 }
 
 .doc-markdown {
   margin: 0;
-  padding: 1rem 1.05rem;
-  min-height: 8rem;
-  background: var(--paper);
-  border: 1px solid var(--rule);
-  border-radius: 2px;
-  line-height: 1.55;
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--hairline);
+  line-height: 1.6;
   font-size: 0.92rem;
-}
-
-.doc-paper .doc-markdown {
-  border: none;
-  border-radius: 0;
-}
-
-.doc-paper .doc-empty {
-  border: none;
-  border-radius: 0;
+  color: color-mix(in srgb, var(--paper) 90%, transparent);
 }
 
 .doc-markdown h3,
 .doc-markdown h4,
 .doc-markdown h5 {
   font-family: var(--font-display);
+  color: var(--paper);
   margin: 0 0 0.5rem;
   line-height: 1.25;
+  letter-spacing: -0.015em;
 }
 
 .doc-markdown h3 {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 }
 
 .doc-markdown h4 {
-  font-size: 1.05rem;
+  font-size: 1.02rem;
   margin-top: 0.75rem;
 }
 
@@ -234,23 +207,21 @@
 }
 
 .doc-markdown strong {
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: 600;
+  color: var(--paper);
 }
 
 .doc-markdown em {
   font-style: italic;
-  color: var(--muted);
+  color: var(--text-dim);
 }
 
 .doc-empty {
   margin: 0;
-  padding: 1.25rem 1rem;
-  text-align: center;
-  color: var(--muted);
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--hairline);
+  color: var(--text-dim);
   font-size: 0.88rem;
-  border: 1px dashed var(--rule);
-  background: color-mix(in srgb, var(--paper) 70%, var(--card));
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -268,7 +239,7 @@
   font-size: 3.5rem;
   line-height: 1;
   margin: 0 0 0.5rem;
-  color: color-mix(in srgb, var(--rule) 65%, var(--ink));
+  color: var(--hairline-strong);
 }
 
 .not-found-actions {

@@ -19,7 +19,7 @@ const STEPS = [
   },
   {
     n: "2",
-    title: "Agents work the packet",
+    title: "Agents work the decision",
     body: "Owner and contributor seats get different tools — propose, challenge, attach evidence, assign tasks.",
   },
   {

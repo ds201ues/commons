@@ -17,11 +17,9 @@ type Props = {
   roomId: string
   onClose: () => void
   returnFocusRef?: RefObject<HTMLElement | null>
-  /** Attempt a clipboard copy the moment the modal opens (fresh-room arrival). */
-  autoCopy?: boolean
 };
 
-export function ShareModal({ open, roomId, onClose, returnFocusRef, autoCopy }: Props) {
+export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
@@ -68,17 +66,6 @@ export function ShareModal({ open, roomId, onClose, returnFocusRef, autoCopy }: 
     setCopied(true);
     window.setTimeout(() => setCopied(false), 2000);
   }, [url]);
-
-  const autoCopiedRef = useRef(false);
-  useEffect(() => {
-    if (!open || !autoCopy || !url || autoCopiedRef.current) return;
-    autoCopiedRef.current = true;
-    // Best-effort: clipboard may require a fresh gesture; the copy button remains.
-    void navigator.clipboard
-      .writeText(url)
-      .then(() => setCopied(true))
-      .catch(() => {});
-  }, [open, autoCopy, url]);
 
   if (!open) return null;
 
