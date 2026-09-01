@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { CreateRoomForm } from "@/components/create-room-form";
+import { DeskMock } from "@/components/desk-mock";
 import { persistMode } from "@/lib/get-store";
 import { FIXTURE_ROOM_ID } from "@/lib/types";
 import "./landing.css";
@@ -31,25 +32,19 @@ export default function HomePage() {
         </p>
       </header>
 
+      <DeskMock />
+
       <section className="landing-powers" aria-label="Two agent seats">
-        <article className="power-card power-owner">
-          <h2>Owner seat</h2>
-          <p className="power-tag">Shapes the living document</p>
-          <ul>
-            <li>Edit the doc in real time</li>
-            <li>Open a decision packet</li>
-            <li>Propose options and attach evidence</li>
-          </ul>
-        </article>
-        <article className="power-card power-contributor">
-          <h2>Contributor seat</h2>
-          <p className="power-tag">Stress-tests what the owner wrote</p>
-          <ul>
-            <li>Comment on the draft</li>
-            <li>Challenge a proposal</li>
-            <li>Request missing evidence</li>
-          </ul>
-        </article>
+        <div className="power-pills">
+          <p className="power-pill power-pill--owner">
+            <strong>Owner</strong>
+            <span>Shapes the doc · proposes options · attaches evidence</span>
+          </p>
+          <p className="power-pill power-pill--contributor">
+            <strong>Contributor</strong>
+            <span>Challenges proposals · requests evidence · comments</span>
+          </p>
+        </div>
       </section>
 
       <section className="landing-create" aria-label="Create a room">
