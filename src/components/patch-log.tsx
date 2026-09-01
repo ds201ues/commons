@@ -25,7 +25,7 @@ export function PatchLog({ log }: Props) {
   const reversed = [...log].reverse();
 
   return (
-    <aside className="log" aria-label="Patch log">
+    <aside className="log patch-log" aria-label="Patch log">
       <div className="log__header">
         <h2>Activity</h2>
       </div>

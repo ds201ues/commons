@@ -22,13 +22,8 @@ export function DecisionsWall({ packets, highlightPacketId }: Props) {
       </div>
       {decided.length === 0 ? (
         <div className="decisions-wall__empty">
-          <span className="decisions-wall__empty-icon" aria-hidden="true">
-            ◇
-          </span>
-          <strong>No closed decisions yet</strong>
-          <p>
-            When you stamp a packet closed, it lands here — a ledger of calls made.
-          </p>
+          <strong>No calls yet</strong>
+          <p>Stamp a packet to pin it here.</p>
         </div>
       ) : (
         <ol className="decisions-wall__ledger">
@@ -49,9 +44,8 @@ export function DecisionsWall({ packets, highlightPacketId }: Props) {
                     : "decisions-wall__entry"
                 }
               >
-                <p className="eyebrow">{packet.id}</p>
                 <p className="wall-question">{packet.question}</p>
-                <p className="stamp">
+                <p className="decisions-wall__stamp stamp-mark">
                   {chosen} · {packet.decision?.decidedBySeat ?? "—"} · {when}
                 </p>
               </li>
