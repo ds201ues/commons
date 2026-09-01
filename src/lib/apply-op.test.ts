@@ -263,4 +263,118 @@ describe("applyOp", () => {
     });
     expect(await db.consumeDecideToken(token)).toBeNull();
   });
+
+  it.each(["owner", "contributor"] as const)(
+    "lets the %s assign a task to either seat",
+    async (seat) => {
+      const out = await applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat,
+        op: "add_task",
+        input: { text: "  Pull the load-test numbers  ", assignee: "owner" },
+      });
+      expect(out.ok).toBe(true);
+      const task = out.room.tasks.at(-1);
+      expect(task).toMatchObject({
+        text: "Pull the load-test numbers",
+        assignee: "owner",
+        done: false,
+      });
+      expect(task?.id).toMatch(/^task-/);
+      expect(out.result.taskId).toBe(task?.id);
+      expect(out.room.log.at(-1)).toMatchObject({
+        op: "add_task",
+        summary: "Task for owner: Pull the load-test numbers",
+      });
+    },
+  );
+
+  it("rejects add_task without a valid assignee", async () => {
+    await expect(
+      applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat: "owner",
+        op: "add_task",
+        input: { text: "Do something", assignee: "the-intern" },
+      }),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("rejects add_task without text", async () => {
+    await expect(
+      applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat: "owner",
+        op: "add_task",
+        input: { text: "   ", assignee: "owner" },
+      }),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("toggles a task done and back, logged both times", async () => {
+    const db = store();
+    const added = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "contributor",
+      op: "add_task",
+      input: { text: "Review the rollout plan", assignee: "contributor" },
+    });
+    const taskId = added.result.taskId!;
+
+    const completed = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "contributor",
+      op: "complete_task",
+      input: { taskId },
+    });
+    expect(completed.room.tasks.find((t) => t.id === taskId)?.done).toBe(true);
+    expect(completed.room.log.at(-1)?.summary).toBe(
+      "Completed: Review the rollout plan",
+    );
+
+    const reopened = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      op: "complete_task",
+      input: { taskId },
+    });
+    expect(reopened.room.tasks.find((t) => t.id === taskId)?.done).toBe(false);
+    expect(reopened.room.log.at(-1)?.summary).toBe(
+      "Reopened: Review the rollout plan",
+    );
+  });
+
+  it("rejects complete_task for an unknown task", async () => {
+    await expect(
+      applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat: "owner",
+        op: "complete_task",
+        input: { taskId: "task-nope" },
+      }),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
+  it("tasks work on a frozen packet room — they are room-level", async () => {
+    const db = store();
+    const token = await db.mintDecideToken({
+      roomId: FIXTURE_ROOM_ID,
+      packetId: FIXTURE_PACKET_ID,
+      optionId: FIXTURE_OPT_SHIP,
+    });
+    await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      op: "decide",
+      input: { packetId: FIXTURE_PACKET_ID, optionId: FIXTURE_OPT_SHIP },
+      decideToken: token,
+    });
+    const out = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      op: "add_task",
+      input: { text: "Write the retro notes", assignee: "contributor" },
+    });
+    expect(out.ok).toBe(true);
+  });
 });

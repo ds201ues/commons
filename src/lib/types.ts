@@ -10,7 +10,17 @@ export type Op =
   | "decide"
   | "edit_doc"
   | "open_packet"
-  | "comment";
+  | "comment"
+  | "add_task"
+  | "complete_task";
+
+export type Task = {
+  id: string
+  text: string
+  assignee: Seat
+  done: boolean
+  at: string
+};
 
 export type Option = {
   id: string
@@ -77,6 +87,7 @@ export type Room = {
   ownerTokenHash?: string
   createdAt?: string
   packets: Packet[]
+  tasks: Task[]
   log: Patch[]
   nextSeq: number
 };
@@ -131,6 +142,8 @@ export const ALL_OPS: Op[] = [
   "edit_doc",
   "open_packet",
   "comment",
+  "add_task",
+  "complete_task",
 ];
 
 export const OWNER_OPS: ReadonlySet<Op> = new Set([
@@ -146,7 +159,12 @@ export const CONTRIBUTOR_OPS: ReadonlySet<Op> = new Set([
 ]);
 
 /** Allowed for both seats (not exclusive to OWNER_OPS / CONTRIBUTOR_OPS). */
-export const SHARED_OPS: ReadonlySet<Op> = new Set(["comment", "decide"]);
+export const SHARED_OPS: ReadonlySet<Op> = new Set([
+  "comment",
+  "decide",
+  "add_task",
+  "complete_task",
+]);
 
 /** Map legacy seat path segments to owner/contributor. */
 export function normalizeSeat(value: string): Seat | null {

@@ -1,180 +1,45 @@
-/* Landing-only layout — semantic hooks for globals design system */
+/* Splash — shown for the instant while / creates or restores your room */
 
-.landing {
+.landing--splash {
+  min-height: 70vh;
   display: grid;
-  gap: 2rem;
-  padding-bottom: 5rem;
+  align-content: center;
+  gap: 0.9rem;
 }
 
-.landing-hero {
-  display: grid;
-  gap: 0.75rem;
-  max-width: 38rem;
-}
-
-.landing-hero h1 {
-  font-size: clamp(2rem, 5vw, 3.25rem);
-  line-height: 1.08;
-  letter-spacing: -0.02em;
+.landing--splash h1 {
   margin: 0;
-}
-
-.landing-hero .lede {
-  font-size: 1.05rem;
-  line-height: 1.55;
-  margin: 0;
-  max-width: 34rem;
-}
-
-.landing-powers {
-  margin: 0;
-}
-
-.power-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 0.65rem;
-  margin: 0;
-}
-
-.power-pill {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 0.35rem 0.5rem;
-  margin: 0;
-  padding: 0.4rem 0.7rem;
-  font-size: 0.78rem;
-  line-height: 1.35;
-  background: color-mix(in srgb, var(--paper) 6%, transparent);
-  border: 1px solid color-mix(in srgb, var(--paper) 14%, transparent);
-  border-radius: var(--radius-pill, 999px);
-}
-
-.power-pill strong {
-  font-family: var(--font-display);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-}
-
-.power-pill span {
-  color: color-mix(in srgb, var(--paper) 62%, transparent);
-}
-
-.power-pill--owner strong {
-  color: var(--owner);
-}
-
-.power-pill--contributor strong {
-  color: var(--contributor);
-}
-
-.landing-create {
-  display: grid;
-  gap: 0.5rem;
-}
-
-.landing-create .create-room {
-  max-width: none;
-  margin: 0;
-  padding: 1.5rem 1.6rem 1.65rem;
-  gap: 1rem;
-  border-width: 2px;
-}
-
-.landing-create .create-room h2 {
-  font-size: 1.55rem;
-  margin: 0;
+  font-size: clamp(1.8rem, 4.5vw, 2.6rem);
   letter-spacing: -0.02em;
 }
 
-.landing-create .create-room-intro {
-  color: var(--muted);
-  font-size: 0.9rem;
+.landing--splash .lede {
   margin: 0;
+}
+
+.splash-error {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
   max-width: 32rem;
-}
-
-.landing-create .create-room label {
-  font-size: 0.9rem;
-}
-
-.landing-create .create-room input {
-  padding: 0.65rem 0.75rem;
-  font-size: 1rem;
-}
-
-.landing-create .create-room button[type="submit"] {
-  padding: 0.75rem 1.1rem;
-  font-size: 1.05rem;
-  margin-top: 0.25rem;
-  width: 100%;
-}
-
-.landing-create .create-room .field-hint {
-  font-size: 0.78rem;
-  color: var(--muted);
-  margin: 0;
-}
-
-.landing-create .create-room .error {
-  margin: 0;
-  padding: 0.65rem 0.75rem;
   background: color-mix(in srgb, var(--stamp) 12%, transparent);
   border: 1px solid var(--stamp);
-  color: var(--stamp);
+  border-radius: var(--radius-sm);
+  color: color-mix(in srgb, var(--stamp) 80%, var(--paper));
   font-size: 0.88rem;
 }
 
-.landing-fixtures {
-  padding-top: 0.35rem;
-  border-top: 1px dashed color-mix(in srgb, var(--paper) 14%, transparent);
-  opacity: 0.72;
-}
-
-.landing-fixtures .muted {
-  margin: 0 0 0.55rem;
-  font-size: 0.72rem;
-  color: color-mix(in srgb, var(--paper) 50%, transparent);
-}
-
-.seat-links--secondary {
-  margin-top: 0;
-  gap: 0.45rem;
-}
-
-.seat-links--secondary a {
+.splash-demo {
+  margin: 0.5rem 0 0;
   font-size: 0.88rem;
-  border-bottom-width: 1px;
-  opacity: 0.7;
+  color: color-mix(in srgb, var(--paper) 55%, transparent);
 }
 
-.seat-links--secondary a:hover {
-  opacity: 1;
+.splash-demo a {
+  color: var(--paper);
+  text-decoration-color: color-mix(in srgb, var(--paper) 30%, transparent);
+  text-underline-offset: 3px;
 }
 
-.seat-links--secondary span {
-  font-size: 0.68rem;
-  opacity: 0.85;
-}
-
-@media (max-width: 640px) {
-  .landing {
-    gap: 1.75rem;
-    padding-top: 1.5rem;
-  }
-
-  .power-pills {
-    flex-direction: column;
-    align-items: stretch;
-  }
-
-  .power-pill {
-    border-radius: var(--radius-md, 8px);
-  }
-
-  .landing-create .create-room {
-    padding: 1.25rem 1.15rem 1.35rem;
-  }
+.splash-demo a:hover {
+  text-decoration-color: var(--paper);
 }

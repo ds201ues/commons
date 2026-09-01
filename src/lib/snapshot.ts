@@ -20,6 +20,12 @@ export function workspaceSnapshot(room: Room): string {
           decision: packet.decision ?? null,
         }
       : null,
+    tasks: (room.tasks ?? []).map((t) => ({
+      id: t.id,
+      text: t.text,
+      assignee: t.assignee,
+      done: t.done,
+    })),
     logTail: room.log.slice(-6).map((p) => `${p.seq} ${p.seat} ${p.op}: ${p.summary}`),
   };
   return trimToolOutput(body);

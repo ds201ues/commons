@@ -7,11 +7,13 @@ import {
   ALL_OPS,
   CONTRIBUTOR_OPS,
   OWNER_OPS,
+  normalizeSeat,
   type ApplyOpRequest,
   type ApplyOpSuccess,
   type Op,
   type Packet,
   type Room,
+  type Task,
 } from "./types";
 
 function nowIso(): string {
@@ -134,6 +136,42 @@ export async function applyOp(
     appendPatch(room, req.seat, req.op, `Opened packet: ${question}`);
     await store.putRoom(room.id, room);
     return { ok: true, room, result: { packetId: packet.id } };
+  }
+
+  if (req.op === "add_task") {
+    const text = requireText(req.input, "text");
+    const assignee = normalizeSeat(req.input.assignee ?? "");
+    if (!assignee) {
+      throw new OpError("not_found", "assignee must be owner or contributor.");
+    }
+    const task: Task = {
+      id: newId("task"),
+      text,
+      assignee,
+      done: false,
+      at: nowIso(),
+    };
+    room.tasks.push(task);
+    appendPatch(room, req.seat, req.op, `Task for ${assignee}: ${text}`);
+    await store.putRoom(room.id, room);
+    return { ok: true, room, result: { taskId: task.id } };
+  }
+
+  if (req.op === "complete_task") {
+    const taskId = requireText(req.input, "taskId");
+    const task = room.tasks.find((t) => t.id === taskId);
+    if (!task) {
+      throw new OpError("not_found", `Task ${taskId} is not in this room.`);
+    }
+    task.done = !task.done;
+    appendPatch(
+      room,
+      req.seat,
+      req.op,
+      task.done ? `Completed: ${task.text}` : `Reopened: ${task.text}`,
+    );
+    await store.putRoom(room.id, room);
+    return { ok: true, room, result: { taskId, done: String(task.done) } };
   }
 
   const packetId = requireText(req.input, "packetId");

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import type { Op, Packet, Room, Seat } from "@/lib/types";
 import "./packets.css";
 
@@ -17,273 +17,216 @@ type OpsJson = {
   hint?: string
 };
 
-export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
-  const [pendingOp, setPendingOp] = useState<Op | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const pending = pendingOp !== null;
+type Intent = {
+  id: string
+  op: Op
+  label: string
+  placeholder: string
+  submitLabel: string
+  needsRationale?: boolean
+  needsAssignee?: boolean
+};
 
-  const [question, setQuestion] = useState("");
-  const [label, setLabel] = useState("");
-  const [body, setBody] = useState("");
-  const [evidence, setEvidence] = useState("");
-  const [comment, setComment] = useState("");
-  const [challenge, setChallenge] = useState("");
-  const [what, setWhat] = useState("");
+const OWNER_INTENTS: Intent[] = [
+  {
+    id: "propose",
+    op: "propose_option",
+    label: "Propose",
+    placeholder: "Option label — e.g. Ship Friday",
+    submitLabel: "Propose",
+    needsRationale: true,
+  },
+  {
+    id: "evidence",
+    op: "attach_evidence",
+    label: "Evidence",
+    placeholder: "Fact or citation that informs the call",
+    submitLabel: "Attach",
+  },
+  {
+    id: "open_packet",
+    op: "open_packet",
+    label: "New packet",
+    placeholder: "What should we decide next?",
+    submitLabel: "Open",
+  },
+  {
+    id: "task",
+    op: "add_task",
+    label: "Task",
+    placeholder: "Work to hand to a seat",
+    submitLabel: "Assign",
+    needsAssignee: true,
+  },
+];
+
+const CONTRIBUTOR_INTENTS: Intent[] = [
+  {
+    id: "comment",
+    op: "comment",
+    label: "Comment",
+    placeholder: "Note on this packet",
+    submitLabel: "Comment",
+  },
+  {
+    id: "challenge",
+    op: "challenge",
+    label: "Challenge",
+    placeholder: "Assumption to contest",
+    submitLabel: "Challenge",
+  },
+  {
+    id: "request",
+    op: "request_evidence",
+    label: "Request evidence",
+    placeholder: "What is missing before we can decide?",
+    submitLabel: "Request",
+  },
+  {
+    id: "task",
+    op: "add_task",
+    label: "Task",
+    placeholder: "Work to hand to a seat",
+    submitLabel: "Assign",
+    needsAssignee: true,
+  },
+];
+
+export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
+  const intents = seat === "owner" ? OWNER_INTENTS : CONTRIBUTOR_INTENTS;
+  const [intentId, setIntentId] = useState(intents[0]?.id ?? "comment");
+  const [text, setText] = useState("");
+  const [rationale, setRationale] = useState("");
+  const [assignee, setAssignee] = useState<Seat>(seat === "owner" ? "contributor" : "owner");
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const intent = intents.find((i) => i.id === intentId) ?? intents[0];
+
+  useEffect(() => {
+    function onIntent(event: Event) {
+      const detail = (event as CustomEvent<string>).detail;
+      if (intents.some((i) => i.id === detail)) setIntentId(detail);
+    }
+    window.addEventListener("commons:intent", onIntent);
+    return () => window.removeEventListener("commons:intent", onIntent);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [seat]);
 
   if (packet.status !== "open") return null;
+  if (!intent) return null;
 
-  async function postOp(op: Op, input: Record<string, string>): Promise<boolean> {
-    setPendingOp(op);
+  async function onSubmit(event: FormEvent) {
+    event.preventDefault();
+    const value = text.trim();
+    if (!value || !intent) return;
+
+    let input: Record<string, string>;
+    switch (intent.op) {
+      case "propose_option":
+        input = { packetId: packet.id, label: value, body: rationale.trim() };
+        break;
+      case "attach_evidence":
+      case "comment":
+      case "challenge":
+        input = { packetId: packet.id, text: value };
+        break;
+      case "request_evidence":
+        input = { packetId: packet.id, what: value };
+        break;
+      case "open_packet":
+        input = { question: value };
+        break;
+      case "add_task":
+        input = { text: value, assignee };
+        break;
+      default:
+        return;
+    }
+
+    setPending(true);
     setError(null);
     try {
       const res = await fetch(`/api/rooms/${roomId}/ops`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ seat, as: seat, op, input }),
+        body: JSON.stringify({ seat, as: seat, op: intent.op, input }),
       });
       const json = (await res.json()) as OpsJson;
       if (!json.ok || !json.room) {
         setError(json.hint ?? "Request failed");
-        return false;
+        return;
       }
       onUpdated(json.room);
-      return true;
+      setText("");
+      setRationale("");
     } catch {
       setError("Network error");
-      return false;
     } finally {
-      setPendingOp(null);
+      setPending(false);
     }
-  }
-
-  async function onOpenPacket(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("open_packet", { question: question.trim() });
-    if (ok) setQuestion("");
-  }
-
-  async function onPropose(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("propose_option", {
-      packetId: packet.id,
-      label: label.trim(),
-      body: body.trim(),
-    });
-    if (ok) {
-      setLabel("");
-      setBody("");
-    }
-  }
-
-  async function onEvidence(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("attach_evidence", {
-      packetId: packet.id,
-      text: evidence.trim(),
-    });
-    if (ok) setEvidence("");
-  }
-
-  async function onComment(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("comment", {
-      packetId: packet.id,
-      text: comment.trim(),
-    });
-    if (ok) setComment("");
-  }
-
-  async function onChallenge(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("challenge", {
-      packetId: packet.id,
-      text: challenge.trim(),
-    });
-    if (ok) setChallenge("");
-  }
-
-  async function onRequestEvidence(event: FormEvent) {
-    event.preventDefault();
-    const ok = await postOp("request_evidence", {
-      packetId: packet.id,
-      what: what.trim(),
-    });
-    if (ok) setWhat("");
   }
 
   return (
-    <section className="packet-actions" aria-label="Packet actions">
-      <div className="packet-actions__header">
-        <p className="eyebrow">Structured ops · {packet.id}</p>
-        <h2>Contribute</h2>
+    <section className="packet-actions composer" aria-label="Contribute">
+      <div className="composer__intents" role="tablist" aria-label="Action type">
+        {intents.map((i) => (
+          <button
+            key={i.id}
+            type="button"
+            role="tab"
+            aria-selected={i.id === intent.id}
+            className={
+              i.id === intent.id
+                ? "composer__intent composer__intent--active"
+                : "composer__intent"
+            }
+            onClick={() => setIntentId(i.id)}
+            disabled={pending}
+          >
+            {i.label}
+          </button>
+        ))}
       </div>
 
-      <div className="packet-actions__grid">
-        {seat === "owner" ? (
-          <>
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Propose option</p>
-              <p className="packet-actions__card-hint">
-                Add a path forward for others to weigh and decide on.
-              </p>
-              <form onSubmit={(e) => void onPropose(e)}>
-                <label>
-                  Label
-                  <input
-                    value={label}
-                    onChange={(e) => setLabel(e.target.value)}
-                    placeholder="Ship Friday"
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <label>
-                  Rationale
-                  <textarea
-                    value={body}
-                    onChange={(e) => setBody(e.target.value)}
-                    placeholder="Why this option"
-                    rows={3}
-                    disabled={pending}
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "propose_option" ? "Working…" : "Propose option"}
-                  </button>
-                </div>
-              </form>
-            </div>
+      <form className="composer__form" onSubmit={(e) => void onSubmit(e)}>
+        <input
+          id="packet-composer-input"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          placeholder={intent.placeholder}
+          disabled={pending}
+          required
+          autoComplete="off"
+          aria-label={intent.label}
+        />
+        {intent.needsRationale ? (
+          <input
+            value={rationale}
+            onChange={(e) => setRationale(e.target.value)}
+            placeholder="Rationale (optional)"
+            disabled={pending}
+            autoComplete="off"
+            aria-label="Rationale (optional)"
+          />
+        ) : null}
+        {intent.needsAssignee ? (
+          <select
+            value={assignee}
+            onChange={(e) => setAssignee(e.target.value as Seat)}
+            disabled={pending}
+            aria-label="Assign to seat"
+          >
+            <option value="owner">Owner</option>
+            <option value="contributor">Contributor</option>
+          </select>
+        ) : null}
+        <button type="submit" disabled={pending || !text.trim()}>
+          {pending ? "Working…" : intent.submitLabel}
+        </button>
+      </form>
 
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Attach evidence</p>
-              <p className="packet-actions__card-hint">
-                Facts and citations that support or constrain the decision.
-              </p>
-              <form onSubmit={(e) => void onEvidence(e)}>
-                <label>
-                  Evidence
-                  <textarea
-                    value={evidence}
-                    onChange={(e) => setEvidence(e.target.value)}
-                    placeholder="Fact or citation"
-                    rows={3}
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "attach_evidence" ? "Working…" : "Attach evidence"}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Open new packet</p>
-              <p className="packet-actions__card-hint">
-                Start a fresh decision when this one is closed or no longer relevant.
-              </p>
-              <form onSubmit={(e) => void onOpenPacket(e)}>
-                <label>
-                  Question
-                  <input
-                    value={question}
-                    onChange={(e) => setQuestion(e.target.value)}
-                    placeholder="What should we decide?"
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "open_packet" ? "Working…" : "Open packet"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Comment</p>
-              <p className="packet-actions__card-hint">
-                Leave a note on this packet without proposing a new option.
-              </p>
-              <form onSubmit={(e) => void onComment(e)}>
-                <label>
-                  Comment
-                  <textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Note on this packet"
-                    rows={3}
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "comment" ? "Working…" : "Comment"}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Challenge</p>
-              <p className="packet-actions__card-hint">
-                Contest an assumption before the packet is stamped closed.
-              </p>
-              <form onSubmit={(e) => void onChallenge(e)}>
-                <label>
-                  Challenge
-                  <textarea
-                    value={challenge}
-                    onChange={(e) => setChallenge(e.target.value)}
-                    placeholder="Assumption to contest"
-                    rows={3}
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "challenge" ? "Working…" : "Challenge"}
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div className="packet-actions__card">
-              <p className="packet-actions__card-title">Request evidence</p>
-              <p className="packet-actions__card-hint">
-                Flag what is missing before a decision can be made confidently.
-              </p>
-              <form onSubmit={(e) => void onRequestEvidence(e)}>
-                <label>
-                  What is missing?
-                  <input
-                    value={what}
-                    onChange={(e) => setWhat(e.target.value)}
-                    placeholder="What is missing?"
-                    disabled={pending}
-                    required
-                  />
-                </label>
-                <div className="packet-actions__submit">
-                  <button type="submit" disabled={pending}>
-                    {pendingOp === "request_evidence" ? "Working…" : "Request evidence"}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </>
-        )}
-      </div>
-
-      {error ? <p className="packet-actions__error">{error}</p> : null}
+      {error ? <p className="packet-actions__error" role="alert">{error}</p> : null}
     </section>
   );
 }

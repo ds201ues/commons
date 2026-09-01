@@ -44,6 +44,12 @@ export function normalizeRoom(room: Room): Room {
     // Legacy Upstash fixtures predate docMarkdown; SSR must never see undefined.
     docMarkdown: room.docMarkdown ?? "",
     packets: (room.packets ?? []).map(normalizePacket),
+    // Rooms created before tasks shipped must never SSR with undefined.
+    tasks: (room.tasks ?? []).map((task) => ({
+      ...task,
+      assignee: coerceSeat(task.assignee),
+      done: Boolean(task.done),
+    })),
     log: (room.log ?? []).map((row) => ({
       ...row,
       seat: coerceSeat(row.seat),

@@ -56,6 +56,7 @@ export async function createRoom(
     ownerTokenHash: hashOwnerSecret(ownerSecret),
     createdAt: new Date().toISOString(),
     packets: [emptyPacket(question)],
+    tasks: [],
     log: [],
     nextSeq: 1,
   };

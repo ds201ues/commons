@@ -418,7 +418,7 @@ a {
 .doc-editor textarea,
 .doc-preview {
   width: 100%;
-  min-height: 17rem;
+  min-height: 11rem;
   margin: 0;
   padding: 1rem 1.05rem;
   font-family: var(--font-body);
@@ -805,7 +805,7 @@ a {
 
   .doc-editor textarea,
   .doc-preview {
-    min-height: 14rem;
+    min-height: 9rem;
   }
 
   .stamp,

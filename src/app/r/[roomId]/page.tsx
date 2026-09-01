@@ -8,14 +8,14 @@ import { resolveRole } from "@/lib/role";
 
 type Props = {
   params: Promise<{ roomId: string }>
-  searchParams: Promise<{ as?: string }>
+  searchParams: Promise<{ as?: string; new?: string }>
 };
 
 export const dynamic = "force-dynamic";
 
 export default async function RoomPage({ params, searchParams }: Props) {
   const { roomId } = await params;
-  const { as: asParam } = await searchParams;
+  const { as: asParam, new: newParam } = await searchParams;
 
   const store = getStore();
   const room = await loadRoom(store, roomId);
@@ -48,6 +48,7 @@ export default async function RoomPage({ params, searchParams }: Props) {
         nonce={nonce}
         persist={persist}
         initialRoom={room}
+        autoShare={newParam === "1" && seat === "owner"}
       />
     </>
   );

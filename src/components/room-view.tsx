@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { AboutModal } from "@/components/about-modal";
 import { DecideBar } from "@/components/decide-bar";
 import { DecisionsWall } from "@/components/decisions-wall";
 import { DocEditor } from "@/components/doc-editor";
@@ -9,6 +10,7 @@ import { PacketList } from "@/components/packet-list";
 import { PacketPanel } from "@/components/packet-panel";
 import { PatchLog } from "@/components/patch-log";
 import { ShareModal } from "@/components/share-modal";
+import { TasksPanel } from "@/components/tasks-panel";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import { canStickyDecide } from "@/lib/decide-sticky";
 import type { PersistMode, Room, Seat } from "@/lib/types";
@@ -20,6 +22,8 @@ type Props = {
   nonce?: string
   persist: PersistMode
   initialRoom: Room
+  /** Freshly created room: open the share modal on arrival. */
+  autoShare?: boolean
 };
 
 type Capability = {
@@ -33,6 +37,8 @@ const OWNER_CAPABILITIES: Capability[] = [
   { label: "Open packets", tool: "open_packet" },
   { label: "Propose options", tool: "propose_option" },
   { label: "Attach evidence", tool: "attach_evidence" },
+  { label: "Assign tasks", tool: "add_task" },
+  { label: "Complete tasks", tool: "complete_task" },
 ];
 
 const CONTRIBUTOR_CAPABILITIES: Capability[] = [
@@ -40,17 +46,21 @@ const CONTRIBUTOR_CAPABILITIES: Capability[] = [
   { label: "Comment", tool: "comment" },
   { label: "Challenge", tool: "challenge" },
   { label: "Request evidence", tool: "request_evidence" },
+  { label: "Assign tasks", tool: "add_task" },
+  { label: "Complete tasks", tool: "complete_task" },
 ];
 
 function roleLabel(seat: Seat): string {
   return seat === "owner" ? "Owner" : "Contributor";
 }
 
-export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
+export function RoomView({ roomId, seat, nonce, persist, initialRoom, autoShare }: Props) {
   const [room, setRoom] = useState(initialRoom);
   const [shareOpen, setShareOpen] = useState(false);
+  const [aboutOpen, setAboutOpen] = useState(false);
   const [highlightPacketId, setHighlightPacketId] = useState<string | null>(null);
   const shareBtnRef = useRef<HTMLButtonElement>(null);
+  const aboutBtnRef = useRef<HTMLButtonElement>(null);
   const highlightTimerRef = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
@@ -65,6 +75,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     }, 1200);
     return () => window.clearInterval(id);
   }, [refresh]);
+
+  useEffect(() => {
+    if (!autoShare) return;
+    setShareOpen(true);
+    window.history.replaceState(null, "", window.location.pathname);
+  }, [autoShare]);
 
   useEffect(() => {
     return () => {
@@ -88,6 +104,16 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     }, 2500);
     void refresh();
   }
+
+  function focusComposer(intent?: string) {
+    if (intent) {
+      window.dispatchEvent(new CustomEvent("commons:intent", { detail: intent }));
+    }
+    const el = document.getElementById("packet-composer-input");
+    el?.scrollIntoView({ block: "center", behavior: "smooth" });
+    el?.focus({ preventScroll: true });
+  }
+
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
 
   return (
@@ -97,30 +123,38 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       <header className="room-header">
         <div className="room-header-top">
           <p className="brand">Commons</p>
-          <span className="role-badge">{roleLabel(seat)}</span>
-        </div>
-
-        <div className="room-header-main">
           <h1 className="room-title">{room.title}</h1>
-          <button
-            ref={shareBtnRef}
-            type="button"
-            className="share-btn"
-            onClick={() => setShareOpen(true)}
-          >
-            Copy share link
-          </button>
+          <span className="role-badge">{roleLabel(seat)}</span>
+          <div className="room-actions">
+            <button
+              ref={shareBtnRef}
+              type="button"
+              className="share-btn"
+              onClick={() => setShareOpen(true)}
+            >
+              Copy share link
+            </button>
+            {seat === "owner" ? (
+              <button
+                type="button"
+                className="bar-btn"
+                onClick={() => focusComposer("open_packet")}
+              >
+                New packet
+              </button>
+            ) : null}
+            <button
+              ref={aboutBtnRef}
+              type="button"
+              className="bar-btn"
+              onClick={() => setAboutOpen(true)}
+            >
+              About
+            </button>
+          </div>
         </div>
 
-        <details className="demo-hint">
-          <summary>Demo seat override</summary>
-          <p className="demo-hint-body muted">
-            Append <code>?as=owner</code> or <code>?as=contributor</code> to preview
-            another seat.
-          </p>
-        </details>
-
-        <details className="capabilities" open>
+        <details className="capabilities">
           <summary>Your agent can</summary>
           <ul className="capability-chips" aria-label="Agent capabilities for this seat">
             {capabilities.map((cap) => (
@@ -132,6 +166,14 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           </ul>
           <p className="capabilities-note">
             Decide is a human action on this page — not a registered tool.
+          </p>
+        </details>
+
+        <details className="demo-hint">
+          <summary>Demo seat override</summary>
+          <p className="demo-hint-body muted">
+            Append <code>?as=owner</code> or <code>?as=contributor</code> to preview
+            another seat.
           </p>
         </details>
       </header>
@@ -146,6 +188,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
               onSaved={setRoom}
             />
           </section>
+
+          <PatchLog log={room.log} />
+        </div>
+
+        <aside className="room-desk__rail" aria-label="Decision surface">
+          <PacketList packets={room.packets} />
 
           {openPacket ? (
             <PacketPanel packet={openPacket} />
@@ -174,12 +222,15 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
               />
             </div>
           ) : null}
-        </div>
 
-        <aside className="room-desk__rail" aria-label="Packets and activity">
-          <PacketList packets={room.packets} />
+          <TasksPanel
+            roomId={roomId}
+            seat={seat}
+            tasks={room.tasks ?? []}
+            onUpdated={setRoom}
+          />
+
           <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
-          <PatchLog log={room.log} />
         </aside>
       </div>
 
@@ -200,6 +251,13 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
         roomId={roomId}
         onClose={() => setShareOpen(false)}
         returnFocusRef={shareBtnRef}
+        autoCopy={autoShare}
+      />
+
+      <AboutModal
+        open={aboutOpen}
+        onClose={() => setAboutOpen(false)}
+        returnFocusRef={aboutBtnRef}
       />
     </div>
   );

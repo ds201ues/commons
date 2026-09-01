@@ -14,6 +14,22 @@ export function fixtureRoom(): Room {
       "## Checkout rewrite\n\nDiscuss whether to ship the payment-form rewrite this Friday.",
     nextSeq: 1,
     log: [],
+    tasks: [
+      {
+        id: "task-evidence",
+        text: "Pull the load-test numbers for the new payment form",
+        assignee: "owner",
+        done: false,
+        at: "2026-09-01T09:00:00.000Z",
+      },
+      {
+        id: "task-review",
+        text: "Review the rollout plan and challenge weak assumptions",
+        assignee: "contributor",
+        done: false,
+        at: "2026-09-01T09:05:00.000Z",
+      },
+    ],
     packets: [
       {
         id: FIXTURE_PACKET_ID,

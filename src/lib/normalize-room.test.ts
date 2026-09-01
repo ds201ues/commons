@@ -50,4 +50,34 @@ describe("normalizeRoom", () => {
     expect(room.docMarkdown).toBe("");
     expect(room.title).toBe("Checkout rewrite");
   });
+
+  it("defaults missing tasks on rooms created before tasks shipped", () => {
+    const legacy = {
+      id: "room-old",
+      title: "Old room",
+      nextSeq: 1,
+      log: [],
+      packets: [],
+    } as unknown as Room;
+
+    const room = normalizeRoom(legacy);
+    expect(room.tasks).toEqual([]);
+  });
+
+  it("coerces legacy task seats and missing done flags", () => {
+    const legacy = {
+      id: "room-old",
+      title: "Old room",
+      nextSeq: 1,
+      log: [],
+      packets: [],
+      tasks: [
+        { id: "task-1", text: "x", assignee: "maker", at: "2026-01-01T00:00:00.000Z" },
+      ],
+    } as unknown as Room;
+
+    const room = normalizeRoom(legacy);
+    expect(room.tasks[0]?.assignee).toBe("owner");
+    expect(room.tasks[0]?.done).toBe(false);
+  });
 });

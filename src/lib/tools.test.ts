@@ -14,6 +14,8 @@ describe("toolsForSeat", () => {
       "open_packet",
       "propose_option",
       "attach_evidence",
+      "add_task",
+      "complete_task",
     ]);
     expect(names.some((n) => (NEVER_REGISTER as readonly string[]).includes(n))).toBe(
       false,
@@ -27,6 +29,8 @@ describe("toolsForSeat", () => {
       "comment",
       "challenge",
       "request_evidence",
+      "add_task",
+      "complete_task",
     ]);
     expect(names.some((n) => (NEVER_REGISTER as readonly string[]).includes(n))).toBe(
       false,
@@ -71,6 +75,13 @@ describe("workspaceSnapshot", () => {
     expect(out).toContain("Discuss whether to ship the payment-form rewrite");
     expect(out).toContain("Add the rollout owner.");
     expect(out).toContain('"docMarkdown"');
+  });
+
+  it("includes room tasks so an assigned agent can discover its work", () => {
+    const out = workspaceSnapshot(fixtureRoom());
+    expect(out).toContain('"tasks"');
+    expect(out).toContain("Pull the load-test numbers");
+    expect(out).toContain('"assignee"');
   });
 });
 

@@ -121,11 +121,38 @@ const requestEvidence: ToolDef = {
   },
 };
 
+const addTask: ToolDef = {
+  name: "add_task",
+  description:
+    "Assign a task to a seat (owner or contributor). The assignee's agent sees it in get_workspace.",
+  untrustedContentHint: true,
+  inputSchema: {
+    type: "object",
+    properties: {
+      text: { type: "string", description: "What needs doing" },
+      assignee: { type: "string", description: "owner or contributor" },
+    },
+    required: ["text", "assignee"],
+  },
+};
+
+const completeTask: ToolDef = {
+  name: "complete_task",
+  description: "Mark a task done. Calling it again reopens the task.",
+  inputSchema: {
+    type: "object",
+    properties: {
+      taskId: { type: "string", description: "Task id from get_workspace" },
+    },
+    required: ["taskId"],
+  },
+};
+
 export function toolsForSeat(seat: Seat): ToolDef[] {
   if (seat === "owner") {
-    return [getWorkspace, editDoc, openPacket, proposeOption, attachEvidence];
+    return [getWorkspace, editDoc, openPacket, proposeOption, attachEvidence, addTask, completeTask];
   }
-  return [getWorkspace, comment, challenge, requestEvidence];
+  return [getWorkspace, comment, challenge, requestEvidence, addTask, completeTask];
 }
 
 export function isAllowedOp(seat: Seat, op: string): op is Op {
