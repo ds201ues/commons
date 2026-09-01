@@ -210,7 +210,14 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           </div>
           <span className="doc-editor-badge">Read-only</span>
         </header>
-        <MarkdownPreview markdown={docMarkdown} />
+        <div className="doc-paper">
+          {seat === "contributor" ? (
+            <p className="doc-ribbon" role="status">
+              Contributor · view only
+            </p>
+          ) : null}
+          <MarkdownPreview markdown={docMarkdown} />
+        </div>
       </section>
     );
   }

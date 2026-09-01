@@ -154,6 +154,25 @@
   );
 }
 
+.doc-paper {
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.doc-ribbon {
+  margin: 0;
+  padding: 0.4rem 1.05rem;
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent-2);
+  background: color-mix(in srgb, var(--accent-2) 8%, var(--paper));
+  border-top: 3px solid var(--accent-2);
+}
+
 .doc-markdown {
   margin: 0;
   padding: 1rem 1.05rem;
@@ -163,6 +182,16 @@
   border-radius: 2px;
   line-height: 1.55;
   font-size: 0.92rem;
+}
+
+.doc-paper .doc-markdown {
+  border: none;
+  border-radius: 0;
+}
+
+.doc-paper .doc-empty {
+  border: none;
+  border-radius: 0;
 }
 
 .doc-markdown h3,
