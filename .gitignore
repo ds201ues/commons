@@ -5,3 +5,6 @@ node_modules/
 dist/
 .next/
 out/
+.vercel/
+.verify-out/
+*.tsbuildinfo

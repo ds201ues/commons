@@ -1,0 +1,305 @@
+/* Room shell — scoped to room-view only */
+
+.room.shell {
+  padding-top: 1.75rem;
+}
+
+.room-header {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 2px solid color-mix(in srgb, var(--paper) 22%, transparent);
+}
+
+.room-header-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.room-header-top .brand {
+  margin: 0;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: var(--font-bricolage), ui-sans-serif, sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  border: 2px solid currentColor;
+}
+
+.seat-owner .role-badge {
+  color: var(--owner);
+  background: color-mix(in srgb, var(--owner) 12%, transparent);
+}
+
+.seat-contributor .role-badge {
+  color: var(--contributor);
+  background: color-mix(in srgb, var(--contributor) 12%, transparent);
+}
+
+.role-badge::before {
+  content: "";
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 25%, transparent);
+  animation: shell-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes shell-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+}
+
+.room-header-main {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem 1.25rem;
+}
+
+.room-title {
+  font-family: var(--font-bricolage), ui-sans-serif, sans-serif;
+  font-size: clamp(1.65rem, 4vw, 2.15rem);
+  line-height: 1.15;
+  margin: 0;
+  flex: 1 1 12rem;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.share-btn {
+  font-family: var(--font-bricolage), ui-sans-serif, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--paper);
+  color: var(--ink);
+  border: 2px solid var(--paper);
+  padding: 0.6rem 1.1rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.share-btn:hover {
+  background: transparent;
+  color: var(--paper);
+}
+
+.share-btn--copied {
+  background: var(--owner);
+  border-color: var(--owner);
+  color: #fff;
+}
+
+.seat-contributor .share-btn--copied {
+  background: var(--contributor);
+  border-color: var(--contributor);
+}
+
+.demo-hint {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.demo-hint summary {
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+
+.demo-hint summary::-webkit-details-marker {
+  display: none;
+}
+
+.demo-hint summary::before {
+  content: "▸ ";
+  display: inline-block;
+  transition: transform 0.15s ease;
+}
+
+.demo-hint[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.demo-hint-body {
+  margin: 0.35rem 0 0;
+  padding-left: 0.85rem;
+}
+
+.demo-hint code {
+  font-size: 0.72rem;
+}
+
+.capabilities {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.capabilities-label {
+  margin: 0;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+.capability-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.capability-chip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.35rem 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.25;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: 0.35rem;
+}
+
+.capability-chip strong {
+  font-family: var(--font-bricolage), ui-sans-serif, sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.capability-chip span {
+  color: var(--muted);
+  font-size: 0.68rem;
+}
+
+.capabilities-note {
+  margin: 0;
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-style: italic;
+}
+
+.room-body {
+  display: grid;
+  gap: 2rem;
+}
+
+.room-section {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.room-eyebrow {
+  margin: 0;
+  font-family: var(--font-bricolage), ui-sans-serif, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.room-section--doc .doc-editor {
+  margin: 0;
+}
+
+.room-section--work {
+  gap: 1rem;
+}
+
+.room-section--work .packet-list {
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+}
+
+.room-grid {
+  gap: 1.75rem;
+}
+
+.work-column {
+  display: grid;
+  gap: 1.25rem;
+  align-content: start;
+  min-width: 0;
+}
+
+.side-stack {
+  gap: 1.25rem;
+}
+
+.side-stack .decisions-wall {
+  margin: 0;
+  padding: 0;
+  border-bottom: none;
+}
+
+.decide-zone {
+  margin-top: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 3px solid var(--stamp);
+}
+
+.decide-zone .decide-bar {
+  margin-top: 0;
+  padding: 1.25rem 1.35rem 1.4rem;
+  border-width: 3px;
+  box-shadow: 0 4px 0 color-mix(in srgb, var(--stamp) 35%, transparent);
+}
+
+@media (max-width: 800px) {
+  .room-header-main {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .share-btn {
+    width: 100%;
+    text-align: center;
+  }
+
+  .room-body {
+    gap: 1.75rem;
+  }
+
+  .decide-zone .decide-bar {
+    box-shadow: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-badge::before {
+    animation: none;
+  }
+
+  .share-btn,
+  .demo-hint summary::before {
+    transition: none;
+  }
+}

@@ -1,0 +1,179 @@
+/* Landing-only layout — semantic hooks for globals design system */
+
+.landing {
+  display: grid;
+  gap: 2.5rem;
+  padding-bottom: 5rem;
+}
+
+.landing-hero {
+  display: grid;
+  gap: 0.75rem;
+  max-width: 38rem;
+}
+
+.landing-hero h1 {
+  font-size: clamp(2rem, 5vw, 3.25rem);
+  line-height: 1.08;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+.landing-hero .lede {
+  font-size: 1.05rem;
+  line-height: 1.55;
+  margin: 0;
+  max-width: 34rem;
+}
+
+.landing-powers {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.power-card {
+  padding: 1.15rem 1.25rem 1.35rem;
+  background: var(--paper);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg, 14px);
+  box-shadow: var(--shadow-paper);
+  display: grid;
+  gap: 0.45rem;
+}
+
+.power-card h2 {
+  font-size: 1.15rem;
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.power-owner h2 {
+  color: var(--owner);
+}
+
+.power-contributor h2 {
+  color: var(--contributor);
+}
+
+.power-tag {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.power-card ul {
+  margin: 0.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0.35rem;
+  font-size: 0.9rem;
+}
+
+.power-card li::before {
+  content: "→ ";
+  color: var(--muted);
+}
+
+.landing-create {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.landing-create .create-room {
+  max-width: none;
+  margin: 0;
+  padding: 1.5rem 1.6rem 1.65rem;
+  gap: 1rem;
+  border-width: 2px;
+}
+
+.landing-create .create-room h2 {
+  font-size: 1.55rem;
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.landing-create .create-room-intro {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 0;
+  max-width: 32rem;
+}
+
+.landing-create .create-room label {
+  font-size: 0.9rem;
+}
+
+.landing-create .create-room input {
+  padding: 0.65rem 0.75rem;
+  font-size: 1rem;
+}
+
+.landing-create .create-room button[type="submit"] {
+  padding: 0.75rem 1.1rem;
+  font-size: 1.05rem;
+  margin-top: 0.25rem;
+  width: 100%;
+}
+
+.landing-create .create-room .field-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+.landing-create .create-room .error {
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  background: color-mix(in srgb, var(--stamp) 12%, transparent);
+  border: 1px solid var(--stamp);
+  color: var(--stamp);
+  font-size: 0.88rem;
+}
+
+.landing-fixtures {
+  padding-top: 0.5rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.landing-fixtures .muted {
+  margin: 0 0 0.75rem;
+  font-size: 0.78rem;
+}
+
+.seat-links--secondary {
+  margin-top: 0;
+  gap: 0.55rem;
+}
+
+.seat-links--secondary a {
+  font-size: 0.95rem;
+  border-bottom-width: 1px;
+  opacity: 0.75;
+}
+
+.seat-links--secondary a:hover {
+  opacity: 1;
+}
+
+.seat-links--secondary span {
+  font-size: 0.72rem;
+}
+
+@media (max-width: 640px) {
+  .landing {
+    gap: 2rem;
+    padding-top: 1.5rem;
+  }
+
+  .landing-powers {
+    grid-template-columns: 1fr;
+  }
+
+  .landing-create .create-room {
+    padding: 1.25rem 1.15rem 1.35rem;
+  }
+}

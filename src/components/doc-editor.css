@@ -1,0 +1,247 @@
+.doc-editor {
+  position: relative;
+}
+
+.doc-editor-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 0.85rem;
+}
+
+.doc-editor-header h2 {
+  margin: 0;
+  font-size: 1.35rem;
+}
+
+.doc-editor-sub {
+  margin: 0.2rem 0 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  max-width: 28rem;
+}
+
+.doc-editor-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--contributor);
+  border: 1px solid var(--contributor);
+  padding: 0.2rem 0.45rem;
+  margin-top: 0.15rem;
+}
+
+.doc-editor-status {
+  font-size: 0.8rem;
+  color: var(--muted);
+  min-height: 1.25rem;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.doc-editor-status[data-tone="pending"] {
+  color: var(--muted);
+}
+
+.doc-editor-status[data-tone="saving"] {
+  color: var(--owner);
+}
+
+.doc-editor-status[data-tone="saved"] {
+  color: var(--owner);
+  animation: doc-saved-flash 2.2s ease forwards;
+}
+
+.doc-editor-status[data-tone="error"] {
+  color: var(--stamp);
+}
+
+@keyframes doc-saved-flash {
+  0%,
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.35;
+  }
+}
+
+.doc-editor-textarea {
+  display: block;
+  width: 100%;
+  min-height: 18rem;
+  margin: 0;
+  padding: 1rem 1.05rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  resize: vertical;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.doc-editor-textarea:focus {
+  outline: none;
+  border-color: var(--owner);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--owner) 18%, transparent);
+}
+
+.doc-editor-textarea::placeholder {
+  color: color-mix(in srgb, var(--muted) 75%, transparent);
+}
+
+.doc-editor-textarea[data-dirty="true"] {
+  border-color: color-mix(in srgb, var(--owner) 55%, var(--rule));
+}
+
+.doc-editor-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-top: 0.8rem;
+}
+
+.doc-editor-save {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  background: var(--owner);
+  color: #fff;
+  border: 0;
+  padding: 0.55rem 1rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.doc-editor-save:hover:not(:disabled) {
+  opacity: 0.92;
+}
+
+.doc-editor-save:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.doc-editor-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.doc-editor-hint {
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.doc-editor-error {
+  margin: 0.75rem 0 0;
+  padding: 0.55rem 0.7rem;
+  font-size: 0.85rem;
+  color: var(--stamp);
+  background: color-mix(in srgb, var(--stamp) 8%, var(--card));
+  border-left: 3px solid var(--stamp);
+}
+
+.doc-editor--contributor {
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--card) 92%, var(--contributor)) 0%,
+    var(--card) 2.5rem
+  );
+}
+
+.doc-markdown {
+  margin: 0;
+  padding: 1rem 1.05rem;
+  min-height: 8rem;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.doc-markdown h3,
+.doc-markdown h4,
+.doc-markdown h5 {
+  font-family: var(--font-display);
+  margin: 0 0 0.5rem;
+  line-height: 1.25;
+}
+
+.doc-markdown h3 {
+  font-size: 1.25rem;
+}
+
+.doc-markdown h4 {
+  font-size: 1.05rem;
+  margin-top: 0.75rem;
+}
+
+.doc-markdown h5 {
+  font-size: 0.95rem;
+  margin-top: 0.6rem;
+}
+
+.doc-markdown p {
+  margin: 0 0 0.65rem;
+}
+
+.doc-markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.doc-markdown ul {
+  margin: 0 0 0.75rem;
+  padding-left: 1.2rem;
+}
+
+.doc-markdown li {
+  margin-bottom: 0.3rem;
+}
+
+.doc-markdown strong {
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.doc-markdown em {
+  font-style: italic;
+  color: var(--muted);
+}
+
+.doc-empty {
+  margin: 0;
+  padding: 1.25rem 1rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.88rem;
+  border: 1px dashed var(--rule);
+  background: color-mix(in srgb, var(--paper) 70%, var(--card));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .doc-editor-status[data-tone="saved"] {
+    animation: none;
+  }
+
+  .doc-editor-save {
+    transition: none;
+  }
+}
+
+.not-found-code {
+  font-family: var(--font-display);
+  font-size: 3.5rem;
+  line-height: 1;
+  margin: 0 0 0.5rem;
+  color: color-mix(in srgb, var(--rule) 65%, var(--ink));
+}
+
+.not-found-actions {
+  margin-top: 2rem;
+}
