@@ -21,19 +21,6 @@
   color: var(--text-dim);
 }
 
-.doc-editor-sub {
-  display: none;
-}
-
-.doc-editor-badge {
-  display: inline-block;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--contributor);
-}
-
 .doc-editor-status {
   font-family: var(--font-mono);
   font-size: 0.68rem;
@@ -66,7 +53,7 @@
   }
 }
 
-/* Shared Notion/Obsidian-like page surface for preview + edit */
+/* Shared page surface — always the rendered brief */
 .doc-surface {
   display: block;
   width: 100%;
@@ -83,52 +70,25 @@
   border-radius: 0;
   box-shadow: none;
   outline: none;
-  resize: none;
-  appearance: none;
-  -webkit-appearance: none;
 }
 
-.doc-surface--editable {
+.doc-surface--rich {
   cursor: text;
-}
-
-.doc-surface--editable:hover {
-  /* soft page affordance — no fill, no border box */
-  background: color-mix(in srgb, var(--canvas-ink) 2.5%, transparent);
-}
-
-.doc-surface--editable:focus-visible {
-  outline: none;
-  background: color-mix(in srgb, var(--canvas-ink) 2.5%, transparent);
-}
-
-.doc-editor-textarea.doc-surface {
-  min-height: 32rem;
-  font-family: inherit;
-  color: var(--canvas-ink);
   caret-color: var(--owner);
-  resize: none;
-  border: 0 !important;
-  outline: none !important;
-  box-shadow: none !important;
-  background: transparent;
-  field-sizing: content;
 }
 
-.doc-editor-textarea.doc-surface:focus,
-.doc-editor-textarea.doc-surface:focus-visible {
-  outline: none !important;
-  background: transparent;
-  border: 0 !important;
-  box-shadow: none !important;
+.doc-surface--rich:focus,
+.doc-surface--rich:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
-.doc-editor-textarea.doc-surface::placeholder {
+.doc-surface--rich[data-empty="true"]:before {
+  content: attr(data-placeholder);
   color: color-mix(in srgb, var(--canvas-ink) 34%, transparent);
-}
-
-.doc-editor-textarea.doc-surface[data-dirty="true"] {
-  /* status lives in the header — keep the page calm while typing */
+  pointer-events: none;
+  float: left;
+  height: 0;
 }
 
 .doc-markdown {
@@ -138,36 +98,6 @@
   line-height: 1.7;
   font-size: 1.02rem;
   color: color-mix(in srgb, var(--canvas-ink) 92%, transparent);
-}
-
-.doc-markdown code {
-  font-family: var(--font-mono);
-  font-size: 0.84em;
-  padding: 0.08rem 0.3rem;
-  border: 1px solid var(--hairline);
-  border-radius: 3px;
-}
-
-.doc-markdown a {
-  color: var(--owner);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.doc-editor-error {
-  margin: 0.6rem 0 0;
-  font-size: 0.85rem;
-  color: var(--stamp);
-}
-
-.doc-ribbon {
-  margin: 0 0 0.65rem;
-  font-family: var(--font-mono);
-  font-size: 0.62rem;
-  font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--contributor);
 }
 
 .doc-markdown h3,
@@ -221,13 +151,24 @@
   color: var(--text-dim);
 }
 
-.doc-empty {
-  margin: 0;
-  padding: 0.25rem 0;
-  border: 0;
-  color: var(--text-dim);
-  font-size: 1.02rem;
-  line-height: 1.7;
+.doc-markdown code {
+  font-family: var(--font-mono);
+  font-size: 0.84em;
+  padding: 0.08rem 0.3rem;
+  border: 1px solid var(--hairline);
+  border-radius: 3px;
+}
+
+.doc-markdown a {
+  color: var(--owner);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.doc-editor-error {
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--stamp);
 }
 
 @media (prefers-reduced-motion: reduce) {

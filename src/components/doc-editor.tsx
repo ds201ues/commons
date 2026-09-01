@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent as ReactKeyboardEvent,
+} from "react";
+import { htmlToMarkdown, markdownToHtml } from "@/lib/brief-markdown";
 import type { Room, Seat } from "@/lib/types";
 import "./doc-editor.css";
 
@@ -16,88 +23,6 @@ type SaveTone = "idle" | "pending" | "saving" | "saved" | "error";
 const DEBOUNCE_MS = 800;
 const SAVED_FLASH_MS = 2200;
 
-const BRIEF_PLACEHOLDER = `Context — why this room exists and what we're deciding.
-
-Open questions
-- What do we need to agree on?
-- What would change our minds?
-
-Notes
-- Drop links, constraints, and background here.`;
-
-function formatInline(text: string): ReactNode[] {
-  const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
-  return parts.map((part, index) => {
-    if (part.startsWith("**") && part.endsWith("**")) {
-      return <strong key={index}>{part.slice(2, -2)}</strong>;
-    }
-    if (part.startsWith("_") && part.endsWith("_")) {
-      return <em key={index}>{part.slice(1, -1)}</em>;
-    }
-    if (part.startsWith("`") && part.endsWith("`")) {
-      return <code key={index}>{part.slice(1, -1)}</code>;
-    }
-    const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
-    if (link) {
-      const href = link[2] ?? "";
-      if (/^https?:\/\//.test(href)) {
-        return (
-          <a key={index} href={href} target="_blank" rel="noopener noreferrer">
-            {link[1]}
-          </a>
-        );
-      }
-      return <span key={index}>{link[1]}</span>;
-    }
-    return part;
-  });
-}
-
-function MarkdownPreview({ markdown }: { markdown: string }) {
-  const trimmed = (markdown ?? "").trim();
-  if (!trimmed) {
-    return (
-      <p className="doc-empty">
-        No brief on the table yet. Click to write the opening notes — everyone in
-        the room will see them.
-      </p>
-    );
-  }
-
-  const blocks = trimmed.split(/\n\n+/);
-  return (
-    <article className="doc-markdown" aria-label="Document preview">
-      {blocks.map((block, blockIndex) => {
-        const lines = block.split("\n");
-        const first = lines[0] ?? "";
-
-        if (first.startsWith("# ")) {
-          return <h3 key={blockIndex}>{first.slice(2)}</h3>;
-        }
-        if (first.startsWith("## ")) {
-          return <h4 key={blockIndex}>{first.slice(3)}</h4>;
-        }
-        if (first.startsWith("### ")) {
-          return <h5 key={blockIndex}>{first.slice(4)}</h5>;
-        }
-        if (lines.every((line) => line.startsWith("- ") || line.startsWith("* "))) {
-          return (
-            <ul key={blockIndex}>
-              {lines.map((line, lineIndex) => (
-                <li key={lineIndex}>{formatInline(line.slice(2))}</li>
-              ))}
-            </ul>
-          );
-        }
-
-        return (
-          <p key={blockIndex}>{formatInline(block.replace(/\n/g, " "))}</p>
-        );
-      })}
-    </article>
-  );
-}
-
 function saveErrorMessage(status: number, hint?: string): string {
   if (status === 404) {
     return "This room no longer exists. Return home and open a fresh link.";
@@ -109,32 +34,21 @@ function saveErrorMessage(status: number, hint?: string): string {
   return `Save failed (${status}). Check your connection and keep typing.`;
 }
 
-/** Shared brief — owner and contributor humans (and agents) can edit. */
+/**
+ * In-place rich brief: edit the rendered page (Notion-like).
+ * Persists as markdown for agents / get_workspace.
+ */
 export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
-  const [draft, setDraft] = useState(docMarkdown);
   const [error, setError] = useState<string | null>(null);
   const [tone, setTone] = useState<SaveTone>("idle");
   const [isDirty, setIsDirty] = useState(false);
-  const [editing, setEditing] = useState(false);
+  const [isEmpty, setIsEmpty] = useState(!(docMarkdown ?? "").trim());
   const dirtyRef = useRef(false);
   const draftRef = useRef(docMarkdown);
   const timerRef = useRef<number | null>(null);
   const savedTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    if (!dirtyRef.current) {
-      setDraft(docMarkdown);
-      draftRef.current = docMarkdown;
-      setIsDirty(false);
-    }
-  }, [docMarkdown]);
-
-  useEffect(() => {
-    return () => {
-      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-      if (savedTimerRef.current !== null) window.clearTimeout(savedTimerRef.current);
-    };
-  }, []);
+  const editorRef = useRef<HTMLDivElement>(null);
+  const lastSyncedRef = useRef(docMarkdown);
 
   const flashSaved = useCallback(() => {
     setTone("saved");
@@ -153,7 +67,6 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            // Fixture demo may still need as=; real rooms resolve seat from cookie.
             as: seat,
             op: "edit_doc",
             input: { markdown },
@@ -161,8 +74,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
         });
         const json = (await res.json()) as { ok: boolean; room?: Room; hint?: string };
         if (!json.ok || !json.room) {
-          const message = saveErrorMessage(res.status, json.hint);
-          setError(message);
+          setError(saveErrorMessage(res.status, json.hint));
           setTone("error");
           return;
         }
@@ -170,6 +82,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           dirtyRef.current = false;
           setIsDirty(false);
         }
+        lastSyncedRef.current = json.room.docMarkdown;
         onSaved(json.room);
         flashSaved();
       } catch (err) {
@@ -184,23 +97,77 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     [flashSaved, onSaved, roomId, seat],
   );
 
-  function scheduleSave(markdown: string) {
-    setTone("pending");
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => {
-      void persist(markdown);
-    }, DEBOUNCE_MS);
+  const scheduleSave = useCallback(
+    (markdown: string) => {
+      setTone("pending");
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      timerRef.current = window.setTimeout(() => {
+        void persist(markdown);
+      }, DEBOUNCE_MS);
+    },
+    [persist],
+  );
+
+  function syncFromMarkdown(markdown: string) {
+    const el = editorRef.current;
+    if (!el) return;
+    const html = markdownToHtml(markdown);
+    el.innerHTML = html || "";
+    lastSyncedRef.current = markdown;
+    draftRef.current = markdown;
   }
 
-  async function finishEditing() {
-    if (timerRef.current !== null) {
-      window.clearTimeout(timerRef.current);
-      timerRef.current = null;
+  // Initial paint + remote updates while not editing dirty.
+  useEffect(() => {
+    const el = editorRef.current;
+    if (!el) return;
+    if (dirtyRef.current) return;
+    if (document.activeElement === el) return;
+    if (docMarkdown === lastSyncedRef.current && el.innerHTML) return;
+    syncFromMarkdown(docMarkdown);
+    setIsEmpty(!(docMarkdown ?? "").trim());
+    setIsDirty(false);
+  }, [docMarkdown]);
+
+  useEffect(() => {
+    syncFromMarkdown(docMarkdown);
+    return () => {
+      if (timerRef.current !== null) window.clearTimeout(timerRef.current);
+      if (savedTimerRef.current !== null) window.clearTimeout(savedTimerRef.current);
+    };
+    // mount only
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  function readMarkdownFromEditor(): string {
+    const el = editorRef.current;
+    if (!el) return draftRef.current;
+    return htmlToMarkdown(el);
+  }
+
+  function onEditorInput() {
+    dirtyRef.current = true;
+    setIsDirty(true);
+    setError(null);
+    const markdown = readMarkdownFromEditor();
+    draftRef.current = markdown;
+    setIsEmpty(!markdown.trim());
+    scheduleSave(markdown);
+  }
+
+  function onEditorKeyDown(event: ReactKeyboardEvent<HTMLDivElement>) {
+    const mod = event.metaKey || event.ctrlKey;
+    if (mod && event.key.toLowerCase() === "b") {
+      event.preventDefault();
+      document.execCommand("bold");
+      onEditorInput();
+      return;
     }
-    if (dirtyRef.current) {
-      await persist(draftRef.current);
+    if (mod && event.key.toLowerCase() === "i") {
+      event.preventDefault();
+      document.execCommand("italic");
+      onEditorInput();
     }
-    setEditing(false);
   }
 
   function statusLabel(): string | null {
@@ -220,43 +187,8 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
 
   const label = statusLabel();
 
-  if (!editing) {
-    return (
-      <section className={`doc-editor doc-editor--${seat}`} aria-label="Document">
-        <header className="doc-editor-header">
-          <h2>Brief</h2>
-          {label ? (
-            <p className="doc-editor-status" data-tone={tone} aria-live="polite">
-              {label}
-            </p>
-          ) : null}
-        </header>
-        <div
-          className="doc-surface doc-surface--editable"
-          role="button"
-          tabIndex={0}
-          aria-label="Edit the room brief"
-          onClick={() => setEditing(true)}
-          onKeyDown={(event) => {
-            if (event.key === "Enter" || event.key === " ") {
-              event.preventDefault();
-              setEditing(true);
-            }
-          }}
-        >
-          <MarkdownPreview markdown={draft} />
-        </div>
-        {error ? (
-          <p className="doc-editor-error" role="alert">
-            {error}
-          </p>
-        ) : null}
-      </section>
-    );
-  }
-
   return (
-    <section className={`doc-editor doc-editor--${seat}`} aria-label="Document editor">
+    <section className={`doc-editor doc-editor--${seat}`} aria-label="Document">
       <header className="doc-editor-header">
         <h2>Brief</h2>
         {label ? (
@@ -266,30 +198,26 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
         ) : null}
       </header>
 
-      <textarea
-        className="doc-editor-textarea doc-surface"
-        value={draft}
+      <div
+        ref={editorRef}
+        className="doc-surface doc-markdown doc-surface--rich"
+        contentEditable
+        suppressContentEditableWarning
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Room brief"
+        data-empty={isEmpty ? "true" : "false"}
+        data-placeholder="Click here and write the shared brief…"
         spellCheck
-        autoFocus
-        data-dirty={isDirty ? "true" : "false"}
-        placeholder={BRIEF_PLACEHOLDER}
-        aria-label="Edit the room brief"
-        onChange={(event) => {
-          dirtyRef.current = true;
-          setIsDirty(true);
-          const next = event.target.value;
-          draftRef.current = next;
-          setDraft(next);
-          setError(null);
-          scheduleSave(next);
-        }}
+        onInput={onEditorInput}
+        onKeyDown={onEditorKeyDown}
         onBlur={() => {
-          void finishEditing();
-        }}
-        onKeyDown={(event) => {
-          if (event.key === "Escape") {
-            event.preventDefault();
-            void finishEditing();
+          if (timerRef.current !== null) {
+            window.clearTimeout(timerRef.current);
+            timerRef.current = null;
+          }
+          if (dirtyRef.current) {
+            void persist(readMarkdownFromEditor());
           }
         }}
       />
