@@ -3,12 +3,11 @@
 }
 
 .doc-editor-header {
+  position: relative;
   display: flex;
-  flex-wrap: wrap;
   align-items: baseline;
-  justify-content: space-between;
-  gap: 0.5rem 1.25rem;
   margin-bottom: 0.35rem;
+  min-height: 1.1rem;
 }
 
 .doc-editor-header h2 {
@@ -21,13 +20,24 @@
   color: var(--text-dim);
 }
 
+/* Overlay — never mounts/unmounts out of flow (avoids caret jump while typing). */
 .doc-editor-status {
+  position: absolute;
+  right: 0;
+  top: 0;
+  margin: 0;
+  min-width: 5.5rem;
   font-family: var(--font-mono);
   font-size: 0.68rem;
   color: var(--text-dim);
-  min-height: 1rem;
   text-align: right;
-  flex-shrink: 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.doc-editor-status[data-visible="true"] {
+  opacity: 1;
 }
 
 .doc-editor-status[data-tone="saving"],
@@ -41,6 +51,7 @@
 
 .doc-editor-status[data-tone="error"] {
   color: var(--stamp);
+  opacity: 1;
 }
 
 @keyframes doc-saved-flash {

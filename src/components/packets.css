@@ -254,6 +254,118 @@
   gap: 0.55rem;
 }
 
+/* Combined Options | Evidence | Tasks | Decisions switcher */
+.contribute-rail {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.7rem;
+}
+
+.contribute-rail__panel {
+  display: grid;
+  gap: 0.65rem;
+  min-width: 0;
+}
+
+.contribute-rail__create {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.contribute-rail__create-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.contribute-rail__create-label,
+.contribute-rail__create-toggle {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--owner);
+}
+
+.contribute-rail__create-toggle {
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+}
+
+.contribute-rail__create-toggle:hover {
+  text-decoration: underline;
+}
+
+.seat-contributor .contribute-rail__create-label,
+.seat-contributor .contribute-rail__create-toggle {
+  color: var(--contributor);
+}
+
+.contribute-rail__create-cancel {
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+.contribute-rail__create-cancel:hover {
+  color: var(--canvas-ink);
+}
+
+.contribute-rail__decisions {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.contribute-rail__task-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0;
+}
+
+.contribute-rail__task {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.45rem 0;
+  border-top: 1px solid var(--hairline);
+  font-size: 0.9rem;
+}
+
+.contribute-rail__task:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.contribute-rail__task--done {
+  opacity: 0.55;
+  text-decoration: line-through;
+}
+
+.decisions-wall--embedded {
+  margin: 0;
+  padding: 0;
+}
+
+.decisions-wall--embedded .packet__section-head {
+  margin-bottom: 0.35rem;
+}
+
+.packet--headline .packet__body {
+  display: none;
+}
+
 .composer__intents {
   display: flex;
   flex-wrap: wrap;

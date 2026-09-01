@@ -57,7 +57,7 @@ export function TasksPanel({ roomId, seat, tasks, onUpdated }: Props) {
       </div>
 
       {tasks.length === 0 ? (
-        <p className="empty">Assign from the Task tab above.</p>
+        <p className="empty">Assign from the Tasks tab above.</p>
       ) : (
         <ul className="tasks-panel__list">
           {[...open, ...done].map((task) => (

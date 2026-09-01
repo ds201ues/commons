@@ -3,10 +3,8 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AboutModal } from "@/components/about-modal";
 import { DecideBar } from "@/components/decide-bar";
-import { DecisionsWall } from "@/components/decisions-wall";
+import { ContributeRail } from "@/components/contribute-rail";
 import { DocEditor } from "@/components/doc-editor";
-import { OpenDecisionControl } from "@/components/open-decision-control";
-import { PacketActions } from "@/components/packet-actions";
 import { PacketList } from "@/components/packet-list";
 import { PacketPanel } from "@/components/packet-panel";
 import { PatchLog } from "@/components/patch-log";
@@ -202,8 +200,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   }
 
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
-  const hasOpenDecision = room.packets.some((p) => p.status === "open");
-
   return (
     <div className={`room shell seat-${seat}`}>
       <WebmcpRegistrar roomId={roomId} seat={seat} />
@@ -338,19 +334,14 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             <p className="empty rail-empty">No open decision in this room yet.</p>
           ) : null}
 
-          {seat === "owner" ? (
-            <OpenDecisionControl
-              roomId={roomId}
-              hasOpenDecision={hasOpenDecision}
-              onUpdated={setRoom}
-            />
-          ) : null}
-
-          {/* Contribute → Decide → Tasks → Closed */}
-          <PacketActions
+          {/* Tabs: Options | Evidence | Tasks | Decisions → Decide → Tasks list */}
+          <ContributeRail
             roomId={roomId}
             seat={seat}
             packet={openPacket?.status === "open" ? openPacket : null}
+            packets={room.packets}
+            tasks={room.tasks ?? []}
+            highlightPacketId={highlightPacketId}
             onUpdated={setRoom}
           />
 
@@ -373,8 +364,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             tasks={room.tasks ?? []}
             onUpdated={setRoom}
           />
-
-          <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
         </aside>
       </div>
 

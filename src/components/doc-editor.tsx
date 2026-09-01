@@ -191,11 +191,15 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     <section className={`doc-editor doc-editor--${seat}`} aria-label="Document">
       <header className="doc-editor-header">
         <h2>Brief</h2>
-        {label ? (
-          <p className="doc-editor-status" data-tone={tone} aria-live="polite">
-            {label}
-          </p>
-        ) : null}
+        <p
+          className="doc-editor-status"
+          data-tone={label ? tone : "idle"}
+          data-visible={label ? "true" : "false"}
+          aria-live="polite"
+          aria-hidden={label ? undefined : true}
+        >
+          {label ?? ""}
+        </p>
       </header>
 
       <div
