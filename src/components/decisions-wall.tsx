@@ -3,9 +3,10 @@ import "./packets.css";
 
 type Props = {
   packets: Packet[]
+  highlightPacketId?: string | null
 };
 
-export function DecisionsWall({ packets }: Props) {
+export function DecisionsWall({ packets, highlightPacketId }: Props) {
   const decided = packets
     .filter((p) => p.status === "decided")
     .slice()
@@ -40,7 +41,14 @@ export function DecisionsWall({ packets }: Props) {
               ? new Date(packet.decision.at).toUTCString()
               : "—";
             return (
-              <li key={packet.id} className="decisions-wall__entry">
+              <li
+                key={packet.id}
+                className={
+                  highlightPacketId === packet.id
+                    ? "decisions-wall__entry decisions-wall__entry--flash"
+                    : "decisions-wall__entry"
+                }
+              >
                 <p className="eyebrow">{packet.id}</p>
                 <p className="wall-question">{packet.question}</p>
                 <p className="stamp">

@@ -10,6 +10,7 @@ import { PacketPanel } from "@/components/packet-panel";
 import { PatchLog } from "@/components/patch-log";
 import { ShareModal } from "@/components/share-modal";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
+import { canStickyDecide } from "@/lib/decide-sticky";
 import type { PersistMode, Room, Seat } from "@/lib/types";
 import "./room-shell.css";
 
@@ -48,7 +49,9 @@ function roleLabel(seat: Seat): string {
 export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [room, setRoom] = useState(initialRoom);
   const [shareOpen, setShareOpen] = useState(false);
+  const [highlightPacketId, setHighlightPacketId] = useState<string | null>(null);
   const shareBtnRef = useRef<HTMLButtonElement>(null);
+  const highlightTimerRef = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/rooms/${roomId}`, { cache: "no-store" });
@@ -63,7 +66,28 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     return () => window.clearInterval(id);
   }, [refresh]);
 
+  useEffect(() => {
+    return () => {
+      if (highlightTimerRef.current !== null) {
+        window.clearTimeout(highlightTimerRef.current);
+      }
+    };
+  }, []);
+
   const openPacket = room.packets.find((p) => p.status === "open") ?? room.packets[0];
+  const stickyDecide = canStickyDecide(openPacket);
+
+  function handleDecided(packetId: string) {
+    setHighlightPacketId(packetId);
+    if (highlightTimerRef.current !== null) {
+      window.clearTimeout(highlightTimerRef.current);
+    }
+    highlightTimerRef.current = window.setTimeout(() => {
+      setHighlightPacketId(null);
+      highlightTimerRef.current = null;
+    }, 2500);
+    void refresh();
+  }
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
 
   return (
@@ -143,7 +167,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
                 />
               ) : null}
 
-              {openPacket?.status === "open" ? (
+              {openPacket?.status === "open" && !stickyDecide ? (
                 <div className="decide-zone">
                   <DecideBar
                     roomId={roomId}
@@ -151,19 +175,31 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
                     nonce={nonce}
                     persist={persist}
                     packet={openPacket}
-                    onDecided={() => void refresh()}
+                    onDecided={handleDecided}
                   />
                 </div>
               ) : null}
             </div>
 
             <aside className="side-stack" aria-label="Activity">
-              <DecisionsWall packets={room.packets} />
+              <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
               <PatchLog log={room.log} />
             </aside>
           </div>
         </section>
       </div>
+
+      {stickyDecide && openPacket ? (
+        <DecideBar
+          variant="sticky"
+          roomId={roomId}
+          seat={seat}
+          nonce={nonce}
+          persist={persist}
+          packet={openPacket}
+          onDecided={handleDecided}
+        />
+      ) : null}
 
       <ShareModal
         open={shareOpen}

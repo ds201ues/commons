@@ -10,32 +10,113 @@ type Props = {
   nonce?: string
   persist: PersistMode
   packet: Packet
-  onDecided: () => void
+  variant?: "inline" | "sticky"
+  onDecided: (packetId: string) => void
 };
 
-export function DecideBar({ roomId, seat, nonce, persist, packet, onDecided }: Props) {
-  const [pending, setPending] = useState<string | null>(null);
+function truncateQuestion(text: string, max = 72): string {
+  if (text.length <= max) return text;
+  return `${text.slice(0, max - 1).trimEnd()}…`;
+}
+
+export function DecideBar({
+  roomId,
+  seat,
+  nonce,
+  persist,
+  packet,
+  variant = "inline",
+  onDecided,
+}: Props) {
+  const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
+  const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const persistBlocked = persist === "ephemeral";
+  const disabled = pending || persistBlocked || !nonce;
 
   if (packet.status !== "open") return null;
 
-  async function decide(optionId: string) {
-    if (persistBlocked || !nonce) return;
-    setPending(optionId);
+  async function stampDecide() {
+    if (!selectedOptionId || persistBlocked || !nonce) return;
+    setPending(true);
     setError(null);
     const res = await fetch(`/api/rooms/${roomId}/human/decide`, {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ packetId: packet.id, optionId, nonce, as: seat }),
+      body: JSON.stringify({ packetId: packet.id, optionId: selectedOptionId, nonce, as: seat }),
     });
     const json = (await res.json()) as { ok: boolean; hint?: string };
-    setPending(null);
+    setPending(false);
     if (!json.ok) {
       setError(json.hint ?? "Decide failed");
       return;
     }
-    onDecided();
+    onDecided(packet.id);
+  }
+
+  const optionPills = (
+    <div
+      className="decide-bar__pills"
+      role="radiogroup"
+      aria-label="Decision options"
+    >
+      {packet.options.map((opt) => (
+        <button
+          key={opt.id}
+          type="button"
+          role="radio"
+          aria-checked={selectedOptionId === opt.id}
+          className={
+            selectedOptionId === opt.id
+              ? "decide-bar__pill decide-bar__pill--selected"
+              : "decide-bar__pill"
+          }
+          disabled={disabled}
+          onClick={() => setSelectedOptionId(opt.id)}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+
+  const stampButton = (
+    <button
+      type="button"
+      className="decide-bar__stamp"
+      disabled={disabled || !selectedOptionId}
+      onClick={() => void stampDecide()}
+    >
+      {pending ? "Closing…" : "Stamp Decide"}
+    </button>
+  );
+
+  const errorBlock = (
+    <>
+      {persistBlocked ? (
+        <p className="decide-bar__error">
+          Decide is disabled on this deploy: no Upstash Redis. Packets would not
+          survive the next lambda.
+        </p>
+      ) : null}
+      {error ? <p className="decide-bar__error">{error}</p> : null}
+    </>
+  );
+
+  if (variant === "sticky") {
+    return (
+      <div className="decide-bar decide-bar--sticky" role="region" aria-label="Decide">
+        <span className="decide-bar__seal decide-bar__seal--compact" aria-hidden="true">
+          Human only
+        </span>
+        <p className="decide-bar__question" title={packet.question}>
+          {truncateQuestion(packet.question)}
+        </p>
+        {optionPills}
+        {stampButton}
+        {errorBlock}
+      </div>
+    );
   }
 
   return (
@@ -49,29 +130,11 @@ export function DecideBar({ roomId, seat, nonce, persist, packet, onDecided }: P
       <p className="decide-bar__subtitle">
         Only a human on this seat can close the packet. Decide is not a tool.
       </p>
-      <div className="decide-bar__options" role="group" aria-label="Decision options">
-        {packet.options.map((opt) => (
-          <button
-            key={opt.id}
-            type="button"
-            className="decide-bar__option"
-            disabled={pending !== null || persistBlocked || !nonce}
-            onClick={() => void decide(opt.id)}
-          >
-            <span className="decide-bar__option-label">{opt.label}</span>
-            <span className="decide-bar__option-cta">
-              {pending === opt.id ? "Closing…" : "Stamp it"}
-            </span>
-          </button>
-        ))}
+      {optionPills}
+      <div className="decide-bar__actions">
+        {stampButton}
       </div>
-      {persistBlocked ? (
-        <p className="decide-bar__error">
-          Decide is disabled on this deploy: no Upstash Redis. Packets would not
-          survive the next lambda.
-        </p>
-      ) : null}
-      {error ? <p className="decide-bar__error">{error}</p> : null}
+      {errorBlock}
     </div>
   );
 }
