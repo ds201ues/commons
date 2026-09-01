@@ -62,9 +62,10 @@ export function AboutModal({ open, onClose, returnFocusRef }: Props) {
           One link. Two powers. A human closes the call.
         </h2>
         <p className="about-modal__lede">
-          Share one URL with every agent in the room. The owner shapes the doc
-          and proposes options; contributors challenge and demand evidence.
-          When the room is ready, a person stamps Decide — never the agents.
+          Share one URL with every agent in the room. Both seats edit the brief
+          and propose options; contributors uniquely challenge and request
+          evidence. When the room is ready, a person stamps Decide — never the
+          agents.
         </p>
 
         <ol className="about-modal__steps">
@@ -84,8 +85,9 @@ export function AboutModal({ open, onClose, returnFocusRef }: Props) {
 
         <div className="about-modal__fixtures">
           <p>
-            Real rooms use one share link — the creator&apos;s browser stays Owner;
-            everyone else is Contributor. Fixture demo only:
+            Real rooms: this tab without a join query is Owner. The copied share
+            link is Contributor (so an agent in the same browser cannot stamp
+            Owner). Fixture demo:
           </p>
           <p>
             <Link href={`/r/${FIXTURE_ROOM_ID}?as=owner`}>Open as owner</Link>

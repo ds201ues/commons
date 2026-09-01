@@ -54,7 +54,6 @@ export function WebmcpRegistrar({ roomId, seat }: Props) {
               method: "POST",
               headers: { "content-type": "application/json" },
               body: JSON.stringify({
-                seat,
                 as: seat,
                 via: "agent",
                 op: tool.name,

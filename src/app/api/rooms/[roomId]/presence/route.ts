@@ -10,8 +10,10 @@ import { resolveRole } from "@/lib/role";
 type Params = { params: Promise<{ roomId: string }> };
 
 /**
- * Heartbeat: mint/read a per-browser party cookie, resolve seat from the owner
- * cookie (real rooms) or optional body.as (fixture only), persist on the room.
+ * Heartbeat: mint/read a per-seat party cookie, resolve seat from the owner
+ * cookie plus optional body.as (contributor downgrade on share links; fixture
+ * `?as=` when the room has no owner hash). Parties live on a sidecar key so
+ * heartbeats cannot clobber document writes.
  */
 export async function POST(req: Request, { params }: Params) {
   const { roomId } = await params;
@@ -47,7 +49,7 @@ export async function POST(req: Request, { params }: Params) {
     asParam,
   });
 
-  const existingParty = jar.get(partyCookieName(roomId))?.value ?? null;
+  const existingParty = jar.get(partyCookieName(roomId, seat))?.value ?? null;
   const partyId =
     existingParty && /^[A-Za-z0-9_-]{8,64}$/.test(existingParty)
       ? existingParty
@@ -55,7 +57,7 @@ export async function POST(req: Request, { params }: Params) {
   const minted = partyId !== existingParty;
 
   touchParty(room, partyId, seat);
-  await store.putRoom(roomId, room);
+  await store.putParties(roomId, room.parties);
 
   const present = liveParties(room.parties);
   const res = NextResponse.json({
@@ -68,7 +70,7 @@ export async function POST(req: Request, { params }: Params) {
 
   if (minted) {
     const secure = process.env.NODE_ENV === "production";
-    res.cookies.set(partyCookieName(roomId), partyId, {
+    res.cookies.set(partyCookieName(roomId, seat), partyId, {
       httpOnly: true,
       secure,
       sameSite: "lax",

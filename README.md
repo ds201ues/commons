@@ -11,12 +11,12 @@ A **link is a workspace**. Create a room, share one URL. **Owner** and **contrib
 
 ## Product surface (shipped)
 
-- Create room → unguessable `/r/<id>` + owner cookie; share that same URL (contributors get a party cookie)
+- Create room → unguessable `/r/<id>` + owner cookie; **share link is `/r/<id>?as=contributor`** so the same browser / ChatGPT webview cannot act as Owner
 - Brief (click-to-edit markdown) + open decisions + Decisions Wall + patch log + live presence
 - Owner tools: `get_workspace`, `edit_doc`, `rename_room`, `open_decision`, `propose_option`, `attach_evidence`, `add_task`, `complete_task`
-- Contributor tools: `get_workspace`, `comment`, `challenge`, `request_evidence`, `add_task`, `complete_task`
+- Contributor tools: `get_workspace`, `edit_doc`, `propose_option`, `attach_evidence`, `comment`, `challenge`, `request_evidence`, `add_task`, `complete_task`
 - **Never** register `decide` — human button + nonce only
-- Seat identity: owner cookie on real rooms (sharing the link never elevates). Fixture-only demo: `?as=owner` / `?as=contributor`
+- Seat identity: owner cookie proves Owner; `?as=contributor` **downgrades** (never elevates). Fixture demo also: `?as=owner`
 - Fixture: `/r/checkout-friday?as=owner`
 
 ---
@@ -45,12 +45,12 @@ curl -s https://redress-desk.vercel.app/api/rooms/checkout-friday
 
 curl -s -X POST https://redress-desk.vercel.app/api/rooms/checkout-friday/ops \
   -H 'content-type: application/json' \
-  -d '{"seat":"owner","as":"owner","op":"propose_option","input":{"packetId":"pkt-checkout","label":"Hold for Monday"}}'
+  -d '{"as":"owner","op":"propose_option","input":{"packetId":"pkt-checkout","label":"Hold for Monday"}}'
 
 # Decide without human token — must fail
 curl -s -X POST https://redress-desk.vercel.app/api/rooms/checkout-friday/ops \
   -H 'content-type: application/json' \
-  -d '{"seat":"contributor","as":"contributor","op":"decide","input":{"packetId":"pkt-checkout","optionId":"opt-ship"}}'
+  -d '{"as":"contributor","op":"decide","input":{"packetId":"pkt-checkout","optionId":"opt-ship"}}'
 ```
 
 ---

@@ -13,7 +13,7 @@ describe("parseAsParam", () => {
 });
 
 describe("resolveRole", () => {
-  it("cookie owner wins", () => {
+  it("cookie owner can downgrade via as=contributor (share link in the same browser)", () => {
     const secret = mintOwnerSecret();
     const hash = hashOwnerSecret(secret);
     expect(
@@ -22,6 +22,26 @@ describe("resolveRole", () => {
         ownerTokenHash: hash,
         cookieSecret: secret,
         asParam: "contributor",
+      }),
+    ).toBe("contributor");
+    expect(
+      resolveRole({
+        roomId: "r1",
+        ownerTokenHash: hash,
+        cookieSecret: secret,
+        asParam: "decider",
+      }),
+    ).toBe("contributor");
+  });
+
+  it("cookie owner stays owner without a contributor join param", () => {
+    const secret = mintOwnerSecret();
+    const hash = hashOwnerSecret(secret);
+    expect(
+      resolveRole({
+        roomId: "r1",
+        ownerTokenHash: hash,
+        cookieSecret: secret,
       }),
     ).toBe("owner");
   });

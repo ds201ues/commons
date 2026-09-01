@@ -6,6 +6,7 @@ import { getStore, persistUnavailableBody } from "@/lib/get-store";
 import { ownerCookieName } from "@/lib/owner";
 import { partyCookieName } from "@/lib/party";
 import { touchParty } from "@/lib/presence";
+import { publicRoom } from "@/lib/public-room";
 import { resolveRole } from "@/lib/role";
 import { ALL_OPS, type ActorKind, type Op } from "@/lib/types";
 
@@ -24,7 +25,7 @@ export async function POST(req: Request, { params }: Params) {
       ? (body.input as Record<string, string>)
       : {};
   const decideToken = typeof body.decideToken === "string" ? body.decideToken : undefined;
-  // Fixture-only demo override. Ignored when the room has ownerTokenHash.
+  // Share-link downgrade: ?as=contributor / body.as=contributor. Never elevates.
   const asParam = typeof body.as === "string" ? body.as : null;
   const viaRaw = typeof body.via === "string" ? body.via : "human";
   const via: ActorKind = viaRaw === "agent" ? "agent" : "human";
@@ -68,12 +69,18 @@ export async function POST(req: Request, { params }: Params) {
       decideToken,
       via,
     });
-    const partyId = jar.get(partyCookieName(roomId))?.value ?? null;
+    const partyId = jar.get(partyCookieName(roomId, seat))?.value ?? null;
     if (out.ok && out.room && partyId && /^[A-Za-z0-9_-]{8,64}$/.test(partyId)) {
-      touchParty(out.room, partyId, seat, new Date().toISOString(), via);
-      await store.putRoom(roomId, out.room);
+      const latest = await store.getRoom(roomId);
+      const merged = {
+        ...out.room,
+        parties: latest?.parties ?? out.room.parties,
+      };
+      touchParty(merged, partyId, seat, new Date().toISOString(), via);
+      await store.putParties(roomId, merged.parties);
+      out.room = merged;
     }
-    return NextResponse.json(out);
+    return NextResponse.json({ ...out, room: publicRoom(out.room) });
   } catch (err) {
     if (isOpError(err)) {
       return NextResponse.json(err.toBody(), { status: 400 });

@@ -279,13 +279,6 @@
 
 /* ── Composer (unified input bar) ──────────────────────────── */
 
-.packet-actions.composer {
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0.55rem;
-}
-
 /* Combined Options | Evidence | Tasks | Decisions switcher */
 .contribute-rail {
   margin: 0;
@@ -500,7 +493,7 @@
   box-shadow: var(--focus-ring);
 }
 
-.packet-actions__error {
+.contribute-rail__error {
   margin: 0;
   font-size: 0.84rem;
   color: var(--stamp);
@@ -1163,7 +1156,14 @@
   font-size: 0.58rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
+}
+
+.log__via--agent {
   color: var(--stamp);
+}
+
+.log__via--human {
+  color: var(--text-dim);
 }
 
 .log__op {

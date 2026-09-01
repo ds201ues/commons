@@ -4,6 +4,7 @@ import { RoomView } from "@/components/room-view";
 import { loadRoom } from "@/lib/apply-op";
 import { getStore, persistMode } from "@/lib/get-store";
 import { ownerCookieName } from "@/lib/owner";
+import { publicRoom } from "@/lib/public-room";
 import { resolveRole } from "@/lib/role";
 
 type Props = {
@@ -47,7 +48,7 @@ export default async function RoomPage({ params, searchParams }: Props) {
         seat={seat}
         nonce={nonce}
         persist={persist}
-        initialRoom={room}
+        initialRoom={publicRoom(room)}
       />
     </>
   );

@@ -71,6 +71,14 @@ describe("workspaceSnapshot", () => {
     expect(out).not.toMatch(/decideToken/i);
   });
 
+  it("omits ownerTokenHash even when the room document has one", () => {
+    const room = fixtureRoom();
+    room.ownerTokenHash = "deadbeefcafe";
+    const out = workspaceSnapshot(room);
+    expect(out).not.toContain("deadbeefcafe");
+    expect(out).not.toContain("ownerTokenHash");
+  });
+
   it("includes the document and packet comments", () => {
     const room = fixtureRoom();
     room.packets[0]?.comments.push({

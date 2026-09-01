@@ -1,5 +1,5 @@
 import { randomBytes } from "node:crypto";
-import type { DecideTokenPayload, Room } from "./types";
+import type { DecideTokenPayload, Party, Room } from "./types";
 import type { RoomStore } from "./store";
 
 type TokenRow = { payload: DecideTokenPayload; expiresAt: number };
@@ -10,16 +10,25 @@ const NONCE_TTL_MS = 60 * 60 * 1000;
 
 export class MemoryStore implements RoomStore {
   private rooms = new Map<string, Room>();
+  private parties = new Map<string, Party[]>();
   private tokens = new Map<string, TokenRow>();
   private nonces = new Map<string, NonceRow>();
 
   async getRoom(id: string): Promise<Room | null> {
     const room = this.rooms.get(id);
-    return room ? structuredClone(room) : null;
+    if (!room) return null;
+    const clone = structuredClone(room);
+    const overlay = this.parties.get(id);
+    if (overlay) clone.parties = structuredClone(overlay);
+    return clone;
   }
 
   async putRoom(id: string, room: Room): Promise<void> {
     this.rooms.set(id, structuredClone(room));
+  }
+
+  async putParties(id: string, parties: Party[]): Promise<void> {
+    this.parties.set(id, structuredClone(parties));
   }
 
   async mintDecideToken(payload: DecideTokenPayload): Promise<string> {

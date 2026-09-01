@@ -7,6 +7,7 @@ import { normalizeSeat, type Packet, type Room, type Seat } from "@/lib/types";
 import "./packets.css";
 
 type TabId = "options" | "evidence" | "tasks" | "decisions";
+type EvidenceOp = "attach_evidence" | "comment" | "challenge" | "request_evidence";
 
 type Props = {
   roomId: string
@@ -30,6 +31,39 @@ const TABS: { id: TabId; label: string }[] = [
   { id: "decisions", label: "Decisions" },
 ];
 
+function evidenceOpsForSeat(seat: Seat): {
+  op: EvidenceOp
+  label: string
+  placeholder: string
+}[] {
+  const shared: { op: EvidenceOp; label: string; placeholder: string }[] = [
+    {
+      op: "attach_evidence",
+      label: "Evidence",
+      placeholder: "Fact or citation that informs the call",
+    },
+    {
+      op: "comment",
+      label: "Comment",
+      placeholder: "A note on this decision",
+    },
+  ];
+  if (seat !== "contributor") return shared;
+  return [
+    ...shared,
+    {
+      op: "challenge",
+      label: "Challenge",
+      placeholder: "An assumption to pressure-test",
+    },
+    {
+      op: "request_evidence",
+      label: "Request",
+      placeholder: "What fact is still missing",
+    },
+  ];
+}
+
 function formatSeat(seat: string) {
   const normalized = normalizeSeat(seat);
   return normalized === "owner" ? "Owner" : "Contributor";
@@ -49,6 +83,7 @@ export function ContributeRail({
   const [text, setText] = useState("");
   const [rationale, setRationale] = useState("");
   const [assignee, setAssignee] = useState<Seat>(seat === "owner" ? "contributor" : "owner");
+  const [evidenceOp, setEvidenceOp] = useState<EvidenceOp>("attach_evidence");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(true);
@@ -115,6 +150,7 @@ export function ContributeRail({
     setRationale("");
     setError(null);
     setCreating(true);
+    setEvidenceOp("attach_evidence");
   }, [tab]);
 
   async function submitCreate(event: FormEvent) {
@@ -131,8 +167,11 @@ export function ContributeRail({
       input = { packetId: openPacket.id, label: value, body: rationale.trim() };
     } else if (tab === "evidence") {
       if (!openPacket) return;
-      op = "attach_evidence";
-      input = { packetId: openPacket.id, text: value };
+      op = evidenceOp;
+      input =
+        evidenceOp === "request_evidence"
+          ? { packetId: openPacket.id, what: value }
+          : { packetId: openPacket.id, text: value };
     } else if (tab === "tasks") {
       op = "add_task";
       input = { text: value, assignee };
@@ -169,11 +208,15 @@ export function ContributeRail({
   const requests = openPacket?.requests ?? [];
   const comments = openPacket?.comments ?? [];
 
+  const evidenceKinds = evidenceOpsForSeat(seat);
+  const evidenceKind =
+    evidenceKinds.find((item) => item.op === evidenceOp) ?? evidenceKinds[0];
+
   const createLabel =
     tab === "options"
       ? "+ New option"
       : tab === "evidence"
-        ? "+ Attach evidence"
+        ? `+ ${evidenceKind.label}`
         : tab === "tasks"
           ? "+ Assign task"
           : null;
@@ -276,6 +319,20 @@ export function ContributeRail({
                         Hide
                       </button>
                     </div>
+                    {tab === "evidence" ? (
+                      <select
+                        value={evidenceOp}
+                        onChange={(e) => setEvidenceOp(e.target.value as EvidenceOp)}
+                        disabled={pending}
+                        aria-label="Contribution kind"
+                      >
+                        {evidenceKinds.map((item) => (
+                          <option key={item.op} value={item.op}>
+                            {item.label}
+                          </option>
+                        ))}
+                      </select>
+                    ) : null}
                     <input
                       value={text}
                       onChange={(e) => setText(e.target.value)}
@@ -283,7 +340,7 @@ export function ContributeRail({
                         tab === "options"
                           ? "Option label — e.g. Ship Friday"
                           : tab === "evidence"
-                            ? "Fact or citation that informs the call"
+                            ? evidenceKind.placeholder
                             : "Work to hand to a seat"
                       }
                       disabled={pending}
@@ -318,7 +375,7 @@ export function ContributeRail({
                         : tab === "options"
                           ? "Propose"
                           : tab === "evidence"
-                            ? "Attach"
+                            ? evidenceKind.label
                             : "Assign"}
                     </button>
                   </form>
@@ -327,7 +384,7 @@ export function ContributeRail({
             ) : null}
 
             {error ? (
-              <p className="packet-actions__error" role="alert">
+              <p className="contribute-rail__error" role="alert">
                 {error}
               </p>
             ) : null}

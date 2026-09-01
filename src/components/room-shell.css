@@ -27,8 +27,34 @@
   min-width: 0;
 }
 
+.room-action-error {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--stamp);
+}
+
 .room-header-top .brand {
   margin: 0;
+}
+
+.seat-badge {
+  margin: 0;
+  padding: 0.12rem 0.45rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.seat-badge--owner {
+  color: var(--owner);
+}
+
+.seat-badge--contributor {
+  color: var(--contributor);
 }
 
 .room-header-top .room-title {

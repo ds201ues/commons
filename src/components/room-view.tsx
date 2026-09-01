@@ -14,6 +14,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import { openPackets, pickUiActivePacket } from "@/lib/active-packet";
 import { canStickyDecide } from "@/lib/decide-sticky";
+import { writeLastRoomId } from "@/lib/last-room";
 import { liveParties, shortPartyLabel } from "@/lib/presence";
 import { partiesPresenceSignature, roomPollSignature } from "@/lib/room-dirty";
 import type { Party, PersistMode, Room, Seat } from "@/lib/types";
@@ -68,6 +69,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [theme, setTheme] = useState<"dark" | "light">("light");
   const [selfPartyId, setSelfPartyId] = useState<string | null>(null);
   const [creatingRoom, setCreatingRoom] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const aboutBtnRef = useRef<HTMLButtonElement>(null);
   const highlightTimerRef = useRef<number | null>(null);
@@ -87,7 +89,8 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       const res = await fetch(`/api/rooms/${roomId}/presence`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        // Fixture rooms without ownerTokenHash still honor as= for contest demos.
+        // Contributor share links send as=contributor so the owner cookie cannot
+        // make ChatGPT (same browser) look like Owner.
         body: JSON.stringify({ as: seat }),
       });
       const json = (await res.json()) as {
@@ -151,25 +154,30 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   async function createNewRoom() {
     if (creatingRoom) return;
     setCreatingRoom(true);
+    setCreateError(null);
     try {
       const res = await fetch("/api/rooms", {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({}),
       });
-      const json = (await res.json()) as { ok: boolean; url?: string; roomId?: string };
-      if (!json.ok || !json.url) return;
-      const nextId = json.roomId ?? json.url.split("/").pop() ?? "";
-      if (nextId) {
-        try {
-          window.localStorage.setItem("commons_room", nextId);
-        } catch {
-          // private mode
-        }
+      const json = (await res.json()) as {
+        ok: boolean
+        url?: string
+        roomId?: string
+        hint?: string
+      };
+      if (!json.ok || !json.url) {
+        setCreateError(json.hint ?? "Could not open a new room.");
+        setCreatingRoom(false);
+        return;
       }
+      const nextId = json.roomId ?? json.url.split("/").pop() ?? "";
+      if (nextId) writeLastRoomId(nextId);
       // Full navigation so the new owner cookie from Set-Cookie is applied.
       window.location.assign(json.url);
     } catch {
+      setCreateError("Could not open a new room. Check your connection.");
       setCreatingRoom(false);
     }
   }
@@ -239,6 +247,16 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       <header className="room-header">
         <div className="room-header-top">
           <p className="brand">Commons</p>
+          <p
+            className={`seat-badge seat-badge--${seat}`}
+            title={
+              seat === "owner"
+                ? "This tab is Owner. Copy the share link for Contributor / agent."
+                : "This tab is Contributor. Agent tools and edits are attributed here."
+            }
+          >
+            {seat === "owner" ? "Owner" : "Contributor"}
+          </p>
           {seat === "owner" && editingTitle ? (
             <input
               className="room-title-input"
@@ -340,6 +358,11 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             </button>
           </div>
         </div>
+        {createError ? (
+          <p className="room-action-error" role="alert">
+            {createError}
+          </p>
+        ) : null}
 
         <details className="capabilities">
           <summary>Your agent can</summary>
@@ -352,8 +375,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             ))}
           </ul>
           <p className="capabilities-note">
-            Decide is a human action on this page — not a registered tool. One share
-            link for everyone; your browser cookie decides Owner vs Contributor.
+            Decide is a human action on this page — not a registered tool. Copy
+            the share link for Contributor (and your agent). This tab without
+            the join query stays Owner.
           </p>
         </details>
       </header>

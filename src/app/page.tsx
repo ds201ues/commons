@@ -3,10 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { clearLastRoomId, readLastRoomId, writeLastRoomId } from "@/lib/last-room";
 import { FIXTURE_ROOM_ID } from "@/lib/types";
 import "./landing.css";
-
-const LAST_ROOM_KEY = "commons_room";
 
 export default function HomePage() {
   const router = useRouter();
@@ -18,10 +17,24 @@ export default function HomePage() {
     started.current = true;
 
     async function enter() {
-      const last = window.localStorage.getItem(LAST_ROOM_KEY);
+      const last = readLastRoomId();
       if (last) {
-        router.replace(`/r/${last}`);
-        return;
+        try {
+          const res = await fetch(`/api/rooms/${last}`, { cache: "no-store" });
+          if (res.ok) {
+            router.replace(`/r/${last}`);
+            return;
+          }
+          if (res.status === 404) {
+            clearLastRoomId();
+          } else {
+            router.replace(`/r/${last}`);
+            return;
+          }
+        } catch {
+          router.replace(`/r/${last}`);
+          return;
+        }
       }
       try {
         const res = await fetch("/api/rooms", {
@@ -38,7 +51,7 @@ export default function HomePage() {
           throw new Error(json.hint ?? "create failed");
         }
         const roomId = json.url.split("/").pop() ?? "";
-        if (roomId) window.localStorage.setItem(LAST_ROOM_KEY, roomId);
+        if (roomId) writeLastRoomId(roomId);
         router.replace(json.url);
       } catch {
         setError(

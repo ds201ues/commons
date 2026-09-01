@@ -1,6 +1,6 @@
 import { Redis } from "@upstash/redis";
 import { randomBytes } from "node:crypto";
-import type { DecideTokenPayload, Room } from "./types";
+import type { DecideTokenPayload, Party, Room } from "./types";
 import type { RoomStore } from "./store";
 
 const TOKEN_TTL_S = 120;
@@ -8,6 +8,10 @@ const NONCE_TTL_S = 60 * 60;
 
 function roomKey(id: string): string {
   return `room:${id}`;
+}
+
+function partiesKey(id: string): string {
+  return `room:${id}:parties`;
 }
 
 function tokenKey(token: string): string {
@@ -26,12 +30,23 @@ export class UpstashStore implements RoomStore {
   }
 
   async getRoom(id: string): Promise<Room | null> {
-    const room = await this.redis.get<Room>(roomKey(id));
-    return room ?? null;
+    const [room, parties] = await Promise.all([
+      this.redis.get<Room>(roomKey(id)),
+      this.redis.get<Party[]>(partiesKey(id)),
+    ]);
+    if (!room) return null;
+    return {
+      ...room,
+      parties: parties ?? room.parties ?? [],
+    };
   }
 
   async putRoom(id: string, room: Room): Promise<void> {
     await this.redis.set(roomKey(id), room);
+  }
+
+  async putParties(id: string, parties: Party[]): Promise<void> {
+    await this.redis.set(partiesKey(id), parties);
   }
 
   async mintDecideToken(payload: DecideTokenPayload): Promise<string> {

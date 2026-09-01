@@ -4,6 +4,7 @@ import { applyOp, peekRoom } from "@/lib/apply-op";
 import { isOpError } from "@/lib/errors";
 import { getStore, persistUnavailableBody } from "@/lib/get-store";
 import { ownerCookieName } from "@/lib/owner";
+import { publicRoom } from "@/lib/public-room";
 import { resolveRole } from "@/lib/role";
 
 type Params = { params: Promise<{ roomId: string }> };
@@ -39,7 +40,8 @@ export async function POST(req: Request, { params }: Params) {
 
   const jar = await cookies();
   const cookieSecret = jar.get(ownerCookieName(roomId))?.value ?? null;
-  // Real rooms: cookie-only. Fixture rooms without ownerTokenHash may use body.as.
+  // Real rooms: owner cookie, unless body.as asks for a contributor downgrade.
+  // Fixture rooms without ownerTokenHash may use body.as either direction.
   const seat = resolveRole({
     roomId,
     ownerTokenHash: room.ownerTokenHash,
@@ -68,7 +70,7 @@ export async function POST(req: Request, { params }: Params) {
       input: { packetId, optionId },
       decideToken: token,
     });
-    return NextResponse.json(out);
+    return NextResponse.json({ ...out, room: publicRoom(out.room) });
   } catch (err) {
     if (isOpError(err)) {
       return NextResponse.json(err.toBody(), { status: 400 });

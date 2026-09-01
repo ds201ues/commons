@@ -40,9 +40,15 @@ export function PatchLog({ log }: Props) {
               <span className="log__seq">{row.seq}</span>
               <div className="log__meta">
                 <span className={`log__seat log__seat--${row.seat}`}>{row.seat}</span>
-                {row.via === "agent" ? (
-                  <span className="log__via log__via--agent">agent</span>
-                ) : null}
+                <span
+                  className={
+                    row.via === "agent"
+                      ? "log__via log__via--agent"
+                      : "log__via log__via--human"
+                  }
+                >
+                  {row.via === "agent" ? "agent" : "human"}
+                </span>
                 <span className="log__op">{formatOp(row.op)}</span>
                 <time className="log__time" dateTime={row.at}>
                   {formatTime(row.at)}

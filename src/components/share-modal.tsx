@@ -79,8 +79,10 @@ export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
         </div>
 
         <p className="share-modal__explainer">
-          One link for everyone. Anyone who opens it joins as Contributor. Your
-          browser keeps the Owner cookie — there is no separate owner URL.
+          This link joins as Contributor — even in a browser that already has
+          the Owner cookie (ChatGPT, another tab). Keep this page without
+          <code> ?as=contributor</code> to stay Owner. Point the agent at the
+          copied link, not this tab.
         </p>
 
         <button type="button" className="share-modal__close" onClick={onClose}>

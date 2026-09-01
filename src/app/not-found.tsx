@@ -17,7 +17,7 @@ export default function NotFound() {
       </p>
       <div className="not-found-actions">
         <Link href="/" className="bar-btn">
-          Back to Commons — opens your room
+          Back to Commons
         </Link>
       </div>
     </main>

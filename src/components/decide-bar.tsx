@@ -106,18 +106,23 @@ export function DecideBar({
     if (!selectedOptionId || persistBlocked || !nonce) return;
     setPending(true);
     setError(null);
-    const res = await fetch(`/api/rooms/${roomId}/human/decide`, {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify({ packetId: packet.id, optionId: selectedOptionId, nonce, as: seat }),
-    });
-    const json = (await res.json()) as { ok: boolean; hint?: string };
-    setPending(false);
-    if (!json.ok) {
-      setError(json.hint ?? "Decide failed");
-      return;
+    try {
+      const res = await fetch(`/api/rooms/${roomId}/human/decide`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ packetId: packet.id, optionId: selectedOptionId, nonce, as: seat }),
+      });
+      const json = (await res.json()) as { ok: boolean; hint?: string };
+      if (!json.ok) {
+        setError(json.hint ?? "Decide failed");
+        return;
+      }
+      onDecided(packet.id);
+    } catch {
+      setError("Could not reach the server. Check your connection and try again.");
+    } finally {
+      setPending(false);
     }
-    onDecided(packet.id);
   }
 
   const optionPills = (

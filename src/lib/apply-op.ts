@@ -111,7 +111,7 @@ export async function applyOp(
   if (CONTRIBUTOR_OPS.has(req.op) && req.seat !== "contributor") {
     throw new OpError(
       "wrong_seat",
-      `${req.op} is a contributor op. Open the contributor URL.`,
+      `${req.op} is a contributor op. Join from a browser that is not the room owner.`,
     );
   }
 
