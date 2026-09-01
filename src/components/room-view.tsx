@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { DecideBar } from "@/components/decide-bar";
 import { DecisionsWall } from "@/components/decisions-wall";
 import { DocEditor } from "@/components/doc-editor";
@@ -8,6 +8,7 @@ import { PacketActions } from "@/components/packet-actions";
 import { PacketList } from "@/components/packet-list";
 import { PacketPanel } from "@/components/packet-panel";
 import { PatchLog } from "@/components/patch-log";
+import { ShareModal } from "@/components/share-modal";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import type { PersistMode, Room, Seat } from "@/lib/types";
 import "./room-shell.css";
@@ -46,7 +47,8 @@ function roleLabel(seat: Seat): string {
 
 export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [room, setRoom] = useState(initialRoom);
-  const [linkCopied, setLinkCopied] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const shareBtnRef = useRef<HTMLButtonElement>(null);
 
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/rooms/${roomId}`, { cache: "no-store" });
@@ -64,13 +66,6 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const openPacket = room.packets.find((p) => p.status === "open") ?? room.packets[0];
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
 
-  async function copyLink() {
-    const url = `${window.location.origin}/r/${roomId}`;
-    await navigator.clipboard.writeText(url);
-    setLinkCopied(true);
-    window.setTimeout(() => setLinkCopied(false), 2000);
-  }
-
   return (
     <div className={`room shell seat-${seat}`}>
       <WebmcpRegistrar roomId={roomId} seat={seat} />
@@ -84,11 +79,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
         <div className="room-header-main">
           <h1 className="room-title">{room.title}</h1>
           <button
+            ref={shareBtnRef}
             type="button"
-            className={`share-btn${linkCopied ? " share-btn--copied" : ""}`}
-            onClick={() => void copyLink()}
+            className="share-btn"
+            onClick={() => setShareOpen(true)}
           >
-            {linkCopied ? "Link copied" : "Copy share link"}
+            Copy share link
           </button>
         </div>
 
@@ -168,6 +164,13 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           </div>
         </section>
       </div>
+
+      <ShareModal
+        open={shareOpen}
+        roomId={roomId}
+        onClose={() => setShareOpen(false)}
+        returnFocusRef={shareBtnRef}
+      />
     </div>
   );
 }
