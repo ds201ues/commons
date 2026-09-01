@@ -33,7 +33,7 @@
   gap: 0.5rem;
   font-size: 0.88rem;
   line-height: 1.35;
-  color: var(--paper);
+  color: var(--canvas-ink);
   max-width: 100%;
 }
 
@@ -71,7 +71,7 @@
   line-height: 1.15;
   letter-spacing: -0.02em;
   margin: 0.35rem 0 0;
-  color: var(--paper);
+  color: var(--canvas-ink);
   text-wrap: balance;
 }
 
@@ -202,7 +202,7 @@
   border-top: 1px solid var(--hairline);
   font-size: 0.86rem;
   line-height: 1.5;
-  color: color-mix(in srgb, var(--paper) 88%, transparent);
+  color: color-mix(in srgb, var(--canvas-ink) 88%, transparent);
 }
 
 .packet__feed-item:first-child {
@@ -274,11 +274,11 @@
 }
 
 .composer__intent:hover:not(:disabled) {
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .composer__intent--active {
-  color: var(--paper);
+  color: var(--canvas-ink);
   border-bottom-color: var(--owner);
 }
 
@@ -308,7 +308,7 @@
   min-width: 0;
   font-family: inherit;
   font-size: 0.9rem;
-  color: var(--paper);
+  color: var(--canvas-ink);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--hairline-strong);
@@ -318,18 +318,18 @@
 }
 
 .composer__form input::placeholder {
-  color: color-mix(in srgb, var(--paper) 38%, transparent);
+  color: color-mix(in srgb, var(--canvas-ink) 38%, transparent);
 }
 
 .composer__form input:focus {
   outline: none;
-  border-bottom-color: var(--paper);
+  border-bottom-color: var(--canvas-ink);
 }
 
 .composer__form select {
   font-family: inherit;
   font-size: 0.82rem;
-  color: var(--paper);
+  color: var(--canvas-ink);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--hairline-strong);
@@ -339,7 +339,7 @@
 
 .composer__form select option {
   background: var(--bg-elev);
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .composer__form button[type="submit"] {
@@ -387,7 +387,7 @@
   padding: 1rem 0 0.25rem;
   border-top: 2px solid var(--stamp);
   background: transparent;
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .decide-bar__banner {
@@ -416,7 +416,7 @@
   font-weight: 800;
   letter-spacing: -0.01em;
   margin: 0;
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .decide-bar__subtitle {
@@ -437,7 +437,7 @@
   font-size: 0.85rem;
   font-weight: 500;
   background: transparent;
-  color: var(--paper);
+  color: var(--canvas-ink);
   border: 1px solid var(--hairline-strong);
   border-radius: 999px;
   padding: 0.4rem 0.85rem;
@@ -637,7 +637,7 @@
 .task__text {
   font-size: 0.86rem;
   line-height: 1.45;
-  color: var(--paper);
+  color: var(--canvas-ink);
   word-break: break-word;
 }
 
@@ -668,7 +668,7 @@
   min-width: 0;
   font-family: inherit;
   font-size: 0.86rem;
-  color: var(--paper);
+  color: var(--canvas-ink);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--hairline-strong);
@@ -676,18 +676,18 @@
 }
 
 .tasks-panel__add input::placeholder {
-  color: color-mix(in srgb, var(--paper) 38%, transparent);
+  color: color-mix(in srgb, var(--canvas-ink) 38%, transparent);
 }
 
 .tasks-panel__add input:focus {
   outline: none;
-  border-bottom-color: var(--paper);
+  border-bottom-color: var(--canvas-ink);
 }
 
 .tasks-panel__add select {
   font-family: inherit;
   font-size: 0.8rem;
-  color: var(--paper);
+  color: var(--canvas-ink);
   background: transparent;
   border: 0;
   border-bottom: 1px solid var(--hairline-strong);
@@ -696,7 +696,7 @@
 
 .tasks-panel__add select option {
   background: var(--bg-elev);
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .tasks-panel__add button {
@@ -705,7 +705,7 @@
   font-size: 0.8rem;
   font-weight: 700;
   background: transparent;
-  color: var(--paper);
+  color: var(--canvas-ink);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-sm);
   padding: 0.45rem 0.85rem;
@@ -714,7 +714,7 @@
 }
 
 .tasks-panel__add button:hover:not(:disabled) {
-  border-color: var(--paper);
+  border-color: var(--canvas-ink);
 }
 
 .tasks-panel__add button:disabled {
@@ -925,7 +925,7 @@
 .log__summary {
   grid-column: 2;
   margin: 0;
-  color: color-mix(in srgb, var(--paper) 88%, transparent);
+  color: color-mix(in srgb, var(--canvas-ink) 88%, transparent);
 }
 
 /* ── reduced motion ── */

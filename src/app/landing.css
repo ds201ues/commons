@@ -24,22 +24,22 @@
   background: color-mix(in srgb, var(--stamp) 12%, transparent);
   border: 1px solid var(--stamp);
   border-radius: var(--radius-sm);
-  color: color-mix(in srgb, var(--stamp) 80%, var(--paper));
+  color: color-mix(in srgb, var(--stamp) 80%, var(--canvas-ink));
   font-size: 0.88rem;
 }
 
 .splash-demo {
   margin: 0.5rem 0 0;
   font-size: 0.88rem;
-  color: color-mix(in srgb, var(--paper) 55%, transparent);
+  color: color-mix(in srgb, var(--canvas-ink) 55%, transparent);
 }
 
 .splash-demo a {
-  color: var(--paper);
-  text-decoration-color: color-mix(in srgb, var(--paper) 30%, transparent);
+  color: var(--canvas-ink);
+  text-decoration-color: color-mix(in srgb, var(--canvas-ink) 30%, transparent);
   text-underline-offset: 3px;
 }
 
 .splash-demo a:hover {
-  text-decoration-color: var(--paper);
+  text-decoration-color: var(--canvas-ink);
 }

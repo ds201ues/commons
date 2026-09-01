@@ -17,9 +17,9 @@ export function PacketList({ packets }: Props) {
         </p>
       ) : (
         <ul className="packet-list__items">
-          {open.map((p) => (
+          {open.map((p, index) => (
             <li key={p.id} className="packet-list__item">
-              <span className="packet-list__item-id">{p.id}</span>
+              <span className="packet-list__item-id">{index + 1}</span>
               <span>{p.question}</span>
             </li>
           ))}

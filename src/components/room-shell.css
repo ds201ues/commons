@@ -42,6 +42,54 @@
   text-overflow: ellipsis;
 }
 
+.room-title__btn {
+  display: inline-block;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 0 1px;
+  font: inherit;
+  letter-spacing: inherit;
+  text-align: left;
+  color: inherit;
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  cursor: text;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.room-title__btn:hover {
+  border-bottom-color: var(--hairline-strong);
+}
+
+.room-title__btn:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.room-title-input {
+  flex: 1 1 10rem;
+  min-width: 0;
+  margin: 0;
+  padding: 0 0 1px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--canvas-ink);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--owner);
+  border-radius: 0;
+}
+
+.room-title-input:focus {
+  outline: none;
+  border-bottom-color: var(--owner);
+}
+
 .room-actions {
   display: flex;
   align-items: center;
@@ -55,7 +103,7 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   background: transparent;
-  color: var(--paper);
+  color: var(--canvas-ink);
   border: 1px solid var(--hairline-strong);
   border-radius: var(--radius-sm);
   padding: 0.45rem 0.8rem;
@@ -64,7 +112,7 @@
 }
 
 .bar-btn:hover {
-  border-color: var(--paper);
+  border-color: var(--canvas-ink);
 }
 
 .bar-btn:focus-visible {
@@ -105,9 +153,9 @@
   font-size: 0.82rem;
   font-weight: 700;
   letter-spacing: 0.02em;
-  background: var(--paper);
-  color: var(--ink);
-  border: 1px solid var(--paper);
+  background: var(--canvas-ink);
+  color: var(--bg);
+  border: 1px solid var(--canvas-ink);
   border-radius: var(--radius-sm);
   padding: 0.45rem 0.85rem;
   cursor: pointer;
@@ -117,7 +165,7 @@
 
 .share-btn:hover {
   background: transparent;
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .share-btn:focus-visible {
@@ -196,7 +244,7 @@
 .capability-chip strong {
   font-family: var(--font-body);
   font-weight: 500;
-  color: var(--paper);
+  color: var(--canvas-ink);
 }
 
 .capability-chip span {

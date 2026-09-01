@@ -32,6 +32,7 @@ type Capability = {
 const OWNER_CAPABILITIES: Capability[] = [
   { label: "Read workspace", tool: "get_workspace" },
   { label: "Edit document", tool: "edit_doc" },
+  { label: "Rename room", tool: "rename_room" },
   { label: "Open decisions", tool: "open_decision" },
   { label: "Propose options", tool: "propose_option" },
   { label: "Attach evidence", tool: "attach_evidence" },
@@ -57,6 +58,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [shareOpen, setShareOpen] = useState(false);
   const [aboutOpen, setAboutOpen] = useState(false);
   const [highlightPacketId, setHighlightPacketId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleDraft, setTitleDraft] = useState("");
+  const [theme, setTheme] = useState<"dark" | "light">("dark");
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const aboutBtnRef = useRef<HTMLButtonElement>(null);
   const highlightTimerRef = useRef<number | null>(null);
@@ -81,6 +85,40 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       }
     };
   }, []);
+
+  useEffect(() => {
+    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+  }, []);
+
+  function toggleTheme() {
+    const next = theme === "dark" ? "light" : "dark";
+    document.documentElement.dataset.theme = next;
+    try {
+      window.localStorage.setItem("commons_theme", next);
+    } catch {
+      // private mode — theme lasts for the session only
+    }
+    setTheme(next);
+  }
+
+  async function saveTitle() {
+    setEditingTitle(false);
+    const title = titleDraft.trim();
+    if (!title || title === room.title) return;
+    setRoom({ ...room, title });
+    try {
+      const res = await fetch(`/api/rooms/${roomId}/ops`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ seat, as: seat, op: "rename_room", input: { title } }),
+      });
+      const json = (await res.json()) as { ok: boolean; room?: Room };
+      if (json.ok && json.room) setRoom(json.room);
+      else void refresh();
+    } catch {
+      void refresh();
+    }
+  }
 
   const openPacket = room.packets.find((p) => p.status === "open") ?? room.packets[0];
   const stickyDecide = canStickyDecide(openPacket);
@@ -115,9 +153,47 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       <header className="room-header">
         <div className="room-header-top">
           <p className="brand">Commons</p>
-          <h1 className="room-title">{room.title}</h1>
+          {seat === "owner" && editingTitle ? (
+            <input
+              className="room-title-input"
+              value={titleDraft}
+              autoFocus
+              maxLength={120}
+              aria-label="Room title"
+              onChange={(e) => setTitleDraft(e.target.value)}
+              onBlur={() => void saveTitle()}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") void saveTitle();
+                if (e.key === "Escape") setEditingTitle(false);
+              }}
+            />
+          ) : seat === "owner" ? (
+            <h1 className="room-title">
+              <button
+                type="button"
+                className="room-title__btn"
+                title="Rename the room"
+                onClick={() => {
+                  setTitleDraft(room.title);
+                  setEditingTitle(true);
+                }}
+              >
+                {room.title}
+              </button>
+            </h1>
+          ) : (
+            <h1 className="room-title">{room.title}</h1>
+          )}
           <span className="role-badge">{roleLabel(seat)}</span>
           <div className="room-actions">
+            <button
+              type="button"
+              className="bar-btn"
+              onClick={toggleTheme}
+              aria-label="Toggle light and dark mode"
+            >
+              {theme === "dark" ? "Light mode" : "Dark mode"}
+            </button>
             <button
               ref={shareBtnRef}
               type="button"

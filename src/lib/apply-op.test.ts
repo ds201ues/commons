@@ -100,6 +100,42 @@ describe("applyOp", () => {
     expect(out.room.packets[0]?.challenges).toHaveLength(1);
   });
 
+  it("lets the owner rename the room, trimmed and capped", async () => {
+    const out = await applyOp(store(), {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      op: "rename_room",
+      input: { title: "  Checkout rewrite v2  " },
+    });
+    expect(out.room.title).toBe("Checkout rewrite v2");
+    expect(out.room.log.at(-1)).toMatchObject({
+      op: "rename_room",
+      summary: "Renamed the room: Checkout rewrite v2",
+    });
+  });
+
+  it("rejects rename_room on the contributor seat", async () => {
+    await expect(
+      applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat: "contributor",
+        op: "rename_room",
+        input: { title: "Hostile rename" },
+      }),
+    ).rejects.toMatchObject({ code: "wrong_seat" });
+  });
+
+  it("rejects rename_room with an empty title", async () => {
+    await expect(
+      applyOp(store(), {
+        roomId: FIXTURE_ROOM_ID,
+        seat: "owner",
+        op: "rename_room",
+        input: { title: "   " },
+      }),
+    ).rejects.toMatchObject({ code: "not_found" });
+  });
+
   it("lets the owner edit the document", async () => {
     const out = await applyOp(store(), {
       roomId: FIXTURE_ROOM_ID,

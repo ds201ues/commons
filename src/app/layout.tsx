@@ -38,12 +38,17 @@ export const metadata: Metadata = {
   },
 };
 
+const themeInit = `try{var t=localStorage.getItem("commons_theme");if(t==="light"||t==="dark"){document.documentElement.dataset.theme=t}}catch(e){}`;
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
       className={`${bricolage.variable} ${figtree.variable} ${ibmPlexMono.variable} ${inter.variable}`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInit }} />
+      </head>
       <body>{children}</body>
     </html>
   );

@@ -112,6 +112,14 @@ export async function applyOp(
     throw new OpError("not_found", `Room ${req.roomId} does not exist.`);
   }
 
+  if (req.op === "rename_room") {
+    const title = requireText(req.input, "title").slice(0, 120);
+    room.title = title;
+    appendPatch(room, req.seat, req.op, `Renamed the room: ${title}`);
+    await store.putRoom(room.id, room);
+    return { ok: true, room, result: { title } };
+  }
+
   if (req.op === "edit_doc") {
     const markdown = requireText(req.input, "markdown");
     room.docMarkdown = markdown;

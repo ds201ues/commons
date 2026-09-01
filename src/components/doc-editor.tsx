@@ -26,13 +26,28 @@ Notes
 - Drop links, constraints, and background here.`;
 
 function formatInline(text: string): ReactNode[] {
-  const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_)/g);
+  const parts = text.split(/(\*\*[^*]+\*\*|_[^_]+_|`[^`]+`|\[[^\]]+\]\([^)]+\))/g);
   return parts.map((part, index) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return <strong key={index}>{part.slice(2, -2)}</strong>;
     }
     if (part.startsWith("_") && part.endsWith("_")) {
       return <em key={index}>{part.slice(1, -1)}</em>;
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return <code key={index}>{part.slice(1, -1)}</code>;
+    }
+    const link = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/);
+    if (link) {
+      const href = link[2] ?? "";
+      if (/^https?:\/\//.test(href)) {
+        return (
+          <a key={index} href={href} target="_blank" rel="noopener noreferrer">
+            {link[1]}
+          </a>
+        );
+      }
+      return <span key={index}>{link[1]}</span>;
     }
     return part;
   });
@@ -102,6 +117,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [tone, setTone] = useState<SaveTone>("idle");
   const [isDirty, setIsDirty] = useState(false);
+  const [editing, setEditing] = useState(false);
   const dirtyRef = useRef(false);
   const draftRef = useRef(docMarkdown);
   const timerRef = useRef<number | null>(null);
@@ -224,13 +240,41 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
 
   const label = statusLabel();
 
+  if (!editing) {
+    return (
+      <section className="doc-editor doc-editor--owner" aria-label="Document">
+        <header className="doc-editor-header">
+          <div>
+            <h2>The brief</h2>
+            <p className="doc-editor-sub">
+              Shared context on the table. Everyone in the room sees this.
+            </p>
+          </div>
+          <button
+            type="button"
+            className="doc-editor-edit"
+            onClick={() => setEditing(true)}
+          >
+            Edit
+          </button>
+        </header>
+        <MarkdownPreview markdown={draft} />
+        {error ? (
+          <p className="doc-editor-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </section>
+    );
+  }
+
   return (
     <section className="doc-editor doc-editor--owner" aria-label="Document editor">
       <header className="doc-editor-header">
         <div>
           <h2>The brief</h2>
           <p className="doc-editor-sub">
-            You&apos;re writing on the shared table. Everyone in the room sees this.
+            You&apos;re editing the shared table. Markdown renders when you save.
           </p>
         </div>
         {label ? (
@@ -243,8 +287,9 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
       <textarea
         className="doc-editor-textarea"
         value={draft}
-        rows={18}
+        rows={14}
         spellCheck
+        autoFocus
         data-dirty={isDirty ? "true" : "false"}
         placeholder={OWNER_PLACEHOLDER}
         aria-label="Edit the room brief"
@@ -264,11 +309,13 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           type="button"
           className="doc-editor-save"
           disabled={tone === "saving"}
-          onClick={saveNow}
+          onClick={() => {
+            saveNow();
+            setEditing(false);
+          }}
         >
           {tone === "saving" ? "Saving…" : "Save"}
         </button>
-        <span className="doc-editor-hint">Auto-saves shortly after you stop typing</span>
       </footer>
 
       {error ? (

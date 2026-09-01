@@ -37,6 +37,19 @@ const editDoc: ToolDef = {
   },
 };
 
+const renameRoom: ToolDef = {
+  name: "rename_room",
+  description: "Rename the room. The title shows in the top bar.",
+  untrustedContentHint: true,
+  inputSchema: {
+    type: "object",
+    properties: {
+      title: { type: "string", description: "New room title" },
+    },
+    required: ["title"],
+  },
+};
+
 const openDecision: ToolDef = {
   name: "open_decision",
   description: "Open a new decision with a question.",
@@ -150,7 +163,7 @@ const completeTask: ToolDef = {
 
 export function toolsForSeat(seat: Seat): ToolDef[] {
   if (seat === "owner") {
-    return [getWorkspace, editDoc, openDecision, proposeOption, attachEvidence, addTask, completeTask];
+    return [getWorkspace, editDoc, renameRoom, openDecision, proposeOption, attachEvidence, addTask, completeTask];
   }
   return [getWorkspace, comment, challenge, requestEvidence, addTask, completeTask];
 }
