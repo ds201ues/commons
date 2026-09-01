@@ -22,7 +22,7 @@
   --canvas-ink: #171a20;
   --hairline: color-mix(in srgb, var(--canvas-ink) 14%, transparent);
   --hairline-strong: color-mix(in srgb, var(--canvas-ink) 30%, transparent);
-  --text-dim: color-mix(in srgb, var(--canvas-ink) 58%, transparent);
+  --text-dim: color-mix(in srgb, var(--canvas-ink) 68%, transparent);
 
   --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
   --font-body: var(--font-figtree), "Figtree", system-ui, sans-serif;
@@ -51,10 +51,18 @@
   color-scheme: dark;
   --bg: #0f1419;
   --bg-elev: #1a222c;
+  --paper: #1e2630;
+  --ink: #f4efe6;
+  --muted: #a8b0ba;
+  --rule: #3a4450;
   --canvas-ink: #f7f3ea;
   --hairline: color-mix(in srgb, var(--canvas-ink) 13%, transparent);
   --hairline-strong: color-mix(in srgb, var(--canvas-ink) 26%, transparent);
-  --text-dim: color-mix(in srgb, var(--canvas-ink) 62%, transparent);
+  --text-dim: color-mix(in srgb, var(--canvas-ink) 72%, transparent);
+  --shadow-paper:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 2px 8px rgba(0, 0, 0, 0.4),
+    0 16px 40px rgba(0, 0, 0, 0.45);
   --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.35);
   --shadow-stamp: 0 2px 12px rgba(226, 74, 44, 0.35);
   --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus-ring-color);

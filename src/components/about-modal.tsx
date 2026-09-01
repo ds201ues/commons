@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useId, useRef, type RefObject } from "react";
+import { useId, useRef, type RefObject } from "react";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import { FIXTURE_ROOM_ID } from "@/lib/types";
 import "./about-modal.css";
 
@@ -41,29 +42,8 @@ const SPECS = [
 export function AboutModal({ open, onClose, returnFocusRef }: Props) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
-  const wasOpenRef = useRef(false);
 
-  useEffect(() => {
-    if (!open) return;
-    const panel = panelRef.current;
-    panel?.querySelector<HTMLElement>("button")?.focus();
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  useEffect(() => {
-    if (wasOpenRef.current && !open) {
-      returnFocusRef?.current?.focus();
-    }
-    wasOpenRef.current = open;
-  }, [open, returnFocusRef]);
+  useDialogFocus({ open, panelRef, onClose, returnFocusRef });
 
   if (!open) return null;
 
@@ -75,6 +55,7 @@ export function AboutModal({ open, onClose, returnFocusRef }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id={titleId} className="about-modal__title">

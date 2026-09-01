@@ -15,6 +15,7 @@ import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import { openPackets, pickUiActivePacket } from "@/lib/active-packet";
 import { canStickyDecide } from "@/lib/decide-sticky";
 import { liveParties, shortPartyLabel } from "@/lib/presence";
+import { partiesPresenceSignature, roomPollSignature } from "@/lib/room-dirty";
 import type { Party, PersistMode, Room, Seat } from "@/lib/types";
 import "./room-shell.css";
 
@@ -74,7 +75,11 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const refresh = useCallback(async () => {
     const res = await fetch(`/api/rooms/${roomId}`, { cache: "no-store" });
     const json = (await res.json()) as { ok: boolean; room?: Room };
-    if (json.ok && json.room) setRoom(json.room);
+    if (!json.ok || !json.room) return;
+    const next = json.room;
+    setRoom((prev) =>
+      roomPollSignature(prev) === roomPollSignature(next) ? prev : next,
+    );
   }, [roomId]);
 
   const heartbeat = useCallback(async () => {
@@ -93,7 +98,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       if (!json.ok) return;
       if (json.partyId) setSelfPartyId(json.partyId);
       if (json.parties) {
-        setRoom((prev) => ({ ...prev, parties: json.parties ?? [] }));
+        const incoming = json.parties;
+        setRoom((prev) =>
+          partiesPresenceSignature(prev.parties) === partiesPresenceSignature(incoming)
+            ? prev
+            : { ...prev, parties: incoming },
+        );
       }
     } catch {
       // presence is best-effort
@@ -219,10 +229,13 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   }
 
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
+  const dialogOpen = shareOpen || aboutOpen;
+
   return (
     <div className={`room shell seat-${seat}`}>
       <WebmcpRegistrar roomId={roomId} seat={seat} />
 
+      <div inert={dialogOpen || undefined}>
       <header className="room-header">
         <div className="room-header-top">
           <p className="brand">Commons</p>
@@ -264,6 +277,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
                 title={`You · ${seat}`}
               >
                 <span className="presence__initial">Y</span>
+                <span className="visually-hidden">{`You · ${seat}`}</span>
               </li>
             ) : (
               present.map((party) => {
@@ -344,9 +358,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
         </details>
       </header>
 
-      <div className="room-desk">
+      <main className="room-desk">
         <div className="room-desk__main">
-          <section className="room-section room-section--doc" aria-label="Document">
+          <section className="room-section room-section--doc" aria-label="Brief column">
             <DocEditor
               roomId={roomId}
               seat={seat}
@@ -365,13 +379,12 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             onSelect={setActivePacketId}
           />
 
-          {/* Tabs → Tasks list → Now deciding (below tasks) → Decide */}
+          {/* Tabs (assign-only Tasks) → Tasks list → Now deciding → Decide */}
           <ContributeRail
             roomId={roomId}
             seat={seat}
             packet={openPacket?.status === "open" ? openPacket : null}
             packets={room.packets}
-            tasks={room.tasks ?? []}
             highlightPacketId={highlightPacketId}
             onUpdated={setRoom}
           />
@@ -402,7 +415,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             </div>
           ) : null}
         </aside>
-      </div>
+      </main>
 
       {stickyDecide && openPacket ? (
         <DecideBar
@@ -415,6 +428,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           onDecided={handleDecided}
         />
       ) : null}
+      </div>
 
       <ShareModal
         open={shareOpen}

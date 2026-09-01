@@ -10,6 +10,7 @@ import {
   type RefObject,
 } from "react";
 import { roomShareUrl } from "@/lib/share-url";
+import { useDialogFocus } from "@/lib/use-dialog-focus";
 import "./share-modal.css";
 
 type Props = {
@@ -22,7 +23,6 @@ type Props = {
 export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement>(null);
-  const wasOpenRef = useRef(false);
   const [copied, setCopied] = useState(false);
 
   const url = useMemo(() => {
@@ -34,31 +34,7 @@ export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
     if (!open) setCopied(false);
   }, [open]);
 
-  useEffect(() => {
-    if (!open) return;
-    const panel = panelRef.current;
-    if (!panel) return;
-    const focusable = panel.querySelector<HTMLElement>(
-      "button, input, [tabindex]:not([tabindex=\"-1\"])",
-    );
-    focusable?.focus();
-  }, [open]);
-
-  useEffect(() => {
-    if (!open) return;
-    function onKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") onClose();
-    }
-    document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [open, onClose]);
-
-  useEffect(() => {
-    if (wasOpenRef.current && !open) {
-      returnFocusRef?.current?.focus();
-    }
-    wasOpenRef.current = open;
-  }, [open, returnFocusRef]);
+  useDialogFocus({ open, panelRef, onClose, returnFocusRef });
 
   const copy = useCallback(async () => {
     if (!url) return;
@@ -77,6 +53,7 @@ export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
+        tabIndex={-1}
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id={titleId} className="share-modal__title">

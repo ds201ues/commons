@@ -98,7 +98,7 @@
   font-size: 0.68rem;
 }
 
-.packet h1 {
+.packet h2 {
   font-size: clamp(1.3rem, 2.6vw, 1.65rem);
   line-height: 1.15;
   letter-spacing: -0.02em;
@@ -333,6 +333,11 @@
   text-decoration: underline;
 }
 
+.contribute-rail__create-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .seat-contributor .contribute-rail__create-label,
 .seat-contributor .contribute-rail__create-toggle {
   color: var(--contributor);
@@ -352,37 +357,14 @@
   color: var(--canvas-ink);
 }
 
+.contribute-rail__create-cancel:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
 .contribute-rail__decisions {
   display: grid;
   gap: 0.85rem;
-}
-
-.contribute-rail__task-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
-  gap: 0;
-}
-
-.contribute-rail__task {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.45rem 0;
-  border-top: 1px solid var(--hairline);
-  font-size: 0.9rem;
-}
-
-.contribute-rail__task:first-child {
-  border-top: 0;
-  padding-top: 0;
-}
-
-.contribute-rail__task--done {
-  opacity: 0.55;
-  text-decoration: line-through;
 }
 
 .decisions-wall--embedded {
@@ -733,6 +715,11 @@
 
 .decide-bar__collapse:hover {
   color: var(--canvas-ink);
+}
+
+.decide-bar__collapse:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .decide-bar--collapsed .decide-bar__collapse {
@@ -1197,6 +1184,127 @@
   grid-column: 2;
   margin: 0;
   color: color-mix(in srgb, var(--canvas-ink) 88%, transparent);
+}
+
+/* ── narrow viewports: sticky Decide + composer + touch targets ── */
+
+@media (max-width: 959px) {
+  .contribute-rail__create-toggle,
+  .contribute-rail__create-cancel {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-self: start;
+    width: max-content;
+    min-height: 44px;
+    padding: 0.45rem 0;
+  }
+
+  .composer__intents {
+    gap: 0.2rem 0.85rem;
+  }
+
+  .composer__intent {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.45rem 0.1rem;
+  }
+
+  .composer__form {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.65rem;
+  }
+
+  .composer__form input,
+  .composer__form select,
+  .composer__form button[type="submit"] {
+    flex: 1 1 auto;
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .decide-bar--sticky {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 0.7rem 1.5rem calc(0.7rem + env(safe-area-inset-bottom, 0px));
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+    border-left: 0;
+    border-right: 0;
+    border-bottom: 0;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .decide-bar--sticky .decide-bar__question {
+    flex: 1 1 8rem;
+  }
+
+  .decide-bar--sticky:not(.decide-bar--collapsed) .decide-bar__collapse {
+    order: 2;
+    margin-left: auto;
+  }
+
+  .decide-bar--sticky .decide-bar__pills {
+    flex: 1 1 100%;
+    order: 3;
+    gap: 0.4rem;
+  }
+
+  .decide-bar--sticky .decide-bar__pill {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0.45rem 0.85rem;
+  }
+
+  .decide-bar--sticky .decide-bar__stamp {
+    flex: 1 1 100%;
+    order: 4;
+    width: 100%;
+    margin-left: 0;
+    min-height: 44px;
+    padding: 0.65rem 1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .decide-bar--sticky .decide-bar__error {
+    order: 5;
+  }
+
+  .decide-bar--sticky .decide-bar__collapse {
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0.45rem 0.55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .decide-bar--sticky.decide-bar--collapsed {
+    padding-top: 0.55rem;
+    padding-bottom: calc(0.55rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .decide-bar__collapsed-meta {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 800px) {
+  .decide-bar--sticky {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
 }
 
 /* ── reduced motion ── */

@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useId, useRef, useState, type FormEvent, type KeyboardEvent } from "react";
 import { DecisionsWall } from "@/components/decisions-wall";
 import { OpenDecisionControl } from "@/components/open-decision-control";
-import { normalizeSeat, type Packet, type Room, type Seat, type Task } from "@/lib/types";
+import { normalizeSeat, type Packet, type Room, type Seat } from "@/lib/types";
 import "./packets.css";
 
 type TabId = "options" | "evidence" | "tasks" | "decisions";
@@ -13,7 +13,6 @@ type Props = {
   seat: Seat
   packet: Packet | null
   packets: Packet[]
-  tasks: Task[]
   highlightPacketId?: string | null
   onUpdated: (room: Room) => void
 };
@@ -41,7 +40,6 @@ export function ContributeRail({
   seat,
   packet,
   packets,
-  tasks,
   highlightPacketId,
   onUpdated,
 }: Props) {
@@ -54,6 +52,44 @@ export function ContributeRail({
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [creating, setCreating] = useState(true);
+  const tabsId = useId();
+  const panelId = `${tabsId}-panel`;
+  const tabRefs = useRef<Partial<Record<TabId, HTMLButtonElement | null>>>({});
+
+  function tabButtonId(id: TabId) {
+    return `${tabsId}-tab-${id}`;
+  }
+
+  function enabledTabIds(): TabId[] {
+    return TABS.filter((item) => {
+      if ((item.id === "options" || item.id === "evidence") && !hasOpen) return false;
+      return true;
+    }).map((item) => item.id);
+  }
+
+  function onTabListKeyDown(event: KeyboardEvent<HTMLDivElement>) {
+    if (
+      event.key !== "ArrowLeft" &&
+      event.key !== "ArrowRight" &&
+      event.key !== "Home" &&
+      event.key !== "End"
+    ) {
+      return;
+    }
+    const ids = enabledTabIds();
+    if (ids.length === 0) return;
+    const idx = ids.indexOf(tab);
+    const current = idx < 0 ? 0 : idx;
+    let nextIdx = current;
+    if (event.key === "ArrowRight") nextIdx = (current + 1) % ids.length;
+    else if (event.key === "ArrowLeft") nextIdx = (current - 1 + ids.length) % ids.length;
+    else if (event.key === "Home") nextIdx = 0;
+    else nextIdx = ids.length - 1;
+    event.preventDefault();
+    const next = ids[nextIdx];
+    setTab(next);
+    queueMicrotask(() => tabRefs.current[next]?.focus());
+  }
 
   useEffect(() => {
     if ((tab === "options" || tab === "evidence") && !hasOpen) {
@@ -132,8 +168,6 @@ export function ContributeRail({
   const challenges = openPacket?.challenges ?? [];
   const requests = openPacket?.requests ?? [];
   const comments = openPacket?.comments ?? [];
-  const openTasks = tasks.filter((t) => !t.done);
-  const doneTasks = tasks.filter((t) => t.done);
 
   const createLabel =
     tab === "options"
@@ -146,18 +180,30 @@ export function ContributeRail({
 
   return (
     <section className="contribute-rail" aria-label="Contribute">
-      <div className="composer__intents contribute-rail__tabs" role="tablist" aria-label="Contribute sections">
+      <div
+        className="composer__intents contribute-rail__tabs"
+        role="tablist"
+        aria-label="Contribute sections"
+        onKeyDown={onTabListKeyDown}
+      >
         {TABS.map((item) => {
           const disabled =
             (item.id === "options" || item.id === "evidence") && !hasOpen;
+          const selected = tab === item.id;
           return (
             <button
               key={item.id}
+              id={tabButtonId(item.id)}
+              ref={(node) => {
+                tabRefs.current[item.id] = node;
+              }}
               type="button"
               role="tab"
-              aria-selected={tab === item.id}
+              aria-selected={selected}
+              aria-controls={panelId}
+              tabIndex={selected ? 0 : -1}
               className={
-                tab === item.id
+                selected
                   ? "composer__intent composer__intent--active"
                   : "composer__intent"
               }
@@ -173,7 +219,12 @@ export function ContributeRail({
         })}
       </div>
 
-      <div className="contribute-rail__panel" role="tabpanel">
+      <div
+        className="contribute-rail__panel"
+        role="tabpanel"
+        id={panelId}
+        aria-labelledby={tabButtonId(tab)}
+      >
         {tab === "decisions" ? (
           <div className="contribute-rail__decisions">
             {seat === "owner" ? (
@@ -340,27 +391,7 @@ export function ContributeRail({
             ) : null}
 
             {tab === "tasks" ? (
-              tasks.length === 0 ? (
-                <p className="packet__empty-inline">No tasks yet.</p>
-              ) : (
-                <ul className="contribute-rail__task-list">
-                  {[...openTasks, ...doneTasks].map((task) => (
-                    <li
-                      key={task.id}
-                      className={
-                        task.done
-                          ? "contribute-rail__task contribute-rail__task--done"
-                          : "contribute-rail__task"
-                      }
-                    >
-                      <span>{task.text}</span>
-                      <span className={`task__assignee task__assignee--${task.assignee}`}>
-                        {task.assignee}
-                      </span>
-                    </li>
-                  ))}
-                </ul>
-              )
+              <p className="packet__empty-inline">Open tasks appear below.</p>
             ) : null}
           </>
         )}

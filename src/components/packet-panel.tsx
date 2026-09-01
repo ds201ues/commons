@@ -18,7 +18,7 @@ export function PacketPanel({ packet }: Props) {
         >
           {isOpen ? "Now deciding" : packet.status === "decided" ? "Closed" : packet.status}
         </p>
-        <h1>{packet.question}</h1>
+        <h2>{packet.question}</h2>
       </header>
 
       {packet.decision ? (

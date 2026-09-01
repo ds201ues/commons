@@ -24,6 +24,7 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem 0.9rem;
+  min-width: 0;
 }
 
 .room-header-top .brand {
@@ -92,9 +93,11 @@
 
 .room-actions {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.45rem;
   margin-left: auto;
+  max-width: 100%;
 }
 
 .bar-btn {
@@ -159,6 +162,8 @@
   margin: 0 0 0 auto;
   padding: 0;
   list-style: none;
+  max-width: 100%;
+  min-width: 0;
 }
 
 .presence--circles {
@@ -192,6 +197,16 @@
 .presence__avatar--contributor {
   background: color-mix(in srgb, var(--contributor) 28%, var(--bg-elev));
   color: var(--contributor);
+}
+
+:root[data-theme="dark"] .presence__avatar--owner {
+  background: color-mix(in srgb, var(--owner) 36%, var(--bg-elev));
+  color: color-mix(in srgb, var(--owner) 50%, #fff);
+}
+
+:root[data-theme="dark"] .presence__avatar--contributor {
+  background: color-mix(in srgb, var(--contributor) 36%, var(--bg-elev));
+  color: color-mix(in srgb, var(--contributor) 50%, #fff);
 }
 
 .presence__avatar--self {
@@ -419,6 +434,73 @@
 /* ── responsive: columns stack, divider goes horizontal ── */
 
 @media (max-width: 959px) {
+  .room.shell:has(.decide-bar--sticky) {
+    padding-bottom: calc(18rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .room.shell:has(.decide-bar--collapsed) {
+    padding-bottom: calc(7rem + env(safe-area-inset-bottom, 0px));
+  }
+
+  .room-header-top {
+    row-gap: 0.55rem;
+  }
+
+  .room-header-top .brand {
+    order: 0;
+  }
+
+  .presence {
+    order: 1;
+    margin-left: auto;
+  }
+
+  .room-actions {
+    order: 2;
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+
+  .room-header-top .room-title,
+  .room-header-top .room-title-input {
+    flex: 1 1 100%;
+    order: 3;
+    white-space: normal;
+  }
+
+  .room-title__btn {
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
+  }
+
+  .bar-btn,
+  .share-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding-top: 0.55rem;
+    padding-bottom: 0.55rem;
+  }
+
+  .theme-toggle {
+    position: relative;
+    width: 2.15rem;
+    height: 2.15rem;
+    flex-shrink: 0;
+  }
+
+  .theme-toggle::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
+
   .room-desk {
     grid-template-columns: 1fr;
   }
@@ -445,14 +527,13 @@
     padding: 0.7rem 1rem 0.6rem;
   }
 
-  .room-header-top .room-title {
-    flex-basis: 100%;
-    order: 2;
-    white-space: normal;
+  .presence {
+    margin-left: 0;
   }
 
   .room-actions {
-    margin-left: 0;
+    flex: 1 1 auto;
+    justify-content: flex-start;
   }
 }
 

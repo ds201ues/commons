@@ -20,6 +20,10 @@
   font-family: var(--font-body);
 }
 
+.share-modal__panel:focus {
+  outline: none;
+}
+
 .share-modal__title {
   margin: 0 0 1rem;
   font-family: var(--font-display);
@@ -43,7 +47,7 @@
   padding: 0.55rem 0.65rem;
   border: 1.5px solid var(--rule);
   border-radius: var(--radius-sm);
-  background: #fff;
+  background: var(--bg-elev);
   color: var(--ink);
 }
 

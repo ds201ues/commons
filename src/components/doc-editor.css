@@ -88,10 +88,14 @@
   caret-color: var(--owner);
 }
 
-.doc-surface--rich:focus,
-.doc-surface--rich:focus-visible {
+.doc-surface--rich:focus {
   outline: none;
   box-shadow: none;
+}
+
+.doc-surface--rich:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .doc-surface--rich[data-empty="true"]:before {

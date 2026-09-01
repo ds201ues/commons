@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent } from "react";
 import type { Packet, PersistMode, Seat } from "@/lib/types";
 import "./packets.css";
 
@@ -38,6 +38,45 @@ export function DecideBar({
   const [collapsed, setCollapsed] = useState(false);
   const persistBlocked = persist === "ephemeral";
   const disabled = pending || persistBlocked || !nonce;
+  const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+
+  function moveRadioSelection(fromId: string, key: string) {
+    const opts = packet.options;
+    if (opts.length === 0) return;
+    const idx = opts.findIndex((o) => o.id === fromId);
+    const current = idx < 0 ? 0 : idx;
+    let nextIdx = current;
+    if (key === "ArrowRight" || key === "ArrowDown") {
+      nextIdx = (current + 1) % opts.length;
+    } else if (key === "ArrowLeft" || key === "ArrowUp") {
+      nextIdx = (current - 1 + opts.length) % opts.length;
+    } else if (key === "Home") {
+      nextIdx = 0;
+    } else if (key === "End") {
+      nextIdx = opts.length - 1;
+    } else {
+      return;
+    }
+    const next = opts[nextIdx];
+    setSelectedOptionId(next.id);
+    pillRefs.current[next.id]?.focus();
+  }
+
+  function onRadioKeyDown(event: KeyboardEvent<HTMLButtonElement>, optId: string) {
+    if (disabled) return;
+    if (
+      event.key !== "ArrowLeft" &&
+      event.key !== "ArrowRight" &&
+      event.key !== "ArrowUp" &&
+      event.key !== "ArrowDown" &&
+      event.key !== "Home" &&
+      event.key !== "End"
+    ) {
+      return;
+    }
+    event.preventDefault();
+    moveRadioSelection(optId, event.key);
+  }
 
   useEffect(() => {
     setSelectedOptionId(null);
@@ -87,12 +126,20 @@ export function DecideBar({
       role="radiogroup"
       aria-label="Decision options"
     >
-      {packet.options.map((opt) => (
+      {packet.options.map((opt, index) => (
         <button
           key={opt.id}
+          ref={(node) => {
+            pillRefs.current[opt.id] = node;
+          }}
           type="button"
           role="radio"
           aria-checked={selectedOptionId === opt.id}
+          tabIndex={
+            selectedOptionId === opt.id || (selectedOptionId === null && index === 0)
+              ? 0
+              : -1
+          }
           className={
             selectedOptionId === opt.id
               ? "decide-bar__pill decide-bar__pill--selected"
@@ -100,6 +147,7 @@ export function DecideBar({
           }
           disabled={disabled}
           onClick={() => setSelectedOptionId(opt.id)}
+          onKeyDown={(event) => onRadioKeyDown(event, opt.id)}
         >
           {opt.label}
         </button>
@@ -121,12 +169,16 @@ export function DecideBar({
   const errorBlock = (
     <>
       {persistBlocked ? (
-        <p className="decide-bar__error">
+        <p className="decide-bar__error" role="alert">
           Decide is disabled on this deploy: no Upstash Redis. The decision would
           not survive the next lambda.
         </p>
       ) : null}
-      {error ? <p className="decide-bar__error">{error}</p> : null}
+      {error ? (
+        <p className="decide-bar__error" role="alert">
+          {error}
+        </p>
+      ) : null}
     </>
   );
 
