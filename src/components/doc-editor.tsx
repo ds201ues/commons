@@ -39,7 +39,7 @@ function formatInline(text: string): ReactNode[] {
 }
 
 function MarkdownPreview({ markdown }: { markdown: string }) {
-  const trimmed = markdown.trim();
+  const trimmed = (markdown ?? "").trim();
   if (!trimmed) {
     return (
       <p className="doc-empty">

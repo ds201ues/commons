@@ -36,4 +36,18 @@ describe("normalizeRoom", () => {
     expect(room.packets[0]?.options[0]?.authorSeat).toBe("owner");
     expect(room.packets[0]?.decision?.decidedBySeat).toBe("contributor");
   });
+
+  it("defaults missing docMarkdown so SSR cannot crash on .trim()", () => {
+    const legacy = {
+      id: "checkout-friday",
+      title: "Checkout rewrite",
+      nextSeq: 1,
+      log: [],
+      packets: [],
+    } as unknown as Room;
+
+    const room = normalizeRoom(legacy);
+    expect(room.docMarkdown).toBe("");
+    expect(room.title).toBe("Checkout rewrite");
+  });
 });

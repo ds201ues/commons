@@ -40,6 +40,9 @@ function normalizePacket(packet: Packet): Packet {
 export function normalizeRoom(room: Room): Room {
   return {
     ...room,
+    title: room.title?.trim() || "Untitled room",
+    // Legacy Upstash fixtures predate docMarkdown; SSR must never see undefined.
+    docMarkdown: room.docMarkdown ?? "",
     packets: (room.packets ?? []).map(normalizePacket),
     log: (room.log ?? []).map((row) => ({
       ...row,

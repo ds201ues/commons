@@ -30,16 +30,36 @@ function requireText(input: Record<string, string>, key: string): string {
   return value;
 }
 
+function healLegacyFixture(room: Room): Room {
+  const normalized = normalizeRoom(room);
+  if (!isFixtureRoomId(room.id)) return normalized;
+  // Prod Redis still holds pre-docMarkdown fixture shells.
+  if (normalized.docMarkdown) return normalized;
+  const seeded = fixtureRoom();
+  return normalizeRoom({
+    ...seeded,
+    ...normalized,
+    docMarkdown: seeded.docMarkdown,
+    packets: normalized.packets.length > 0 ? normalized.packets : seeded.packets,
+  });
+}
+
 export async function peekRoom(store: RoomStore, roomId: string): Promise<Room | null> {
   const existing = await store.getRoom(roomId);
-  if (existing) return normalizeRoom(existing);
+  if (existing) return healLegacyFixture(existing);
   if (!isFixtureRoomId(roomId)) return null;
   return fixtureRoom();
 }
 
 export async function loadRoom(store: RoomStore, roomId: string): Promise<Room | null> {
   const existing = await store.getRoom(roomId);
-  if (existing) return normalizeRoom(existing);
+  if (existing) {
+    const healed = healLegacyFixture(existing);
+    if (isFixtureRoomId(roomId) && !existing.docMarkdown) {
+      await store.putRoom(roomId, healed);
+    }
+    return healed;
+  }
   if (!isFixtureRoomId(roomId)) return null;
   const seeded = fixtureRoom();
   await store.putRoom(roomId, seeded);
