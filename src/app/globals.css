@@ -477,20 +477,7 @@ a {
   cursor: not-allowed;
 }
 
-/* ── room grid ── */
-
-.room-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(15rem, 0.75fr);
-  gap: 1.35rem;
-  align-items: start;
-}
-
-.side-stack {
-  display: grid;
-  gap: 1rem;
-  align-content: start;
-}
+/* ── room desk (layout lives in room-shell.css) ── */
 
 /* ── decision packet (open state — airy) ── */
 
@@ -810,10 +797,6 @@ a {
   .landing,
   .room {
     padding: 1.75rem 1rem 3.5rem;
-  }
-
-  .room-grid {
-    grid-template-columns: 1fr;
   }
 
   .seat-links a {

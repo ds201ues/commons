@@ -120,8 +120,8 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           </p>
         </details>
 
-        <div className="capabilities">
-          <p className="capabilities-label">Your agent can</p>
+        <details className="capabilities" open>
+          <summary>Your agent can</summary>
           <ul className="capability-chips" aria-label="Agent capabilities for this seat">
             {capabilities.map((cap) => (
               <li key={cap.tool} className="capability-chip" title={cap.tool}>
@@ -133,60 +133,54 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           <p className="capabilities-note">
             Decide is a human action on this page — not a registered tool.
           </p>
-        </div>
+        </details>
       </header>
 
-      <div className="room-body">
-        <section className="room-section room-section--doc" aria-label="Document">
-          <DocEditor
-            roomId={roomId}
-            seat={seat}
-            docMarkdown={room.docMarkdown}
-            onSaved={setRoom}
-          />
-        </section>
+      <div className="room-desk">
+        <div className="room-desk__main">
+          <section className="room-section room-section--doc" aria-label="Document">
+            <DocEditor
+              roomId={roomId}
+              seat={seat}
+              docMarkdown={room.docMarkdown}
+              onSaved={setRoom}
+            />
+          </section>
 
-        <section className="room-section room-section--work" aria-label="Open work">
-          <p className="room-eyebrow">Open work</p>
-          <PacketList packets={room.packets} />
+          {openPacket ? (
+            <PacketPanel packet={openPacket} />
+          ) : (
+            <p className="empty">No packet in this room.</p>
+          )}
 
-          <div className="room-grid">
-            <div className="work-column">
-              {openPacket ? (
-                <PacketPanel packet={openPacket} />
-              ) : (
-                <p className="empty">No packet in this room.</p>
-              )}
+          {openPacket?.status === "open" ? (
+            <PacketActions
+              roomId={roomId}
+              seat={seat}
+              packet={openPacket}
+              onUpdated={setRoom}
+            />
+          ) : null}
 
-              {openPacket?.status === "open" ? (
-                <PacketActions
-                  roomId={roomId}
-                  seat={seat}
-                  packet={openPacket}
-                  onUpdated={setRoom}
-                />
-              ) : null}
-
-              {openPacket?.status === "open" && !stickyDecide ? (
-                <div className="decide-zone">
-                  <DecideBar
-                    roomId={roomId}
-                    seat={seat}
-                    nonce={nonce}
-                    persist={persist}
-                    packet={openPacket}
-                    onDecided={handleDecided}
-                  />
-                </div>
-              ) : null}
+          {openPacket?.status === "open" && !stickyDecide ? (
+            <div className="decide-zone">
+              <DecideBar
+                roomId={roomId}
+                seat={seat}
+                nonce={nonce}
+                persist={persist}
+                packet={openPacket}
+                onDecided={handleDecided}
+              />
             </div>
+          ) : null}
+        </div>
 
-            <aside className="side-stack" aria-label="Activity">
-              <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
-              <PatchLog log={room.log} />
-            </aside>
-          </div>
-        </section>
+        <aside className="room-desk__rail" aria-label="Packets and activity">
+          <PacketList packets={room.packets} />
+          <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
+          <PatchLog log={room.log} />
+        </aside>
       </div>
 
       {stickyDecide && openPacket ? (
