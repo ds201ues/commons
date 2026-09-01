@@ -5,23 +5,24 @@
 .doc-editor-header {
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-start;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 0.75rem 1.25rem;
-  margin-bottom: 0.75rem;
+  gap: 0.5rem 1.25rem;
+  margin-bottom: 0.35rem;
 }
 
 .doc-editor-header h2 {
   margin: 0;
-  font-size: 1.2rem;
-  letter-spacing: -0.015em;
+  font-size: 0.72rem;
+  font-family: var(--font-mono);
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
 }
 
 .doc-editor-sub {
-  margin: 0.2rem 0 0;
-  font-size: 0.82rem;
-  color: var(--text-dim);
-  max-width: 28rem;
+  display: none;
 }
 
 .doc-editor-badge {
@@ -31,14 +32,13 @@
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--contributor);
-  margin-top: 0.25rem;
 }
 
 .doc-editor-status {
   font-family: var(--font-mono);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: var(--text-dim);
-  min-height: 1.25rem;
+  min-height: 1rem;
   text-align: right;
   flex-shrink: 0;
 }
@@ -66,66 +66,78 @@
   }
 }
 
-.doc-editor-textarea {
+/* Shared Notion/Obsidian-like page surface for preview + edit */
+.doc-surface {
   display: block;
   width: 100%;
-  min-height: 12rem;
+  min-height: 28rem;
   margin: 0;
-  padding: 0.6rem 0.1rem;
-  font-family: inherit;
-  font-size: 0.92rem;
-  line-height: 1.6;
+  padding: 0.85rem 0 2.5rem;
+  text-align: left;
+  font: inherit;
+  font-size: 1.02rem;
+  line-height: 1.7;
   color: var(--canvas-ink);
   background: transparent;
   border: 0;
-  border-top: 1px solid var(--hairline);
-  border-bottom: 1px solid var(--hairline);
   border-radius: 0;
-  resize: vertical;
-  transition: border-color 0.15s ease;
-}
-
-.doc-editor-textarea:focus {
+  box-shadow: none;
   outline: none;
-  border-bottom-color: var(--owner);
+  resize: none;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
-.doc-editor-textarea::placeholder {
-  color: color-mix(in srgb, var(--canvas-ink) 38%, transparent);
-}
-
-.doc-editor-textarea[data-dirty="true"] {
-  border-bottom-color: color-mix(in srgb, var(--owner) 60%, transparent);
-}
-
-.doc-paper--editable {
-  display: block;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  text-align: left;
-  font: inherit;
-  color: inherit;
-  background: transparent;
-  border: 0;
-  border-radius: 0;
+.doc-surface--editable {
   cursor: text;
 }
 
-.doc-paper--editable:hover .doc-markdown,
-.doc-paper--editable:hover .doc-empty {
-  border-bottom-color: var(--hairline-strong);
+.doc-surface--editable:hover {
+  /* soft page affordance — no fill, no border box */
+  background: color-mix(in srgb, var(--canvas-ink) 2.5%, transparent);
 }
 
-.doc-paper--editable .doc-markdown,
-.doc-paper--editable .doc-empty {
-  border-bottom: 1px solid transparent;
-  transition: border-color var(--transition-fast);
-}
-
-.doc-paper--editable:focus-visible {
+.doc-surface--editable:focus-visible {
   outline: none;
-  box-shadow: var(--focus-ring);
+  background: color-mix(in srgb, var(--canvas-ink) 2.5%, transparent);
+}
+
+.doc-editor-textarea.doc-surface {
+  min-height: 32rem;
+  font-family: inherit;
+  color: var(--canvas-ink);
+  caret-color: var(--owner);
+  resize: none;
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent;
+  field-sizing: content;
+}
+
+.doc-editor-textarea.doc-surface:focus,
+.doc-editor-textarea.doc-surface:focus-visible {
+  outline: none !important;
+  background: transparent;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.doc-editor-textarea.doc-surface::placeholder {
+  color: color-mix(in srgb, var(--canvas-ink) 34%, transparent);
+}
+
+.doc-editor-textarea.doc-surface[data-dirty="true"] {
+  /* status lives in the header — keep the page calm while typing */
+}
+
+.doc-markdown {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  line-height: 1.7;
+  font-size: 1.02rem;
+  color: color-mix(in srgb, var(--canvas-ink) 92%, transparent);
 }
 
 .doc-markdown code {
@@ -148,10 +160,8 @@
   color: var(--stamp);
 }
 
-/* contributor read-only brief */
-
 .doc-ribbon {
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.65rem;
   font-family: var(--font-mono);
   font-size: 0.62rem;
   font-weight: 500;
@@ -160,41 +170,32 @@
   color: var(--contributor);
 }
 
-.doc-markdown {
-  margin: 0;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--hairline);
-  line-height: 1.6;
-  font-size: 0.92rem;
-  color: color-mix(in srgb, var(--canvas-ink) 90%, transparent);
-}
-
 .doc-markdown h3,
 .doc-markdown h4,
 .doc-markdown h5 {
   font-family: var(--font-display);
   color: var(--canvas-ink);
-  margin: 0 0 0.5rem;
+  margin: 0 0 0.55rem;
   line-height: 1.25;
   letter-spacing: -0.015em;
 }
 
 .doc-markdown h3 {
-  font-size: 1.2rem;
+  font-size: 1.45rem;
 }
 
 .doc-markdown h4 {
-  font-size: 1.02rem;
-  margin-top: 0.75rem;
+  font-size: 1.15rem;
+  margin-top: 1.1rem;
 }
 
 .doc-markdown h5 {
-  font-size: 0.95rem;
-  margin-top: 0.6rem;
+  font-size: 1.02rem;
+  margin-top: 0.9rem;
 }
 
 .doc-markdown p {
-  margin: 0 0 0.65rem;
+  margin: 0 0 0.85rem;
 }
 
 .doc-markdown p:last-child {
@@ -202,12 +203,12 @@
 }
 
 .doc-markdown ul {
-  margin: 0 0 0.75rem;
-  padding-left: 1.2rem;
+  margin: 0 0 0.9rem;
+  padding-left: 1.25rem;
 }
 
 .doc-markdown li {
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
 }
 
 .doc-markdown strong {
@@ -222,10 +223,11 @@
 
 .doc-empty {
   margin: 0;
-  padding: 0.6rem 0;
-  border-top: 1px solid var(--hairline);
+  padding: 0.25rem 0;
+  border: 0;
   color: var(--text-dim);
-  font-size: 0.88rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
 }
 
 @media (prefers-reduced-motion: reduce) {

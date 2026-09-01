@@ -120,6 +120,36 @@
   box-shadow: var(--focus-ring);
 }
 
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.15rem;
+  height: 2.15rem;
+  margin: 0;
+  padding: 0;
+  color: var(--canvas-ink);
+  background: transparent;
+  border: 1px solid var(--hairline);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+
+.theme-toggle:hover {
+  border-color: var(--hairline-strong);
+  background: color-mix(in srgb, var(--canvas-ink) 4%, transparent);
+}
+
+.theme-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.theme-toggle__icon {
+  display: block;
+}
+
 .presence {
   display: flex;
   flex-wrap: wrap;

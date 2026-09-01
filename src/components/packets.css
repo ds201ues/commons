@@ -575,23 +575,14 @@
   gap: 0.2rem;
 }
 
-.tasks-panel__header .eyebrow {
-  margin: 0;
-  font-size: 0.66rem;
-}
-
 .tasks-panel h2 {
-  font-family: var(--font-display);
-  font-size: 1.05rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
   margin: 0;
-  letter-spacing: -0.01em;
-}
-
-.tasks-panel__hint {
-  margin: 0;
-  font-size: 0.76rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-dim);
-  line-height: 1.4;
 }
 
 .tasks-panel__list {

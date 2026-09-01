@@ -1,15 +1,20 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import type { Op, Packet, Room, Seat } from "@/lib/types";
 import "./packets.css";
 
 type Props = {
   roomId: string
   seat: Seat
-  packet: Packet  // must be open; parent hides if decided
+  /** Open decision under edit. Null when none — owner can still open a decision / assign tasks. */
+  packet: Packet | null
   onUpdated: (room: Room) => void
 };
+
+function intentNeedsPacket(op: Op): boolean {
+  return op !== "open_decision" && op !== "add_task";
+}
 
 type OpsJson = {
   ok: boolean
@@ -93,8 +98,13 @@ const CONTRIBUTOR_INTENTS: Intent[] = [
 ];
 
 export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
-  const intents = seat === "owner" ? OWNER_INTENTS : CONTRIBUTOR_INTENTS;
-  const [intentId, setIntentId] = useState(intents[0]?.id ?? "comment");
+  const openPacket = packet?.status === "open" ? packet : null;
+  const hasOpenPacket = Boolean(openPacket);
+  const intents = useMemo(() => {
+    const all = seat === "owner" ? OWNER_INTENTS : CONTRIBUTOR_INTENTS;
+    return hasOpenPacket ? all : all.filter((i) => !intentNeedsPacket(i.op));
+  }, [seat, hasOpenPacket]);
+  const [intentId, setIntentId] = useState(intents[0]?.id ?? "open_decision");
   const [text, setText] = useState("");
   const [rationale, setRationale] = useState("");
   const [assignee, setAssignee] = useState<Seat>(seat === "owner" ? "contributor" : "owner");
@@ -104,17 +114,20 @@ export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
   const intent = intents.find((i) => i.id === intentId) ?? intents[0];
 
   useEffect(() => {
+    if (intents.some((i) => i.id === intentId)) return;
+    if (intents[0]) setIntentId(intents[0].id);
+  }, [intentId, intents]);
+
+  useEffect(() => {
     function onIntent(event: Event) {
       const detail = (event as CustomEvent<string>).detail;
       if (intents.some((i) => i.id === detail)) setIntentId(detail);
     }
     window.addEventListener("commons:intent", onIntent);
     return () => window.removeEventListener("commons:intent", onIntent);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [seat]);
+  }, [intents]);
 
-  if (packet.status !== "open") return null;
-  if (!intent) return null;
+  if (intents.length === 0 || !intent) return null;
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -124,15 +137,18 @@ export function PacketActions({ roomId, seat, packet, onUpdated }: Props) {
     let input: Record<string, string>;
     switch (intent.op) {
       case "propose_option":
-        input = { packetId: packet.id, label: value, body: rationale.trim() };
+        if (!openPacket) return;
+        input = { packetId: openPacket.id, label: value, body: rationale.trim() };
         break;
       case "attach_evidence":
       case "comment":
       case "challenge":
-        input = { packetId: packet.id, text: value };
+        if (!openPacket) return;
+        input = { packetId: openPacket.id, text: value };
         break;
       case "request_evidence":
-        input = { packetId: packet.id, what: value };
+        if (!openPacket) return;
+        input = { packetId: openPacket.id, what: value };
         break;
       case "open_decision":
         input = { question: value };

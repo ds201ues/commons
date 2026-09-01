@@ -224,15 +224,10 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     return (
       <section className="doc-editor doc-editor--contributor" aria-label="Document">
         <header className="doc-editor-header">
-          <div>
-            <h2>The brief</h2>
-            <p className="doc-editor-sub">
-              Shared context on the table. Contributors read; only the owner edits.
-            </p>
-          </div>
+          <h2>Brief</h2>
           <span className="doc-editor-badge">Read-only</span>
         </header>
-        <div className="doc-paper">
+        <div className="doc-surface">
           {seat === "contributor" ? (
             <p className="doc-ribbon" role="status">
               Contributor · view only
@@ -250,26 +245,28 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     return (
       <section className="doc-editor doc-editor--owner" aria-label="Document">
         <header className="doc-editor-header">
-          <div>
-            <h2>The brief</h2>
-            <p className="doc-editor-sub">
-              Click the brief to edit. Changes save as you type.
-            </p>
-          </div>
+          <h2>Brief</h2>
           {label ? (
             <p className="doc-editor-status" data-tone={tone} aria-live="polite">
               {label}
             </p>
           ) : null}
         </header>
-        <button
-          type="button"
-          className="doc-paper doc-paper--editable"
-          onClick={() => setEditing(true)}
+        <div
+          className="doc-surface doc-surface--editable"
+          role="button"
+          tabIndex={0}
           aria-label="Edit the room brief"
+          onClick={() => setEditing(true)}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              setEditing(true);
+            }
+          }}
         >
           <MarkdownPreview markdown={draft} />
-        </button>
+        </div>
         {error ? (
           <p className="doc-editor-error" role="alert">
             {error}
@@ -282,12 +279,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
   return (
     <section className="doc-editor doc-editor--owner" aria-label="Document editor">
       <header className="doc-editor-header">
-        <div>
-          <h2>The brief</h2>
-          <p className="doc-editor-sub">
-            Typing saves automatically. Click away or press Esc when you&apos;re done.
-          </p>
-        </div>
+        <h2>Brief</h2>
         {label ? (
           <p className="doc-editor-status" data-tone={tone} aria-live="polite">
             {label}
@@ -296,9 +288,8 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
       </header>
 
       <textarea
-        className="doc-editor-textarea"
+        className="doc-editor-textarea doc-surface"
         value={draft}
-        rows={14}
         spellCheck
         autoFocus
         data-dirty={isDirty ? "true" : "false"}

@@ -1,9 +1,10 @@
 /* Commons — flat canvas for decisions. No cards: hairlines separate sections. */
 
 :root {
-  color-scheme: dark;
-  --bg: #0f1419;
-  --bg-elev: #1a222c;
+  /* Light is the product default */
+  color-scheme: light;
+  --bg: #f5f4ef;
+  --bg-elev: #ffffff;
   --paper: #f7f3ea;
   --ink: #12151a;
   --muted: #6b7280;
@@ -18,10 +19,10 @@
   --card: var(--paper);
 
   /* flat-canvas tokens */
-  --canvas-ink: #f7f3ea;
-  --hairline: color-mix(in srgb, var(--canvas-ink) 13%, transparent);
-  --hairline-strong: color-mix(in srgb, var(--canvas-ink) 26%, transparent);
-  --text-dim: color-mix(in srgb, var(--canvas-ink) 62%, transparent);
+  --canvas-ink: #171a20;
+  --hairline: color-mix(in srgb, var(--canvas-ink) 14%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--canvas-ink) 30%, transparent);
+  --text-dim: color-mix(in srgb, var(--canvas-ink) 58%, transparent);
 
   --font-display: var(--font-bricolage), "Bricolage Grotesque", system-ui, sans-serif;
   --font-body: var(--font-figtree), "Figtree", system-ui, sans-serif;
@@ -36,8 +37,8 @@
     0 1px 0 rgba(255, 255, 255, 0.55) inset,
     0 2px 8px rgba(0, 0, 0, 0.28),
     0 12px 32px rgba(0, 0, 0, 0.22);
-  --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.35);
-  --shadow-stamp: 0 2px 12px rgba(226, 74, 44, 0.35);
+  --shadow-lift: 0 4px 20px rgba(23, 26, 32, 0.14);
+  --shadow-stamp: 0 2px 12px rgba(226, 74, 44, 0.22);
 
   --focus-ring-color: var(--accent-2);
   --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus-ring-color);
@@ -46,16 +47,16 @@
   --transition-med: 220ms ease;
 }
 
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f5f4ef;
-  --bg-elev: #ffffff;
-  --canvas-ink: #171a20;
-  --hairline: color-mix(in srgb, var(--canvas-ink) 14%, transparent);
-  --hairline-strong: color-mix(in srgb, var(--canvas-ink) 30%, transparent);
-  --text-dim: color-mix(in srgb, var(--canvas-ink) 58%, transparent);
-  --shadow-lift: 0 4px 20px rgba(23, 26, 32, 0.14);
-  --shadow-stamp: 0 2px 12px rgba(226, 74, 44, 0.22);
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0f1419;
+  --bg-elev: #1a222c;
+  --canvas-ink: #f7f3ea;
+  --hairline: color-mix(in srgb, var(--canvas-ink) 13%, transparent);
+  --hairline-strong: color-mix(in srgb, var(--canvas-ink) 26%, transparent);
+  --text-dim: color-mix(in srgb, var(--canvas-ink) 62%, transparent);
+  --shadow-lift: 0 4px 20px rgba(0, 0, 0, 0.35);
+  --shadow-stamp: 0 2px 12px rgba(226, 74, 44, 0.35);
   --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--focus-ring-color);
 }
 
@@ -77,21 +78,21 @@ body {
   min-height: 100%;
   background-color: var(--bg);
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(61, 139, 122, 0.12), transparent 55%),
-    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(124, 108, 240, 0.08), transparent 50%),
-    linear-gradient(180deg, var(--bg) 0%, #0c1014 100%);
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(61, 139, 122, 0.09), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(124, 108, 240, 0.05), transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, #edece6 100%);
   color: var(--canvas-ink);
   font-family: var(--font-body);
   font-size: 16px;
   line-height: 1.55;
 }
 
-html[data-theme="light"],
-html[data-theme="light"] body {
+html[data-theme="dark"],
+html[data-theme="dark"] body {
   background-image:
-    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(61, 139, 122, 0.09), transparent 55%),
-    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(124, 108, 240, 0.05), transparent 50%),
-    linear-gradient(180deg, var(--bg) 0%, #edece6 100%);
+    radial-gradient(ellipse 120% 80% at 50% -20%, rgba(61, 139, 122, 0.12), transparent 55%),
+    radial-gradient(ellipse 80% 50% at 100% 100%, rgba(124, 108, 240, 0.08), transparent 50%),
+    linear-gradient(180deg, var(--bg) 0%, #0c1014 100%);
 }
 
 h1,

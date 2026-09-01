@@ -11,6 +11,7 @@ import { PacketPanel } from "@/components/packet-panel";
 import { PatchLog } from "@/components/patch-log";
 import { ShareModal } from "@/components/share-modal";
 import { TasksPanel } from "@/components/tasks-panel";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import { canStickyDecide } from "@/lib/decide-sticky";
 import { liveParties, shortPartyLabel } from "@/lib/presence";
@@ -61,8 +62,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [highlightPacketId, setHighlightPacketId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
-  const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [theme, setTheme] = useState<"dark" | "light">("light");
   const [selfPartyId, setSelfPartyId] = useState<string | null>(null);
+  const [creatingRoom, setCreatingRoom] = useState(false);
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const aboutBtnRef = useRef<HTMLButtonElement>(null);
   const highlightTimerRef = useRef<number | null>(null);
@@ -120,7 +122,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   }, []);
 
   useEffect(() => {
-    setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark");
+    setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   }, []);
 
   function toggleTheme() {
@@ -132,6 +134,32 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       // private mode — theme lasts for the session only
     }
     setTheme(next);
+  }
+
+  async function createNewRoom() {
+    if (creatingRoom) return;
+    setCreatingRoom(true);
+    try {
+      const res = await fetch("/api/rooms", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const json = (await res.json()) as { ok: boolean; url?: string; roomId?: string };
+      if (!json.ok || !json.url) return;
+      const nextId = json.roomId ?? json.url.split("/").pop() ?? "";
+      if (nextId) {
+        try {
+          window.localStorage.setItem("commons_room", nextId);
+        } catch {
+          // private mode
+        }
+      }
+      // Full navigation so the new owner cookie from Set-Cookie is applied.
+      window.location.assign(json.url);
+    } catch {
+      setCreatingRoom(false);
+    }
   }
 
   async function saveTitle() {
@@ -169,16 +197,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     void refresh();
   }
 
-  function focusComposer(intent?: string) {
-    if (intent) {
-      window.dispatchEvent(new CustomEvent("commons:intent", { detail: intent }));
-    }
-    const el = document.getElementById("packet-composer-input");
-    el?.scrollIntoView({ block: "center", behavior: "smooth" });
-    el?.focus({ preventScroll: true });
-  }
-
   const capabilities = seat === "owner" ? OWNER_CAPABILITIES : CONTRIBUTOR_CAPABILITIES;
+  const openDecisions = room.packets.filter((p) => p.status === "open");
+  const closedDecisions = room.packets.filter((p) => p.status === "decided");
 
   return (
     <div className={`room shell seat-${seat}`}>
@@ -246,14 +267,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             )}
           </ul>
           <div className="room-actions">
-            <button
-              type="button"
-              className="bar-btn"
-              onClick={toggleTheme}
-              aria-label="Toggle light and dark mode"
-            >
-              {theme === "dark" ? "Light mode" : "Dark mode"}
-            </button>
+            <ThemeToggle theme={theme} onToggle={toggleTheme} />
             <button
               ref={shareBtnRef}
               type="button"
@@ -262,15 +276,14 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             >
               Copy share link
             </button>
-            {seat === "owner" ? (
-              <button
-                type="button"
-                className="bar-btn"
-                onClick={() => focusComposer("open_decision")}
-              >
-                New decision
-              </button>
-            ) : null}
+            <button
+              type="button"
+              className="bar-btn"
+              disabled={creatingRoom}
+              onClick={() => void createNewRoom()}
+            >
+              {creatingRoom ? "Opening…" : "New room"}
+            </button>
             <button
               ref={aboutBtnRef}
               type="button"
@@ -319,17 +332,18 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
           {openPacket ? (
             <PacketPanel packet={openPacket} />
           ) : (
-            <p className="empty">No open decision in this room.</p>
+            <p className="empty rail-empty">
+              No open decision. Use <strong>New decision</strong> in the composer below.
+            </p>
           )}
 
-          {openPacket?.status === "open" ? (
-            <PacketActions
-              roomId={roomId}
-              seat={seat}
-              packet={openPacket}
-              onUpdated={setRoom}
-            />
-          ) : null}
+          {/* Contribute → Decide → Tasks → Wall (closed calls only) */}
+          <PacketActions
+            roomId={roomId}
+            seat={seat}
+            packet={openPacket?.status === "open" ? openPacket : null}
+            onUpdated={setRoom}
+          />
 
           {openPacket?.status === "open" && !stickyDecide ? (
             <div className="decide-zone">
@@ -351,7 +365,9 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             onUpdated={setRoom}
           />
 
-          <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
+          {closedDecisions.length > 0 ? (
+            <DecisionsWall packets={room.packets} highlightPacketId={highlightPacketId} />
+          ) : null}
         </aside>
       </div>
 

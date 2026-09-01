@@ -127,9 +127,11 @@ export function DecideBar({
         </span>
         <h2 className="decide-bar__title">Decide</h2>
       </div>
-      <p className="decide-bar__subtitle">
-        Only a human on this seat can close this decision. Decide is not a tool.
-      </p>
+      {packet.options.length === 0 ? (
+        <p className="decide-bar__subtitle">Propose an option above, then stamp the call.</p>
+      ) : (
+        <p className="decide-bar__subtitle">Pick an option and stamp — agents cannot Decide.</p>
+      )}
       {optionPills}
       <div className="decide-bar__actions">
         {stampButton}
