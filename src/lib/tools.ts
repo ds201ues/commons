@@ -167,7 +167,18 @@ export function toolsForSeat(seat: Seat): ToolDef[] {
   if (seat === "owner") {
     return [getWorkspace, editDoc, renameRoom, openDecision, proposeOption, attachEvidence, addTask, completeTask];
   }
-  return [getWorkspace, comment, challenge, requestEvidence, addTask, completeTask];
+  // Contributors edit the shared brief and argue; only owner opens/renames the room.
+  return [
+    getWorkspace,
+    editDoc,
+    proposeOption,
+    attachEvidence,
+    comment,
+    challenge,
+    requestEvidence,
+    addTask,
+    completeTask,
+  ];
 }
 
 export function isAllowedOp(seat: Seat, op: string): op is Op {

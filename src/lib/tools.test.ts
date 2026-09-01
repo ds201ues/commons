@@ -23,10 +23,13 @@ describe("toolsForSeat", () => {
     );
   });
 
-  it("gives the contributor the locked tool list and never decide", () => {
+  it("gives the contributor edit + argue tools and never decide", () => {
     const names = toolsForSeat("contributor").map((t) => t.name);
     expect(names).toEqual([
       "get_workspace",
+      "edit_doc",
+      "propose_option",
+      "attach_evidence",
       "comment",
       "challenge",
       "request_evidence",
@@ -36,6 +39,8 @@ describe("toolsForSeat", () => {
     expect(names.some((n) => (NEVER_REGISTER as readonly string[]).includes(n))).toBe(
       false,
     );
+    expect(names).not.toContain("rename_room");
+    expect(names).not.toContain("open_decision");
   });
 
   it("marks get_workspace read-only and not a mutating op", () => {
@@ -45,6 +50,8 @@ describe("toolsForSeat", () => {
     expect(isAllowedOp("contributor", "decide")).toBe(false);
     expect(isAllowedOp("owner", "propose_option")).toBe(true);
     expect(isAllowedOp("owner", "edit_doc")).toBe(true);
+    expect(isAllowedOp("contributor", "edit_doc")).toBe(true);
+    expect(isAllowedOp("contributor", "propose_option")).toBe(true);
     expect(isAllowedOp("contributor", "comment")).toBe(true);
     expect(isAllowedOp("owner", "challenge")).toBe(false);
   });

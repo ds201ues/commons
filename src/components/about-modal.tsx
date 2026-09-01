@@ -20,7 +20,7 @@ const STEPS = [
   {
     n: "2",
     title: "Agents work the decision",
-    body: "Owner and contributor seats get different tools — propose, challenge, attach evidence, assign tasks.",
+    body: "Both seats edit the brief and argue the call. Owner alone opens new decisions and renames the room; agents get asymmetric tools per seat.",
   },
   {
     n: "3",

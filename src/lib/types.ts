@@ -157,10 +157,8 @@ export const ALL_OPS: Op[] = [
   "complete_task",
 ];
 
+/** Owner-only: room chrome and opening new decisions. */
 export const OWNER_OPS: ReadonlySet<Op> = new Set([
-  "propose_option",
-  "attach_evidence",
-  "edit_doc",
   "open_decision",
   "rename_room",
 ]);
@@ -170,8 +168,11 @@ export const CONTRIBUTOR_OPS: ReadonlySet<Op> = new Set([
   "request_evidence",
 ]);
 
-/** Allowed for both seats (not exclusive to OWNER_OPS / CONTRIBUTOR_OPS). */
+/** Allowed for both seats (humans and agents on either link). */
 export const SHARED_OPS: ReadonlySet<Op> = new Set([
+  "edit_doc",
+  "propose_option",
+  "attach_evidence",
   "comment",
   "decide",
   "add_task",

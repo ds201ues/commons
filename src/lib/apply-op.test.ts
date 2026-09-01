@@ -40,13 +40,11 @@ describe("applyOp", () => {
     ).rejects.toMatchObject({ code: "unknown_op" });
   });
 
-  it("rejects owner ops on the contributor seat", async () => {
+  it("rejects owner-only room ops on the contributor seat", async () => {
     const db = store();
     for (const [op, input] of [
-      ["propose_option", { packetId: FIXTURE_PACKET_ID, label: "Hold" }],
-      ["attach_evidence", { packetId: FIXTURE_PACKET_ID, text: "A note" }],
-      ["edit_doc", { markdown: "# Changed" }],
       ["open_decision", { question: "A new question?" }],
+      ["rename_room", { title: "Hijacked" }],
     ] as const) {
       await expect(
         applyOp(db, {
@@ -57,6 +55,25 @@ describe("applyOp", () => {
         }),
       ).rejects.toMatchObject({ code: "wrong_seat" });
     }
+  });
+
+  it("lets the contributor edit the brief and propose options", async () => {
+    const db = store();
+    const edited = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "contributor",
+      op: "edit_doc",
+      input: { markdown: "# Contributor notes" },
+    });
+    expect(edited.room.docMarkdown).toContain("Contributor notes");
+
+    const proposed = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "contributor",
+      op: "propose_option",
+      input: { packetId: FIXTURE_PACKET_ID, label: "Hold", body: "Wait." },
+    });
+    expect(proposed.room.packets[0]?.options.some((o) => o.label === "Hold")).toBe(true);
   });
 
   it("rejects contributor-only ops on the owner seat", async () => {

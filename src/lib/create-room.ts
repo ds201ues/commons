@@ -23,7 +23,7 @@ function seedDocMarkdown(title: string): string {
 - What evidence would change our minds?
 
 **Notes**
-- Owner: edit this brief anytime. Contributors see it read-only on the table.
+- Anyone in the room can edit this brief. Owner opens new decisions and renames the room.
 `;
 }
 

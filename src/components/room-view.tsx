@@ -45,6 +45,9 @@ const OWNER_CAPABILITIES: Capability[] = [
 
 const CONTRIBUTOR_CAPABILITIES: Capability[] = [
   { label: "Read workspace", tool: "get_workspace" },
+  { label: "Edit document", tool: "edit_doc" },
+  { label: "Propose options", tool: "propose_option" },
+  { label: "Attach evidence", tool: "attach_evidence" },
   { label: "Comment", tool: "comment" },
   { label: "Challenge", tool: "challenge" },
   { label: "Request evidence", tool: "request_evidence" },

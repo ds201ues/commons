@@ -60,6 +60,21 @@ const OWNER_INTENTS: Intent[] = [
 
 const CONTRIBUTOR_INTENTS: Intent[] = [
   {
+    id: "propose",
+    op: "propose_option",
+    label: "Propose",
+    placeholder: "Option label — e.g. Ship Friday",
+    submitLabel: "Propose",
+    needsRationale: true,
+  },
+  {
+    id: "evidence",
+    op: "attach_evidence",
+    label: "Evidence",
+    placeholder: "Fact or citation that informs the call",
+    submitLabel: "Attach",
+  },
+  {
     id: "comment",
     op: "comment",
     label: "Comment",

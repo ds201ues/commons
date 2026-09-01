@@ -16,7 +16,7 @@ type SaveTone = "idle" | "pending" | "saving" | "saved" | "error";
 const DEBOUNCE_MS = 800;
 const SAVED_FLASH_MS = 2200;
 
-const OWNER_PLACEHOLDER = `Context — why this room exists and what we're deciding.
+const BRIEF_PLACEHOLDER = `Context — why this room exists and what we're deciding.
 
 Open questions
 - What do we need to agree on?
@@ -102,9 +102,6 @@ function saveErrorMessage(status: number, hint?: string): string {
   if (status === 404) {
     return "This room no longer exists. Return home and open a fresh link.";
   }
-  if (status === 403 || status === 401) {
-    return "Only the owner can edit the brief. Open the room in the browser that created it.";
-  }
   if (hint) return hint;
   if (status >= 500) {
     return "The server couldn't save your changes. Wait a moment and keep typing.";
@@ -112,6 +109,7 @@ function saveErrorMessage(status: number, hint?: string): string {
   return `Save failed (${status}). Check your connection and keep typing.`;
 }
 
+/** Shared brief — owner and contributor humans (and agents) can edit. */
 export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
   const [draft, setDraft] = useState(docMarkdown);
   const [error, setError] = useState<string | null>(null);
@@ -155,8 +153,8 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            // Fixture demo may still need as=; real rooms ignore it (cookie-only).
-            as: "owner",
+            // Fixture demo may still need as=; real rooms resolve seat from cookie.
+            as: seat,
             op: "edit_doc",
             input: { markdown },
           }),
@@ -183,7 +181,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
         setTone("error");
       }
     },
-    [flashSaved, onSaved, roomId],
+    [flashSaved, onSaved, roomId, seat],
   );
 
   function scheduleSave(markdown: string) {
@@ -220,30 +218,11 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     }
   }
 
-  if (seat !== "owner") {
-    return (
-      <section className="doc-editor doc-editor--contributor" aria-label="Document">
-        <header className="doc-editor-header">
-          <h2>Brief</h2>
-          <span className="doc-editor-badge">Read-only</span>
-        </header>
-        <div className="doc-surface">
-          {seat === "contributor" ? (
-            <p className="doc-ribbon" role="status">
-              Contributor · view only
-            </p>
-          ) : null}
-          <MarkdownPreview markdown={docMarkdown} />
-        </div>
-      </section>
-    );
-  }
-
   const label = statusLabel();
 
   if (!editing) {
     return (
-      <section className="doc-editor doc-editor--owner" aria-label="Document">
+      <section className={`doc-editor doc-editor--${seat}`} aria-label="Document">
         <header className="doc-editor-header">
           <h2>Brief</h2>
           {label ? (
@@ -277,7 +256,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
   }
 
   return (
-    <section className="doc-editor doc-editor--owner" aria-label="Document editor">
+    <section className={`doc-editor doc-editor--${seat}`} aria-label="Document editor">
       <header className="doc-editor-header">
         <h2>Brief</h2>
         {label ? (
@@ -293,7 +272,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
         spellCheck
         autoFocus
         data-dirty={isDirty ? "true" : "false"}
-        placeholder={OWNER_PLACEHOLDER}
+        placeholder={BRIEF_PLACEHOLDER}
         aria-label="Edit the room brief"
         onChange={(event) => {
           dirtyRef.current = true;
