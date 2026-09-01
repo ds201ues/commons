@@ -62,6 +62,7 @@ describe("normalizeRoom", () => {
 
     const room = normalizeRoom(legacy);
     expect(room.tasks).toEqual([]);
+    expect(room.parties).toEqual([]);
   });
 
   it("coerces legacy task seats and missing done flags", () => {

@@ -13,7 +13,7 @@ describe("parseAsParam", () => {
 });
 
 describe("resolveRole", () => {
-  it("cookie owner wins over ?as=contributor", () => {
+  it("cookie owner wins", () => {
     const secret = mintOwnerSecret();
     const hash = hashOwnerSecret(secret);
     expect(
@@ -26,18 +26,34 @@ describe("resolveRole", () => {
     ).toBe("owner");
   });
 
-  it("uses ?as= when there is no valid cookie", () => {
+  it("ignores ?as=owner on rooms with ownerTokenHash (no cookie forge)", () => {
     expect(
       resolveRole({
         roomId: "r1",
         ownerTokenHash: hashOwnerSecret("x"),
         cookieSecret: "wrong",
+        asParam: "owner",
+      }),
+    ).toBe("contributor");
+    expect(
+      resolveRole({
+        roomId: "r1",
+        ownerTokenHash: hashOwnerSecret("x"),
         asParam: "maker",
+      }),
+    ).toBe("contributor");
+  });
+
+  it("allows ?as= only on fixture/legacy rooms without ownerTokenHash", () => {
+    expect(
+      resolveRole({
+        roomId: "checkout-friday",
+        asParam: "owner",
       }),
     ).toBe("owner");
     expect(
       resolveRole({
-        roomId: "r1",
+        roomId: "checkout-friday",
         asParam: "decider",
       }),
     ).toBe("contributor");
@@ -45,5 +61,11 @@ describe("resolveRole", () => {
 
   it("defaults to contributor", () => {
     expect(resolveRole({ roomId: "r1" })).toBe("contributor");
+    expect(
+      resolveRole({
+        roomId: "r1",
+        ownerTokenHash: hashOwnerSecret("x"),
+      }),
+    ).toBe("contributor");
   });
 });

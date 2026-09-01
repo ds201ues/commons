@@ -14,6 +14,7 @@ export function fixtureRoom(): Room {
       "## Checkout rewrite\n\nDiscuss whether to ship the payment-form rewrite this Friday.",
     nextSeq: 1,
     log: [],
+    parties: [],
     tasks: [
       {
         id: "task-evidence",

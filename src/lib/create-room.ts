@@ -57,6 +57,7 @@ export async function createRoom(
     createdAt: new Date().toISOString(),
     packets: [emptyPacket(question)],
     tasks: [],
+    parties: [],
     log: [],
     nextSeq: 1,
   };

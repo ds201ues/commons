@@ -97,7 +97,7 @@ export async function applyOp(
   if (OWNER_OPS.has(req.op) && req.seat !== "owner") {
     throw new OpError(
       "wrong_seat",
-      `${req.op} is an owner op. Open the owner URL.`,
+      `${req.op} is an owner op. Only the browser that created this room has the owner cookie.`,
     );
   }
   if (CONTRIBUTOR_OPS.has(req.op) && req.seat !== "contributor") {

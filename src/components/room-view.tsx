@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AboutModal } from "@/components/about-modal";
 import { DecideBar } from "@/components/decide-bar";
 import { DecisionsWall } from "@/components/decisions-wall";
@@ -13,7 +13,8 @@ import { ShareModal } from "@/components/share-modal";
 import { TasksPanel } from "@/components/tasks-panel";
 import { WebmcpRegistrar } from "@/components/webmcp-registrar";
 import { canStickyDecide } from "@/lib/decide-sticky";
-import type { PersistMode, Room, Seat } from "@/lib/types";
+import { liveParties, shortPartyLabel } from "@/lib/presence";
+import type { Party, PersistMode, Room, Seat } from "@/lib/types";
 import "./room-shell.css";
 
 type Props = {
@@ -61,6 +62,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleDraft, setTitleDraft] = useState("");
   const [theme, setTheme] = useState<"dark" | "light">("dark");
+  const [selfPartyId, setSelfPartyId] = useState<string | null>(null);
   const shareBtnRef = useRef<HTMLButtonElement>(null);
   const aboutBtnRef = useRef<HTMLButtonElement>(null);
   const highlightTimerRef = useRef<number | null>(null);
@@ -70,6 +72,37 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     const json = (await res.json()) as { ok: boolean; room?: Room };
     if (json.ok && json.room) setRoom(json.room);
   }, [roomId]);
+
+  const heartbeat = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/rooms/${roomId}/presence`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        // Fixture rooms without ownerTokenHash still honor as= for contest demos.
+        body: JSON.stringify({ as: seat }),
+      });
+      const json = (await res.json()) as {
+        ok: boolean
+        partyId?: string
+        parties?: Party[]
+      };
+      if (!json.ok) return;
+      if (json.partyId) setSelfPartyId(json.partyId);
+      if (json.parties) {
+        setRoom((prev) => ({ ...prev, parties: json.parties ?? [] }));
+      }
+    } catch {
+      // presence is best-effort
+    }
+  }, [roomId, seat]);
+
+  useEffect(() => {
+    void heartbeat();
+    const id = window.setInterval(() => {
+      void heartbeat();
+    }, 12_000);
+    return () => window.clearInterval(id);
+  }, [heartbeat]);
 
   useEffect(() => {
     const id = window.setInterval(() => {
@@ -110,7 +143,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
       const res = await fetch(`/api/rooms/${roomId}/ops`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ seat, as: seat, op: "rename_room", input: { title } }),
+        body: JSON.stringify({ as: seat, op: "rename_room", input: { title } }),
       });
       const json = (await res.json()) as { ok: boolean; room?: Room };
       if (json.ok && json.room) setRoom(json.room);
@@ -120,6 +153,7 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
     }
   }
 
+  const present = useMemo(() => liveParties(room.parties), [room.parties]);
   const openPacket = room.packets.find((p) => p.status === "open") ?? room.packets[0];
   const stickyDecide = canStickyDecide(openPacket);
 
@@ -185,6 +219,32 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             <h1 className="room-title">{room.title}</h1>
           )}
           <span className="role-badge">{roleLabel(seat)}</span>
+          <ul className="presence" aria-label="People in this room">
+            {present.length === 0 ? (
+              <li className="presence__chip presence__chip--empty">Just you</li>
+            ) : (
+              present.map((party) => {
+                const mine = selfPartyId === party.id;
+                const label =
+                  party.seat === "owner"
+                    ? mine
+                      ? "You · Owner"
+                      : "Owner"
+                    : mine
+                      ? `You · ${shortPartyLabel(party.id)}`
+                      : `C · ${shortPartyLabel(party.id)}`;
+                return (
+                  <li
+                    key={party.id}
+                    className={`presence__chip presence__chip--${party.seat}${mine ? " presence__chip--self" : ""}`}
+                    title={`${party.seat} · ${party.id}`}
+                  >
+                    {label}
+                  </li>
+                );
+              })
+            )}
+          </ul>
           <div className="room-actions">
             <button
               type="button"
@@ -233,15 +293,8 @@ export function RoomView({ roomId, seat, nonce, persist, initialRoom }: Props) {
             ))}
           </ul>
           <p className="capabilities-note">
-            Decide is a human action on this page — not a registered tool.
-          </p>
-        </details>
-
-        <details className="demo-hint">
-          <summary>Demo seat override</summary>
-          <p className="demo-hint-body muted">
-            Append <code>?as=owner</code> or <code>?as=contributor</code> to preview
-            another seat.
+            Decide is a human action on this page — not a registered tool. One share
+            link for everyone; your browser cookie decides Owner vs Contributor.
           </p>
         </details>
       </header>

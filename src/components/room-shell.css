@@ -120,6 +120,71 @@
   box-shadow: var(--focus-ring);
 }
 
+.presence {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.presence__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin: 0;
+  padding: 0.18rem 0.5rem;
+  font-family: var(--font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: transparent;
+}
+
+.presence__chip::before {
+  content: "";
+  width: 0.4rem;
+  height: 0.4rem;
+  border-radius: 50%;
+  background: var(--text-dim);
+}
+
+.presence__chip--owner {
+  color: var(--owner);
+  border-color: color-mix(in srgb, var(--owner) 40%, var(--hairline));
+}
+
+.presence__chip--owner::before {
+  background: var(--owner);
+}
+
+.presence__chip--contributor {
+  color: var(--contributor);
+  border-color: color-mix(in srgb, var(--contributor) 40%, var(--hairline));
+}
+
+.presence__chip--contributor::before {
+  background: var(--contributor);
+}
+
+.presence__chip--self {
+  font-weight: 600;
+}
+
+.presence__chip--empty {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.presence__chip--empty::before {
+  display: none;
+}
+
 .role-badge {
   display: inline-flex;
   align-items: center;

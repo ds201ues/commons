@@ -102,7 +102,8 @@ export function ShareModal({ open, roomId, onClose, returnFocusRef }: Props) {
         </div>
 
         <p className="share-modal__explainer">
-          Anyone with this link joins as Contributor. You stay Owner.
+          One link for everyone. Anyone who opens it joins as Contributor. Your
+          browser keeps the Owner cookie — there is no separate owner URL.
         </p>
 
         <button type="button" className="share-modal__close" onClick={onClose}>

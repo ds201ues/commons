@@ -11,9 +11,9 @@ export default function NotFound() {
       </p>
       <h1>This link doesn&apos;t resolve</h1>
       <p className="lede">
-        The room may have expired, or the URL is incomplete. Commons rooms use a single
-        share link — open it with <code>?as=owner</code> or{" "}
-        <code>?as=contributor</code> to pick your seat.
+        The room may have expired, or the URL is incomplete. Commons rooms use one
+        share link — the browser that created the room is Owner; everyone else who
+        opens that link joins as Contributor.
       </p>
       <div className="not-found-actions">
         <Link href="/" className="bar-btn">

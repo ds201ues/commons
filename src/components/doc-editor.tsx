@@ -58,8 +58,8 @@ function MarkdownPreview({ markdown }: { markdown: string }) {
   if (!trimmed) {
     return (
       <p className="doc-empty">
-        No brief on the table yet. The owner sets shared context here — check back once
-        they&apos;ve written the opening notes.
+        No brief on the table yet. Click to write the opening notes — everyone in
+        the room will see them.
       </p>
     );
   }
@@ -103,13 +103,13 @@ function saveErrorMessage(status: number, hint?: string): string {
     return "This room no longer exists. Return home and open a fresh link.";
   }
   if (status === 403 || status === 401) {
-    return "Only the owner can edit the brief. Open the room with your owner link, then try Save again.";
+    return "Only the owner can edit the brief. Open the room in the browser that created it.";
   }
   if (hint) return hint;
   if (status >= 500) {
-    return "The server couldn't save your changes. Wait a moment and press Save again.";
+    return "The server couldn't save your changes. Wait a moment and keep typing.";
   }
-  return `Save failed (${status}). Check your connection and try Save again.`;
+  return `Save failed (${status}). Check your connection and keep typing.`;
 }
 
 export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
@@ -155,7 +155,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           method: "POST",
           headers: { "content-type": "application/json" },
           body: JSON.stringify({
-            seat: "owner",
+            // Fixture demo may still need as=; real rooms ignore it (cookie-only).
             as: "owner",
             op: "edit_doc",
             input: { markdown },
@@ -177,8 +177,8 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
       } catch (err) {
         const message =
           err instanceof Error && err.message
-            ? `Couldn't reach the server (${err.message}). Check your connection and press Save.`
-            : "Couldn't reach the server. Check your connection and press Save.";
+            ? `Couldn't reach the server (${err.message}). Check your connection.`
+            : "Couldn't reach the server. Check your connection.";
         setError(message);
         setTone("error");
       }
@@ -194,15 +194,21 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
     }, DEBOUNCE_MS);
   }
 
-  function saveNow() {
-    if (timerRef.current !== null) window.clearTimeout(timerRef.current);
-    void persist(draft);
+  async function finishEditing() {
+    if (timerRef.current !== null) {
+      window.clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (dirtyRef.current) {
+      await persist(draftRef.current);
+    }
+    setEditing(false);
   }
 
   function statusLabel(): string | null {
     switch (tone) {
       case "pending":
-        return "Unsaved changes…";
+        return "Unsaved…";
       case "saving":
         return "Saving…";
       case "saved":
@@ -210,7 +216,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
       case "error":
         return "Save failed";
       default:
-        return isDirty ? "Unsaved changes" : null;
+        return isDirty ? "Unsaved…" : null;
     }
   }
 
@@ -247,18 +253,23 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           <div>
             <h2>The brief</h2>
             <p className="doc-editor-sub">
-              Shared context on the table. Everyone in the room sees this.
+              Click the brief to edit. Changes save as you type.
             </p>
           </div>
-          <button
-            type="button"
-            className="doc-editor-edit"
-            onClick={() => setEditing(true)}
-          >
-            Edit
-          </button>
+          {label ? (
+            <p className="doc-editor-status" data-tone={tone} aria-live="polite">
+              {label}
+            </p>
+          ) : null}
         </header>
-        <MarkdownPreview markdown={draft} />
+        <button
+          type="button"
+          className="doc-paper doc-paper--editable"
+          onClick={() => setEditing(true)}
+          aria-label="Edit the room brief"
+        >
+          <MarkdownPreview markdown={draft} />
+        </button>
         {error ? (
           <p className="doc-editor-error" role="alert">
             {error}
@@ -274,7 +285,7 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
         <div>
           <h2>The brief</h2>
           <p className="doc-editor-sub">
-            You&apos;re editing the shared table. Markdown renders when you save.
+            Typing saves automatically. Click away or press Esc when you&apos;re done.
           </p>
         </div>
         {label ? (
@@ -302,21 +313,16 @@ export function DocEditor({ roomId, seat, docMarkdown, onSaved }: Props) {
           setError(null);
           scheduleSave(next);
         }}
+        onBlur={() => {
+          void finishEditing();
+        }}
+        onKeyDown={(event) => {
+          if (event.key === "Escape") {
+            event.preventDefault();
+            void finishEditing();
+          }
+        }}
       />
-
-      <footer className="doc-editor-footer">
-        <button
-          type="button"
-          className="doc-editor-save"
-          disabled={tone === "saving"}
-          onClick={() => {
-            saveNow();
-            setEditing(false);
-          }}
-        >
-          {tone === "saving" ? "Saving…" : "Save"}
-        </button>
-      </footer>
 
       {error ? (
         <p className="doc-editor-error" role="alert">

@@ -80,6 +80,13 @@ export type Patch = {
   summary: string
 };
 
+/** Per-browser visitor identity stored on the room (presence + audit). */
+export type Party = {
+  id: string
+  seat: Seat
+  lastSeenAt: string
+};
+
 export type Room = {
   id: string
   title: string
@@ -89,6 +96,8 @@ export type Room = {
   createdAt?: string
   packets: Packet[]
   tasks: Task[]
+  /** Visitors who have opened this room (cookie UUID → seat + lastSeen). */
+  parties: Party[]
   log: Patch[]
   nextSeq: number
 };

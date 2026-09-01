@@ -11,12 +11,12 @@ A **link is a workspace**. Create a room, share one URL. **Owner** and **contrib
 
 ## Product surface (shipped)
 
-- Create room → unguessable `/r/<id>` + owner cookie
-- Document (markdown textarea) + open decision packets + Decisions Wall + patch log
-- Owner tools: `get_workspace`, `edit_doc`, `open_packet`, `propose_option`, `attach_evidence`
-- Contributor tools: `get_workspace`, `comment`, `challenge`, `request_evidence`
+- Create room → unguessable `/r/<id>` + owner cookie; share that same URL (contributors get a party cookie)
+- Brief (click-to-edit markdown) + open decisions + Decisions Wall + patch log + live presence
+- Owner tools: `get_workspace`, `edit_doc`, `rename_room`, `open_decision`, `propose_option`, `attach_evidence`, `add_task`, `complete_task`
+- Contributor tools: `get_workspace`, `comment`, `challenge`, `request_evidence`, `add_task`, `complete_task`
 - **Never** register `decide` — human button + nonce only
-- Demo override: `?as=owner` / `?as=contributor` (legacy `/maker` `/decider` redirect here)
+- Seat identity: owner cookie on real rooms (sharing the link never elevates). Fixture-only demo: `?as=owner` / `?as=contributor`
 - Fixture: `/r/checkout-friday?as=owner`
 
 ---

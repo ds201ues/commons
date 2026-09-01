@@ -84,6 +84,20 @@ describe("workspaceSnapshot", () => {
     expect(out).toContain("Pull the load-test numbers");
     expect(out).toContain('"assignee"');
   });
+
+  it("includes live parties under present", () => {
+    const room = fixtureRoom();
+    room.parties = [
+      {
+        id: "party-live",
+        seat: "owner",
+        lastSeenAt: new Date().toISOString(),
+      },
+    ];
+    const out = workspaceSnapshot(room);
+    expect(out).toContain('"present"');
+    expect(out).toContain("party-live");
+  });
 });
 
 describe("webmcp-registrar isolation", () => {

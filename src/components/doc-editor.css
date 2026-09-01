@@ -98,60 +98,32 @@
   border-bottom-color: color-mix(in srgb, var(--owner) 60%, transparent);
 }
 
-.doc-editor-footer {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.65rem 1rem;
-  margin-top: 0.7rem;
-}
-
-.doc-editor-save {
-  font-family: var(--font-display);
-  font-size: 0.85rem;
-  font-weight: 600;
-  background: var(--owner);
-  color: #fff;
-  border: 0;
-  border-radius: var(--radius-sm);
-  padding: 0.45rem 0.95rem;
-  cursor: pointer;
-  transition: opacity 0.15s ease;
-}
-
-.doc-editor-save:hover:not(:disabled) {
-  opacity: 0.92;
-}
-
-.doc-editor-save:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.doc-editor-save:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.doc-editor-edit {
-  flex-shrink: 0;
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 600;
+.doc-paper--editable {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
   background: transparent;
-  color: var(--canvas-ink);
-  border: 1px solid var(--hairline-strong);
-  border-radius: var(--radius-sm);
-  padding: 0.4rem 0.85rem;
-  cursor: pointer;
+  border: 0;
+  border-radius: 0;
+  cursor: text;
+}
+
+.doc-paper--editable:hover .doc-markdown,
+.doc-paper--editable:hover .doc-empty {
+  border-bottom-color: var(--hairline-strong);
+}
+
+.doc-paper--editable .doc-markdown,
+.doc-paper--editable .doc-empty {
+  border-bottom: 1px solid transparent;
   transition: border-color var(--transition-fast);
 }
 
-.doc-editor-edit:hover {
-  border-color: var(--canvas-ink);
-}
-
-.doc-editor-edit:focus-visible {
+.doc-paper--editable:focus-visible {
   outline: none;
   box-shadow: var(--focus-ring);
 }
@@ -259,10 +231,6 @@
 @media (prefers-reduced-motion: reduce) {
   .doc-editor-status[data-tone="saved"] {
     animation: none;
-  }
-
-  .doc-editor-save {
-    transition: none;
   }
 }
 

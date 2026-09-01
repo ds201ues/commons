@@ -39,6 +39,7 @@ export async function POST(req: Request, { params }: Params) {
 
   const jar = await cookies();
   const cookieSecret = jar.get(ownerCookieName(roomId))?.value ?? null;
+  // Real rooms: cookie-only. Fixture rooms without ownerTokenHash may use body.as.
   const seat = resolveRole({
     roomId,
     ownerTokenHash: room.ownerTokenHash,

@@ -50,6 +50,13 @@ export function normalizeRoom(room: Room): Room {
       assignee: coerceSeat(task.assignee),
       done: Boolean(task.done),
     })),
+    parties: (room.parties ?? [])
+      .filter((p) => typeof p?.id === "string" && p.id.length > 0)
+      .map((p) => ({
+        id: p.id,
+        seat: coerceSeat(p.seat),
+        lastSeenAt: typeof p.lastSeenAt === "string" ? p.lastSeenAt : "",
+      })),
     log: (room.log ?? []).map((row) => ({
       ...row,
       seat: coerceSeat(row.seat),

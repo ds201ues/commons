@@ -5,7 +5,7 @@ import { isOpError } from "@/lib/errors";
 import { getStore, persistUnavailableBody } from "@/lib/get-store";
 import { ownerCookieName } from "@/lib/owner";
 import { resolveRole } from "@/lib/role";
-import { ALL_OPS, normalizeSeat, type Op } from "@/lib/types";
+import { ALL_OPS, type Op } from "@/lib/types";
 
 type Params = { params: Promise<{ roomId: string }> };
 
@@ -16,14 +16,13 @@ function isOp(value: unknown): value is Op {
 export async function POST(req: Request, { params }: Params) {
   const { roomId } = await params;
   const body = (await req.json()) as Record<string, unknown>;
-  const claimed =
-    typeof body.seat === "string" ? normalizeSeat(body.seat) : null;
   const op = body.op;
   const input =
     body.input && typeof body.input === "object" && !Array.isArray(body.input)
       ? (body.input as Record<string, string>)
       : {};
   const decideToken = typeof body.decideToken === "string" ? body.decideToken : undefined;
+  // Fixture-only demo override. Ignored when the room has ownerTokenHash.
   const asParam = typeof body.as === "string" ? body.as : null;
 
   const persistFail = persistUnavailableBody();
@@ -49,12 +48,11 @@ export async function POST(req: Request, { params }: Params) {
 
   const jar = await cookies();
   const cookieSecret = jar.get(ownerCookieName(roomId))?.value ?? null;
-  // Prefer explicit demo `as`; else forward claimed seat as demo override for fixture links.
   const seat = resolveRole({
     roomId,
     ownerTokenHash: room.ownerTokenHash,
     cookieSecret,
-    asParam: asParam ?? claimed,
+    asParam,
   });
 
   try {

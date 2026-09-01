@@ -102,7 +102,10 @@ export function AboutModal({ open, onClose, returnFocusRef }: Props) {
         </ul>
 
         <div className="about-modal__fixtures">
-          <p>Preview the contest fixture</p>
+          <p>
+            Real rooms use one share link — the creator&apos;s browser stays Owner;
+            everyone else is Contributor. Fixture demo only:
+          </p>
           <p>
             <Link href={`/r/${FIXTURE_ROOM_ID}?as=owner`}>Open as owner</Link>
             {" · "}

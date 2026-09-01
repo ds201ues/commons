@@ -14,7 +14,8 @@ export type ToolDef = {
 
 const getWorkspace: ToolDef = {
   name: "get_workspace",
-  description: "Read the room: doc, packets, options, evidence, challenges, log.",
+  description:
+    "Read the shared room: brief, decisions, options, evidence, challenges, tasks, who is present, and recent activity.",
   readOnlyHint: true,
   untrustedContentHint: true,
   inputSchema: {
@@ -26,7 +27,7 @@ const getWorkspace: ToolDef = {
 
 const editDoc: ToolDef = {
   name: "edit_doc",
-  description: "Update the room document markdown.",
+  description: "Update the shared brief (markdown document everyone in the room sees).",
   untrustedContentHint: true,
   inputSchema: {
     type: "object",
@@ -39,7 +40,8 @@ const editDoc: ToolDef = {
 
 const renameRoom: ToolDef = {
   name: "rename_room",
-  description: "Rename the room. The title shows in the top bar.",
+  description:
+    "Rename this room. Updates the title in the top bar for everyone sharing the link.",
   untrustedContentHint: true,
   inputSchema: {
     type: "object",
