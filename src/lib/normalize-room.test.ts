@@ -28,7 +28,7 @@ describe("normalizeRoom", () => {
           },
         },
       ],
-    } as Room;
+    } as unknown as Room;
 
     const room = normalizeRoom(legacy);
     expect(room.packets[0]?.comments).toEqual([]);
