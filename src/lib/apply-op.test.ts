@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { applyOp, loadRoom, peekRoom } from "./apply-op";
+import { createRoom } from "./create-room";
 import { OpError } from "./errors";
 import { MemoryStore } from "./memory-store";
+import { workspaceSnapshot } from "./snapshot";
 import {
   FIXTURE_OPT_SHIP,
   FIXTURE_PACKET_ID,
@@ -456,5 +458,56 @@ describe("applyOp", () => {
       input: { text: "Write the retro notes", assignee: "contributor" },
     });
     expect(out.ok).toBe(true);
+  });
+
+  it("E2E pull handoff: assign → myOpenTasks for assignee → complete clears it", async () => {
+    const db = store();
+    const { room } = await createRoom(db, {
+      title: "Handoff demo",
+      question: "Ship the handoff demo?",
+    });
+
+    const assigned = await applyOp(db, {
+      roomId: room.id,
+      seat: "owner",
+      via: "human",
+      op: "add_task",
+      input: {
+        text: "Challenge the Ship Friday residual-risk claim",
+        assignee: "contributor",
+      },
+    });
+    const taskId = assigned.result.taskId!;
+    expect(assigned.room.log.at(-1)?.via).toBe("human");
+
+    // Contributor agent calls get_workspace — must see the task in myOpenTasks.
+    const agentView = workspaceSnapshot(assigned.room, { seat: "contributor" });
+    expect(agentView).toContain('"yourSeat":"contributor"');
+    expect(agentView).toContain(`"id":"${taskId}"`);
+    expect(agentView).toContain("Challenge the Ship Friday residual-risk claim");
+    expect(agentView).toContain("Do myOpenTasks (1)");
+
+    // Owner's seat must not claim the contributor task.
+    const ownerView = workspaceSnapshot(assigned.room, { seat: "owner" });
+    expect(ownerView).toContain('"myOpenTasks":[]');
+    expect(ownerView).toContain(taskId); // still in openTasks / tasks
+
+    // Agent finishes — task leaves myOpenTasks and is marked done.
+    const done = await applyOp(db, {
+      roomId: room.id,
+      seat: "contributor",
+      via: "agent",
+      op: "complete_task",
+      input: { taskId },
+    });
+    expect(done.room.tasks.find((t) => t.id === taskId)?.done).toBe(true);
+    expect(done.room.log.at(-1)).toMatchObject({
+      seat: "contributor",
+      via: "agent",
+      op: "complete_task",
+    });
+    const after = workspaceSnapshot(done.room, { seat: "contributor" });
+    expect(after).toContain('"myOpenTasks":[]');
+    expect(after).toContain("No open tasks");
   });
 });
