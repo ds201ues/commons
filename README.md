@@ -6,23 +6,23 @@ Pastebin made sharing a page of text a URL. Commons does that for a decision: a 
 
 **Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Repo:** [github.com/ds201ues/commons](https://github.com/ds201ues/commons) · **Licence:** MIT · **Solo submission** (no teammates)
 
-OpenAI WebMCP Challenge. Cut: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](DECISIONS.md) · As shipped: this README. Devpost paste: [`DESCRIPTION.md`](DESCRIPTION.md). Record last: [`VIDEO.md`](VIDEO.md). Judge form fields: [`SUBMISSION.md`](SUBMISSION.md).
+OpenAI WebMCP Challenge · deadline **3 Sep 2026, 1:00pm PT**. Devpost paste: [`DESCRIPTION.md`](DESCRIPTION.md) · Video last: [`VIDEO.md`](VIDEO.md) · Form fields: [`SUBMISSION.md`](SUBMISSION.md) · Cut notes: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](DECISIONS.md).
 
 ---
 
 ## Try it (judges)
 
-No login. No account on this app.
+No login. No account on this app. Do **not** use bare `commons.vercel.app` (unrelated site).
 
 1. **ChatGPT desktop**, Personal plan, model **Sol** or **Terra**, **Work** mode, **in-app browser**. Enterprise and Luna return `Capability is not available: webmcp`.
 2. Open [https://getcommons.vercel.app](https://getcommons.vercel.app). The homepage creates a room. This browser is **Owner** (HttpOnly cookie).
-3. Ask the agent to call `get_workspace`, then `propose_option` and `attach_evidence`. The rail and activity log update; activity shows **Agent**, not Human.
+3. Ask the agent to call `get_workspace`, then `propose_option` and `attach_evidence`. The rail updates; activity shows **Owner · Agent** (not Human).
 4. **Stamp Decide** is a button on the page. It is not a registered tool. Reload: the call stays closed on the Decisions Wall.
-5. **Copy share link** for Contributor (and a second agent). Sharing cannot forge Owner. Contributor tools include `challenge` / `request_evidence` and omit `open_decision` / `rename_room`.
+5. **Copy share link** for Contributor. Sharing cannot forge Owner. Contributor tools include `challenge` / `request_evidence` and omit `open_decision` / `rename_room`.
 
 Chrome backup: `chrome://flags/#enable-webmcp-testing` + [Model Context Tool Inspector](https://chromewebstore.google.com/detail/webmcp-model-context-tool/gbpdfapgefenggkahomfgkhfehlcenpd).
 
-Optional read-only fixture (already decided — do not use as the live demo): [https://getcommons.vercel.app/r/checkout-friday](https://getcommons.vercel.app/r/checkout-friday)
+Optional read-only fixture (already decided — **do not use as the live demo**): [https://getcommons.vercel.app/r/checkout-friday](https://getcommons.vercel.app/r/checkout-friday)
 
 ---
 
