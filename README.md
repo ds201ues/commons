@@ -4,7 +4,7 @@ A **link is the workspace**. Create a room, share the URL. Any human and any age
 
 Pastebin made sharing a page of text a URL. Commons does that for a decision: a disposable room, one link, vendor-agnostic. Today each coding agent keeps its own artifact (Claude Code’s files live in Claude Code; a ChatGPT canvas lives in ChatGPT). There is no common object where a person, a ChatGPT agent, and a laptop agent meet, and where closing the call is a human action the model cannot take. After agentic AI, the human’s job is reviewer and decider. Commons is that job, as a page.
 
-**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Licence:** MIT · **Solo submission** (no teammates)
+**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Repo:** [github.com/ds201ues/commons](https://github.com/ds201ues/commons) · **Licence:** MIT · **Solo submission** (no teammates)
 
 OpenAI WebMCP Challenge. Cut: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](DECISIONS.md) · As shipped: this README. Devpost paste: [`DESCRIPTION.md`](DESCRIPTION.md). Record last: [`VIDEO.md`](VIDEO.md). Judge form fields: [`SUBMISSION.md`](SUBMISSION.md).
 
