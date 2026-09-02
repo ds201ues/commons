@@ -49,7 +49,7 @@ export function WebmcpRegistrar({ roomId, seat }: Props) {
           execute: async (input) => {
             if (tool.name === "get_workspace") {
               const room = await readRoom(roomId);
-              return workspaceSnapshot(room);
+              return workspaceSnapshot(room, { seat });
             }
             const res = await fetch(`/api/rooms/${roomId}/ops`, {
               method: "POST",
@@ -67,7 +67,7 @@ export function WebmcpRegistrar({ roomId, seat }: Props) {
             });
             const json = (await res.json()) as OpResponse;
             if (!json.ok) return trimToolOutput(json);
-            if (json.room) return workspaceSnapshot(json.room);
+            if (json.room) return workspaceSnapshot(json.room, { seat });
             return trimToolOutput({ ok: true, result: json.result ?? {} });
           },
         },

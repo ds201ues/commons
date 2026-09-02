@@ -100,6 +100,30 @@ describe("workspaceSnapshot", () => {
     expect(out).toContain('"assignee"');
   });
 
+  it("surfaces myOpenTasks for the calling seat near the top of the snapshot", () => {
+    const ownerView = workspaceSnapshot(fixtureRoom(), { seat: "owner" });
+    expect(ownerView).toContain('"yourSeat":"owner"');
+    expect(ownerView).toContain('"myOpenTasks"');
+    expect(ownerView).toContain("Pull the load-test numbers");
+    expect(ownerView).toContain("Do myOpenTasks (1)");
+    // Task fields beat the brief so a 1.5K trim cannot hide assigned work.
+    expect(ownerView.indexOf("myOpenTasks")).toBeLessThan(ownerView.indexOf("docMarkdown"));
+
+    const contributorView = workspaceSnapshot(fixtureRoom(), { seat: "contributor" });
+    expect(contributorView).toContain('"yourSeat":"contributor"');
+    expect(contributorView).toContain("Review the rollout plan");
+    expect(contributorView).toContain("Do myOpenTasks (1)");
+  });
+
+  it("tells get_workspace callers to check myOpenTasks first", () => {
+    const names = toolsForSeat("owner").map((t) => t.name);
+    expect(names).toContain("get_workspace");
+    const get = toolsForSeat("owner").find((t) => t.name === "get_workspace");
+    expect(get?.description).toMatch(/myOpenTasks/);
+    const add = toolsForSeat("owner").find((t) => t.name === "add_task");
+    expect(add?.description).toMatch(/myOpenTasks/);
+  });
+
   it("includes live parties under present", () => {
     const room = fixtureRoom();
     room.parties = [

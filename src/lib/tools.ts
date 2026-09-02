@@ -15,7 +15,7 @@ export type ToolDef = {
 const getWorkspace: ToolDef = {
   name: "get_workspace",
   description:
-    "Read the shared room: brief, decisions, options, evidence, challenges, tasks, who is present, and recent activity.",
+    "Read the shared room. Always check myOpenTasks first (open work assigned to your seat), then openTasks, activePacketId, openPackets, brief, and recent activity. WebMCP cannot wake you — call this when the human asks you to pick up work.",
   readOnlyHint: true,
   untrustedContentHint: true,
   inputSchema: {
@@ -157,7 +157,7 @@ const requestEvidence: ToolDef = {
 const addTask: ToolDef = {
   name: "add_task",
   description:
-    "Assign a task to a seat (owner or contributor). The assignee's agent sees it in get_workspace.",
+    "Assign work to a seat (owner or contributor). Pull-based: the assignee's agent sees it in get_workspace.myOpenTasks on their next call — the page cannot wake that agent.",
   untrustedContentHint: true,
   inputSchema: {
     type: "object",
@@ -171,11 +171,15 @@ const addTask: ToolDef = {
 
 const completeTask: ToolDef = {
   name: "complete_task",
-  description: "Mark a task done. Calling it again reopens the task.",
+  description:
+    "Mark a task done after you finish the work. Pass taskId from myOpenTasks / openTasks / tasks in get_workspace. Calling again reopens it.",
   inputSchema: {
     type: "object",
     properties: {
-      taskId: { type: "string", description: "Task id from get_workspace" },
+      taskId: {
+        type: "string",
+        description: "Task id from get_workspace.myOpenTasks (preferred) or tasks",
+      },
     },
     required: ["taskId"],
   },
