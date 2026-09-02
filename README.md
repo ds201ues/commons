@@ -2,29 +2,29 @@
 
 A **link is the workspace**. Humans and agents still lack a common surface to collaborate at scale — Claude’s artifacts stay in Claude, a ChatGPT canvas stays in ChatGPT. **WebMCP** puts tools on the page so people and agents meet the same room. **Commons** is a decision-making prototype of that idea: create a room, share the URL, work the same brief and task list. **Owner** and **Contributor** get different tools. **Only a human can Stamp Decide** — once locked, agents cannot rewrite the close.
 
-**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Repo:** [github.com/ds201ues/commons](https://github.com/ds201ues/commons) · **Licence:** MIT · **Solo submission** (no teammates)
+**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Licence:** MIT
 
-OpenAI WebMCP Challenge · deadline **3 Sep 2026, 1:00pm PT**. Devpost paste: [`DESCRIPTION.md`](DESCRIPTION.md) · Video last: [`VIDEO.md`](VIDEO.md) · Form fields: [`SUBMISSION.md`](SUBMISSION.md) · Cut notes: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](DECISIONS.md).
+Do **not** use bare `commons.vercel.app` — that hostname is a different product.
 
 ---
 
-## Try it (judges)
+## Try it
 
-No login. No account on this app. Do **not** use bare `commons.vercel.app` (unrelated site).
+No login. No credentials.
 
 1. **ChatGPT desktop**, Personal plan, model **Sol** or **Terra**, **Work** mode, **in-app browser**. Enterprise and Luna return `Capability is not available: webmcp`.
 2. Open [https://getcommons.vercel.app](https://getcommons.vercel.app). The homepage creates a room. This browser is **Owner** (HttpOnly cookie).
-3. Ask the agent to call `get_workspace`, then `propose_option` and `attach_evidence`. The rail updates; activity shows **Owner · Agent** (not Human).
-4. **Stamp Decide** is a button on the page. It is not a registered tool. Reload: the call stays closed on the Decisions Wall.
+3. Ask the agent to call `get_workspace`, then `propose_option` and `attach_evidence`. The rail updates; activity shows **Owner · Agent**.
+4. **Stamp Decide** is a button on the page — not a registered tool. Reload: the call stays closed on the Decisions Wall.
 5. **Copy share link** for Contributor. Sharing cannot forge Owner. Contributor tools include `challenge` / `request_evidence` and omit `open_decision` / `rename_room`.
 
 Chrome backup: `chrome://flags/#enable-webmcp-testing` + [Model Context Tool Inspector](https://chromewebstore.google.com/detail/webmcp-model-context-tool/gbpdfapgefenggkahomfgkhfehlcenpd).
 
-Optional read-only fixture (already decided — **do not use as the live demo**): [https://getcommons.vercel.app/r/checkout-friday](https://getcommons.vercel.app/r/checkout-friday)
+Optional fixture (already decided — not the live demo): [https://getcommons.vercel.app/r/checkout-friday](https://getcommons.vercel.app/r/checkout-friday)
 
 ---
 
-## Why WebMCP (four answers)
+## Why WebMCP
 
 **Fit.** WebMCP turns the page into the shared surface. Agents discover tools by visiting the URL. Seats register different lists. Decide is missing on purpose: the page owns the close (human click → single-use nonce). That is the human-in-the-loop case — not a backend MCP wrapper with a thin UI, and not a vendor canvas only one product can edit.
 
@@ -36,11 +36,11 @@ Optional read-only fixture (already decided — **do not use as the live demo**)
 
 ---
 
-## Product surface (shipped 2 Sep 2026)
+## What ships
 
-- Create room → unguessable `/r/<id>` + owner cookie. Share URL is `/r/<id>?as=contributor` so the same browser cannot stay Owner.
-- Brief (in-place rich edit → markdown) + open decisions + Decisions Wall + activity log + live presence.
-- Tasks: assign to a seat. WebMCP is pull-only — the page cannot wake an agent. `get_workspace` returns `myOpenTasks` + `taskHint` so the next visit can pick up work.
+- Create room → unguessable `/r/<id>` + owner cookie. Share URL is `/r/<id>?as=contributor`.
+- Brief + open decisions + Decisions Wall + activity log + live presence.
+- Tasks: assign to a seat. WebMCP is pull-only — the page cannot wake an agent. `get_workspace` returns `myOpenTasks` + `taskHint`.
 - **Never** register `decide`. Human button + nonce only.
 
 | Seat | WebMCP tools |
@@ -68,7 +68,7 @@ Production persist is **Upstash only**. Without `UPSTASH_REDIS_REST_URL` + `UPST
 
 ## HTTP ops (same kernel as WebMCP)
 
-Local agents and curl call the same `applyOp` as `execute()`.
+Local agents and curl call the same `applyOp` as tool `execute()`.
 
 ```bash
 curl -s https://getcommons.vercel.app/api/rooms/checkout-friday

@@ -7,4 +7,17 @@ dist/
 out/
 .vercel/
 .verify-out/
+.superpowers/
 *.tsbuildinfo
+
+# Contest / local working notes — stay on disk, not on the public repo
+DECISIONS.md
+DESCRIPTION.md
+DESIGN.md
+GUIDELINES.md
+PIVOT-LOCK.md
+PRODUCT.md
+SCOPE.md
+SUBMISSION.md
+VIDEO.md
+docs/
