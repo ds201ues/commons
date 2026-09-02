@@ -1,8 +1,6 @@
 # Commons
 
-A **link is the workspace**. Create a room, share the URL. Any human and any agent that can open the page — ChatGPT in the browser, or a local agent over HTTP — work the same brief, the same decision, the same task list. **Owner** and **Contributor** get different WebMCP tools. **Only a human can Decide.**
-
-Pastebin made sharing a page of text a URL. Commons does that for a decision: a disposable room, one link, vendor-agnostic. Today each coding agent keeps its own artifact (Claude Code’s files live in Claude Code; a ChatGPT canvas lives in ChatGPT). There is no common object where a person, a ChatGPT agent, and a laptop agent meet, and where closing the call is a human action the model cannot take. After agentic AI, the human’s job is reviewer and decider. Commons is that job, as a page.
+A **link is the workspace**. Humans and agents still lack a common surface to collaborate at scale — Claude’s artifacts stay in Claude, a ChatGPT canvas stays in ChatGPT. **WebMCP** puts tools on the page so people and agents meet the same room. **Commons** is a decision-making prototype of that idea: create a room, share the URL, work the same brief and task list. **Owner** and **Contributor** get different tools. **Only a human can Stamp Decide** — once locked, agents cannot rewrite the close.
 
 **Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Repo:** [github.com/ds201ues/commons](https://github.com/ds201ues/commons) · **Licence:** MIT · **Solo submission** (no teammates)
 
@@ -28,11 +26,11 @@ Optional read-only fixture (already decided — **do not use as the live demo**)
 
 ## Why WebMCP (four answers)
 
-**Fit.** Agents discover tools by visiting the page. Seats register different lists. Decide is missing on purpose: the page owns the close (human click → single-use nonce). That is the spec’s human-in-the-loop case, not a backend MCP server with a thin UI, and not a vendor canvas that only one product can edit.
+**Fit.** WebMCP turns the page into the shared surface. Agents discover tools by visiting the URL. Seats register different lists. Decide is missing on purpose: the page owns the close (human click → single-use nonce). That is the human-in-the-loop case — not a backend MCP wrapper with a thin UI, and not a vendor canvas only one product can edit.
 
-**Better UX.** An Owner agent opens a decision, proposes options, and attaches evidence in one turn instead of clicking the rail. A Contributor agent can challenge and request a missing fact but cannot rename the room or open a new call. Humans still see the brief, presence, activity (Owner/Contributor · Human/Agent), and Stamp Decide.
+**Better UX.** An Owner agent proposes options and attaches evidence in one turn instead of clicking the rail. A Contributor can challenge and request a missing fact but cannot rename the room or open a new call. Humans still see the brief, presence, activity (Owner/Contributor · Human/Agent), and Stamp Decide.
 
-**Newly possible.** You cannot share a Claude Code artifact with ChatGPT and have both edit it. You cannot put “the team’s call” in a Google Doc and stop an agent from claiming it closed. Commons is a vendor-neutral room: ChatGPT-in-browser and `POST /api/rooms/:id/ops` hit the same `applyOp`. Closing returns `needs_human_decide` unless a human minted the token.
+**Newly possible.** You cannot share a Claude artifact with ChatGPT and keep one object. You cannot put the team’s call in a Doc and stop an agent from claiming it closed. Commons is that common room: ChatGPT-in-browser and `POST /api/rooms/:id/ops` hit the same `applyOp`. Closing returns `needs_human_decide` unless a human minted the token.
 
 **Implementation.** Next.js 15 on Vercel, Upstash Redis. `document.modelContext.registerTool` with JSON Schema, `annotations.readOnlyHint` / `untrustedContentHint`, `AbortSignal`. Tool output is a seat-scoped snapshot (`myOpenTasks` first, ≤1.5K). No iframes; origin isolation left intact. `decide` / `choose` / `close` are in `NEVER_REGISTER`.
 
