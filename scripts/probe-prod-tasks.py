@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 import urllib.request
 
-BASE = "https://redress-desk.vercel.app"
+BASE = "https://getcommons.vercel.app"
 
 
 def main() -> None:

@@ -4,7 +4,7 @@ A **link is the workspace**. Create a room, share the URL. Any human and any age
 
 Pastebin made sharing a page of text a URL. Commons does that for a decision: a disposable room, one link, vendor-agnostic. Today each coding agent keeps its own artifact (Claude Code’s files live in Claude Code; a ChatGPT canvas lives in ChatGPT). There is no common object where a person, a ChatGPT agent, and a laptop agent meet, and where closing the call is a human action the model cannot take. After agentic AI, the human’s job is reviewer and decider. Commons is that job, as a page.
 
-**Live:** [https://redress-desk.vercel.app](https://redress-desk.vercel.app) · **Licence:** MIT · **Solo submission** (no teammates)
+**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Licence:** MIT · **Solo submission** (no teammates)
 
 OpenAI WebMCP Challenge. Cut: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](DECISIONS.md) · As shipped: this README. Devpost paste: [`DESCRIPTION.md`](DESCRIPTION.md). Record last: [`VIDEO.md`](VIDEO.md). Judge form fields: [`SUBMISSION.md`](SUBMISSION.md).
 
@@ -15,14 +15,14 @@ OpenAI WebMCP Challenge. Cut: [`SCOPE.md`](SCOPE.md) · Stack: [`DECISIONS.md`](
 No login. No account on this app.
 
 1. **ChatGPT desktop**, Personal plan, model **Sol** or **Terra**, **Work** mode, **in-app browser**. Enterprise and Luna return `Capability is not available: webmcp`.
-2. Open [https://redress-desk.vercel.app](https://redress-desk.vercel.app). The homepage creates a room. This browser is **Owner** (HttpOnly cookie).
+2. Open [https://getcommons.vercel.app](https://getcommons.vercel.app). The homepage creates a room. This browser is **Owner** (HttpOnly cookie).
 3. Ask the agent to call `get_workspace`, then `propose_option` and `attach_evidence`. The rail and activity log update; activity shows **Agent**, not Human.
 4. **Stamp Decide** is a button on the page. It is not a registered tool. Reload: the call stays closed on the Decisions Wall.
 5. **Copy share link** for Contributor (and a second agent). Sharing cannot forge Owner. Contributor tools include `challenge` / `request_evidence` and omit `open_decision` / `rename_room`.
 
 Chrome backup: `chrome://flags/#enable-webmcp-testing` + [Model Context Tool Inspector](https://chromewebstore.google.com/detail/webmcp-model-context-tool/gbpdfapgefenggkahomfgkhfehlcenpd).
 
-Optional read-only fixture (already decided — do not use as the live demo): [https://redress-desk.vercel.app/r/checkout-friday](https://redress-desk.vercel.app/r/checkout-friday)
+Optional read-only fixture (already decided — do not use as the live demo): [https://getcommons.vercel.app/r/checkout-friday](https://getcommons.vercel.app/r/checkout-friday)
 
 ---
 
@@ -73,14 +73,14 @@ Production persist is **Upstash only**. Without `UPSTASH_REDIS_REST_URL` + `UPST
 Local agents and curl call the same `applyOp` as `execute()`.
 
 ```bash
-curl -s https://redress-desk.vercel.app/api/rooms/checkout-friday
+curl -s https://getcommons.vercel.app/api/rooms/checkout-friday
 
-curl -s -X POST https://redress-desk.vercel.app/api/rooms/checkout-friday/ops \
+curl -s -X POST https://getcommons.vercel.app/api/rooms/checkout-friday/ops \
   -H 'content-type: application/json' \
   -d '{"as":"owner","op":"propose_option","input":{"packetId":"pkt-checkout","label":"Hold for Monday"}}'
 
 # Decide without a human token — must fail
-curl -s -X POST https://redress-desk.vercel.app/api/rooms/checkout-friday/ops \
+curl -s -X POST https://getcommons.vercel.app/api/rooms/checkout-friday/ops \
   -H 'content-type: application/json' \
   -d '{"as":"contributor","op":"decide","input":{"packetId":"pkt-checkout","optionId":"opt-ship"}}'
 ```

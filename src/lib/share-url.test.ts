@@ -3,8 +3,8 @@ import { roomShareUrl } from "./share-url";
 
 describe("roomShareUrl", () => {
   it("builds a contributor join URL so the owner cookie cannot impersonate the agent", () => {
-    expect(roomShareUrl("https://redress-desk.vercel.app", "abc123")).toBe(
-      "https://redress-desk.vercel.app/r/abc123?as=contributor",
+    expect(roomShareUrl("https://getcommons.vercel.app", "abc123")).toBe(
+      "https://getcommons.vercel.app/r/abc123?as=contributor",
     );
   });
 
