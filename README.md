@@ -1,8 +1,12 @@
 # Commons
 
-A **link is the workspace**. Humans and agents still lack a common surface to collaborate at scale — Claude’s artifacts stay in Claude, a ChatGPT canvas stays in ChatGPT. **WebMCP** puts tools on the page so people and agents meet the same room. **Commons** is a decision-making prototype of that idea: create a room, share the URL, work the same brief and task list. **Owner** and **Contributor** get different tools. **Only a human can Stamp Decide** — once locked, agents cannot rewrite the close.
+Humans and agents still lack a **common surface** to collaborate at scale. Claude’s work stays locked to Claude. A ChatGPT canvas stays locked to ChatGPT. There is no portable room where you, your agent, another person, and their agents work the **same** object — with the same rules, without special instructions per vendor.
 
-**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Licence:** MIT
+**WebMCP** makes that surface possible: tools live on the page, so a person clicking and an agent calling `document.modelContext` meet the same workspace. The framework is shared; the seat still matters.
+
+**Commons** is a prototype of that idea, using **decision-making** as the use case. Create a room. Share the link. Owner and Contributor get different tools. Agents propose options, attach evidence, challenge claims, assign tasks. When the call is ready, **only a human can Stamp Decide** — never a registered tool. Once locked on the Decisions Wall, agents cannot rewrite the close.
+
+**Live:** [https://getcommons.vercel.app](https://getcommons.vercel.app) · **Repo:** [github.com/ds201ues/commons](https://github.com/ds201ues/commons) · **Licence:** MIT
 
 Do **not** use bare `commons.vercel.app` — that hostname is a different product.
 
@@ -26,13 +30,13 @@ Optional fixture (already decided — not the live demo): [https://getcommons.ve
 
 ## Why WebMCP
 
-**Fit.** WebMCP turns the page into the shared surface. Agents discover tools by visiting the URL. Seats register different lists. Decide is missing on purpose: the page owns the close (human click → single-use nonce). That is the human-in-the-loop case — not a backend MCP wrapper with a thin UI, and not a vendor canvas only one product can edit.
+**Fit.** Agents discover tools by visiting the page, not an off-site catalog. Owner and Contributor register **different** lists on one link. Decide is **missing on purpose**: a human click mints a single-use nonce; without it, close returns `needs_human_decide`. That is the WebMCP human-in-the-loop design — not a backend MCP wrapper with a thin UI, and not a vendor canvas only one product can edit.
 
-**Better UX.** An Owner agent proposes options and attaches evidence in one turn instead of clicking the rail. A Contributor can challenge and request a missing fact but cannot rename the room or open a new call. Humans still see the brief, presence, activity (Owner/Contributor · Human/Agent), and Stamp Decide.
+**Better UX.** An Owner agent can call `get_workspace`, `propose_option`, and `attach_evidence` in one turn instead of clicking Options → Evidence → Decide. A Contributor can `challenge` and `request_evidence` but cannot `open_decision` or `rename_room`. Humans still see the desk: brief, rail, presence, activity labelled Owner/Contributor · Human/Agent. Stamp Decide is a button.
 
-**Newly possible.** You cannot share a Claude artifact with ChatGPT and keep one object. You cannot put the team’s call in a Doc and stop an agent from claiming it closed. Commons is that common room: ChatGPT-in-browser and `POST /api/rooms/:id/ops` hit the same `applyOp`. Closing returns `needs_human_decide` unless a human minted the token.
+**Newly possible.** You cannot hand a Claude session to ChatGPT and keep one artifact. You cannot put the team’s call in a Doc and stop an agent from claiming it closed. On Commons, ChatGPT-in-browser and a local agent posting to `POST /api/rooms/:id/ops` hit the same `applyOp`. The shared object is the room. Closing it is a human action. Tasks are pull-based (`myOpenTasks` on the next `get_workspace`) because WebMCP cannot wake an agent — an honest limit, not a bug.
 
-**Implementation.** Next.js 15 on Vercel, Upstash Redis. `document.modelContext.registerTool` with JSON Schema, `annotations.readOnlyHint` / `untrustedContentHint`, `AbortSignal`. Tool output is a seat-scoped snapshot (`myOpenTasks` first, ≤1.5K). No iframes; origin isolation left intact. `decide` / `choose` / `close` are in `NEVER_REGISTER`.
+**Implementation.** Next.js 15 on Vercel; one JSON room in Upstash Redis. `document.modelContext.registerTool` with JSON Schema, `annotations.readOnlyHint` / `untrustedContentHint`, and `AbortSignal`. `get_workspace` returns a seat-scoped snapshot (≤1.5K chars, `myOpenTasks` first). No iframes; origin isolation left intact. `decide`, `choose`, and `close` sit in `NEVER_REGISTER`.
 
 ---
 

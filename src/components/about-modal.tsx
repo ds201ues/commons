@@ -26,7 +26,7 @@ const STEPS = [
   {
     n: "3",
     title: "A human closes the call",
-    body: "Decide is never a registered tool. Stamped calls land on the Decisions Wall — the room’s ledger.",
+    body: "Decide is never a registered tool. Once stamped, the call lands on the Decisions Wall and agents cannot rewrite the close.",
   },
 ];
 
@@ -59,13 +59,13 @@ export function AboutModal({ open, onClose, returnFocusRef }: Props) {
         onClick={(event) => event.stopPropagation()}
       >
         <h2 id={titleId} className="about-modal__title">
-          One link. Two powers. A human closes the call.
+          A link is the workspace. Only a human Decides.
         </h2>
         <p className="about-modal__lede">
-          Share one URL with every agent in the room. Both seats edit the brief
-          and propose options; contributors uniquely challenge and request
-          evidence. When the room is ready, a person stamps Decide — never the
-          agents.
+          WebMCP puts tools on the page so humans and agents share one room —
+          not a vendor-locked artifact. Owner and Contributor get different
+          tools. When the call is ready, a person stamps Decide. Agents cannot
+          lock it, and cannot rewrite the close.
         </p>
 
         <ol className="about-modal__steps">

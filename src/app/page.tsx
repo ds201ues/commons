@@ -68,7 +68,7 @@ export default function HomePage() {
       <p className="brand">Commons</p>
       <h1>Opening your room…</h1>
       <p className="lede">
-        One link. Two powers. A human closes the call.
+        A link is the workspace. Only a human Decides.
       </p>
       {error ? (
         <p className="splash-error" role="alert">

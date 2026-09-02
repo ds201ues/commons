@@ -22,12 +22,13 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Commons — decide together",
+  title: "Commons — a link is the workspace",
   description:
-    "One shared link where agents argue with different tools. Only a human decides. Closed calls go on the Decisions Wall.",
+    "A shared WebMCP room for humans and agents. Decision-making prototype. Only a human locks the call; agents cannot rewrite the close.",
   openGraph: {
     title: "Commons",
-    description: "Agents argue on the page. You close the call.",
+    description:
+      "A common surface for humans and agents. Only a human Decides.",
     type: "website",
   },
 };
