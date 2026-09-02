@@ -35,7 +35,8 @@ export function DecideBar({
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [collapsed, setCollapsed] = useState(false);
+  /** Sticky Decide starts minimized; Expand is opt-in. */
+  const [collapsed, setCollapsed] = useState(true);
   const persistBlocked = persist === "ephemeral";
   const disabled = pending || persistBlocked || !nonce;
   const pillRefs = useRef<Record<string, HTMLButtonElement | null>>({});
@@ -85,9 +86,11 @@ export function DecideBar({
   useEffect(() => {
     if (variant !== "sticky") return;
     try {
-      setCollapsed(window.localStorage.getItem(collapseStorageKey(roomId)) === "1");
+      const stored = window.localStorage.getItem(collapseStorageKey(roomId));
+      // Default minimized when unset; only "0" expands on load.
+      setCollapsed(stored !== "0");
     } catch {
-      setCollapsed(false);
+      setCollapsed(true);
     }
   }, [roomId, variant]);
 

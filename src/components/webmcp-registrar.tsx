@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
+import { ACTOR_VIA_HEADER } from "@/lib/actor-via";
 import { workspaceSnapshot } from "@/lib/snapshot";
 import { NEVER_REGISTER, toolsForSeat } from "@/lib/tools";
 import type { Room, Seat } from "@/lib/types";
@@ -52,7 +53,11 @@ export function WebmcpRegistrar({ roomId, seat }: Props) {
             }
             const res = await fetch(`/api/rooms/${roomId}/ops`, {
               method: "POST",
-              headers: { "content-type": "application/json" },
+              credentials: "same-origin",
+              headers: {
+                "content-type": "application/json",
+                [ACTOR_VIA_HEADER]: "agent",
+              },
               body: JSON.stringify({
                 as: seat,
                 via: "agent",

@@ -76,6 +76,33 @@ describe("applyOp", () => {
     expect(proposed.room.packets[0]?.options.some((o) => o.label === "Hold")).toBe(true);
   });
 
+  it("records via=agent on the activity log when an agent writes", async () => {
+    const db = store();
+    const out = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      via: "agent",
+      op: "propose_option",
+      input: { packetId: FIXTURE_PACKET_ID, label: "Agent path", body: "" },
+    });
+    const last = out.room.log[out.room.log.length - 1];
+    expect(last?.seat).toBe("owner");
+    expect(last?.via).toBe("agent");
+    expect(last?.op).toBe("propose_option");
+  });
+
+  it("defaults activity via to human when omitted", async () => {
+    const db = store();
+    const out = await applyOp(db, {
+      roomId: FIXTURE_ROOM_ID,
+      seat: "owner",
+      op: "propose_option",
+      input: { packetId: FIXTURE_PACKET_ID, label: "Human path", body: "" },
+    });
+    const last = out.room.log[out.room.log.length - 1];
+    expect(last?.via).toBe("human");
+  });
+
   it("rejects contributor-only ops on the owner seat", async () => {
     const db = store();
     for (const [op, input] of [

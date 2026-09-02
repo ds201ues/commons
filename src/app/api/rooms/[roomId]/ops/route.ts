@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import { NextResponse } from "next/server";
+import { ACTOR_VIA_HEADER, resolveActorVia } from "@/lib/actor-via";
 import { applyOp, peekRoom } from "@/lib/apply-op";
 import { isOpError } from "@/lib/errors";
 import { getStore, persistUnavailableBody } from "@/lib/get-store";
@@ -8,7 +9,7 @@ import { partyCookieName } from "@/lib/party";
 import { touchParty } from "@/lib/presence";
 import { publicRoom } from "@/lib/public-room";
 import { resolveRole } from "@/lib/role";
-import { ALL_OPS, type ActorKind, type Op } from "@/lib/types";
+import { ALL_OPS, type Op } from "@/lib/types";
 
 type Params = { params: Promise<{ roomId: string }> };
 
@@ -27,8 +28,7 @@ export async function POST(req: Request, { params }: Params) {
   const decideToken = typeof body.decideToken === "string" ? body.decideToken : undefined;
   // Share-link downgrade: ?as=contributor / body.as=contributor. Never elevates.
   const asParam = typeof body.as === "string" ? body.as : null;
-  const viaRaw = typeof body.via === "string" ? body.via : "human";
-  const via: ActorKind = viaRaw === "agent" ? "agent" : "human";
+  const via = resolveActorVia(req.headers.get(ACTOR_VIA_HEADER), body.via);
 
   const persistFail = persistUnavailableBody();
   if (persistFail) {

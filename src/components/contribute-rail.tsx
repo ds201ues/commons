@@ -81,15 +81,14 @@ export function ContributeRail({
   const hasOpen = Boolean(openPacket);
   const [tab, setTab] = useState<TabId>(hasOpen ? "options" : "tasks");
   const [text, setText] = useState("");
-  const [rationale, setRationale] = useState("");
   const [assignee, setAssignee] = useState<Seat>(seat === "owner" ? "contributor" : "owner");
   const [evidenceOp, setEvidenceOp] = useState<EvidenceOp>("attach_evidence");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [creating, setCreating] = useState(true);
   const tabsId = useId();
   const panelId = `${tabsId}-panel`;
   const tabRefs = useRef<Partial<Record<TabId, HTMLButtonElement | null>>>({});
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   function tabButtonId(id: TabId) {
     return `${tabsId}-tab-${id}`;
@@ -139,7 +138,6 @@ export function ContributeRail({
       else if (detail === "evidence") setTab("evidence");
       else if (detail === "task") setTab("tasks");
       else if (detail === "open_decision" || detail === "decisions") setTab("decisions");
-      setCreating(true);
     }
     window.addEventListener("commons:intent", onIntent);
     return () => window.removeEventListener("commons:intent", onIntent);
@@ -147,16 +145,14 @@ export function ContributeRail({
 
   useEffect(() => {
     setText("");
-    setRationale("");
     setError(null);
-    setCreating(true);
     setEvidenceOp("attach_evidence");
   }, [tab]);
 
-  async function submitCreate(event: FormEvent) {
-    event.preventDefault();
+  async function submitCreate(event?: FormEvent) {
+    event?.preventDefault();
     const value = text.trim();
-    if (!value) return;
+    if (!value || pending) return;
 
     let op: string;
     let input: Record<string, string>;
@@ -164,7 +160,7 @@ export function ContributeRail({
     if (tab === "options") {
       if (!openPacket) return;
       op = "propose_option";
-      input = { packetId: openPacket.id, label: value, body: rationale.trim() };
+      input = { packetId: openPacket.id, label: value, body: "" };
     } else if (tab === "evidence") {
       if (!openPacket) return;
       op = evidenceOp;
@@ -194,7 +190,7 @@ export function ContributeRail({
       }
       onUpdated(json.room);
       setText("");
-      setRationale("");
+      queueMicrotask(() => inputRef.current?.focus());
     } catch {
       setError("Network error");
     } finally {
@@ -212,14 +208,14 @@ export function ContributeRail({
   const evidenceKind =
     evidenceKinds.find((item) => item.op === evidenceOp) ?? evidenceKinds[0];
 
-  const createLabel =
+  const placeholder =
     tab === "options"
-      ? "+ New option"
+      ? "Add an option — press Enter"
       : tab === "evidence"
-        ? `+ ${evidenceKind.label}`
-        : tab === "tasks"
-          ? "+ Assign task"
-          : null;
+        ? `${evidenceKind.placeholder} — press Enter`
+        : "Assign a task — press Enter";
+
+  const showCreate = tab === "options" || tab === "evidence" || tab === "tasks";
 
   return (
     <section className="contribute-rail" aria-label="Contribute">
@@ -291,96 +287,53 @@ export function ContributeRail({
           </div>
         ) : (
           <>
-            {createLabel ? (
-              <div className="contribute-rail__create">
-                {!creating ? (
-                  <button
-                    type="button"
-                    className="contribute-rail__create-toggle"
-                    onClick={() => setCreating(true)}
+            {showCreate ? (
+              <form
+                className="composer__form composer__form--inline"
+                onSubmit={(e) => void submitCreate(e)}
+              >
+                {tab === "evidence" ? (
+                  <select
+                    value={evidenceOp}
+                    onChange={(e) => setEvidenceOp(e.target.value as EvidenceOp)}
+                    disabled={pending}
+                    aria-label="Contribution kind"
                   >
-                    {createLabel}
-                  </button>
-                ) : (
-                  <form className="composer__form" onSubmit={(e) => void submitCreate(e)}>
-                    <div className="contribute-rail__create-head">
-                      <span className="contribute-rail__create-label">{createLabel}</span>
-                      <button
-                        type="button"
-                        className="contribute-rail__create-cancel"
-                        disabled={pending}
-                        onClick={() => {
-                          setCreating(false);
-                          setText("");
-                          setRationale("");
-                          setError(null);
-                        }}
-                      >
-                        Hide
-                      </button>
-                    </div>
-                    {tab === "evidence" ? (
-                      <select
-                        value={evidenceOp}
-                        onChange={(e) => setEvidenceOp(e.target.value as EvidenceOp)}
-                        disabled={pending}
-                        aria-label="Contribution kind"
-                      >
-                        {evidenceKinds.map((item) => (
-                          <option key={item.op} value={item.op}>
-                            {item.label}
-                          </option>
-                        ))}
-                      </select>
-                    ) : null}
-                    <input
-                      value={text}
-                      onChange={(e) => setText(e.target.value)}
-                      placeholder={
-                        tab === "options"
-                          ? "Option label — e.g. Ship Friday"
-                          : tab === "evidence"
-                            ? evidenceKind.placeholder
-                            : "Work to hand to a seat"
-                      }
-                      disabled={pending}
-                      required
-                      autoComplete="off"
-                      aria-label={createLabel}
-                    />
-                    {tab === "options" ? (
-                      <input
-                        value={rationale}
-                        onChange={(e) => setRationale(e.target.value)}
-                        placeholder="Rationale (optional)"
-                        disabled={pending}
-                        autoComplete="off"
-                        aria-label="Rationale (optional)"
-                      />
-                    ) : null}
-                    {tab === "tasks" ? (
-                      <select
-                        value={assignee}
-                        onChange={(e) => setAssignee(e.target.value as Seat)}
-                        disabled={pending}
-                        aria-label="Assign to seat"
-                      >
-                        <option value="owner">Owner</option>
-                        <option value="contributor">Contributor</option>
-                      </select>
-                    ) : null}
-                    <button type="submit" disabled={pending || !text.trim()}>
-                      {pending
-                        ? "Working…"
-                        : tab === "options"
-                          ? "Propose"
-                          : tab === "evidence"
-                            ? evidenceKind.label
-                            : "Assign"}
-                    </button>
-                  </form>
-                )}
-              </div>
+                    {evidenceKinds.map((item) => (
+                      <option key={item.op} value={item.op}>
+                        {item.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : null}
+                <input
+                  ref={inputRef}
+                  value={text}
+                  onChange={(e) => setText(e.target.value)}
+                  placeholder={placeholder}
+                  disabled={pending}
+                  required
+                  autoComplete="off"
+                  aria-label={
+                    tab === "options"
+                      ? "New option"
+                      : tab === "evidence"
+                        ? evidenceKind.label
+                        : "New task"
+                  }
+                />
+                {tab === "tasks" ? (
+                  <select
+                    value={assignee}
+                    onChange={(e) => setAssignee(e.target.value as Seat)}
+                    disabled={pending}
+                    aria-label="Assign to seat"
+                  >
+                    <option value="owner">Owner</option>
+                    <option value="contributor">Contributor</option>
+                  </select>
+                ) : null}
+              </form>
             ) : null}
 
             {error ? (
@@ -445,10 +398,6 @@ export function ContributeRail({
                   ))}
                 </ul>
               )
-            ) : null}
-
-            {tab === "tasks" ? (
-              <p className="packet__empty-inline">Open tasks appear below.</p>
             ) : null}
           </>
         )}

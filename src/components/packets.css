@@ -149,7 +149,8 @@
   margin: 0 0 0.55rem;
 }
 
-.packet__section-head h2 {
+.packet__section-head h2,
+.packet__section-head h3 {
   font-family: var(--font-mono);
   font-size: 0.68rem;
   font-weight: 500;
@@ -293,68 +294,6 @@
   min-width: 0;
 }
 
-.contribute-rail__create {
-  display: grid;
-  gap: 0.35rem;
-}
-
-.contribute-rail__create-head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 0.75rem;
-}
-
-.contribute-rail__create-label,
-.contribute-rail__create-toggle {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 500;
-  letter-spacing: 0.04em;
-  color: var(--owner);
-}
-
-.contribute-rail__create-toggle {
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  text-align: left;
-}
-
-.contribute-rail__create-toggle:hover {
-  text-decoration: underline;
-}
-
-.contribute-rail__create-toggle:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
-.seat-contributor .contribute-rail__create-label,
-.seat-contributor .contribute-rail__create-toggle {
-  color: var(--contributor);
-}
-
-.contribute-rail__create-cancel {
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  color: var(--text-dim);
-  background: transparent;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-}
-
-.contribute-rail__create-cancel:hover {
-  color: var(--canvas-ink);
-}
-
-.contribute-rail__create-cancel:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-}
-
 .contribute-rail__decisions {
   display: grid;
   gap: 0.85rem;
@@ -367,10 +306,6 @@
 
 .decisions-wall--embedded .packet__section-head {
   margin-bottom: 0.35rem;
-}
-
-.packet--headline .packet__body {
-  display: none;
 }
 
 .composer__intents {
@@ -415,15 +350,17 @@
   box-shadow: var(--focus-ring);
 }
 
-.composer__form {
+.composer__form,
+.composer__form--inline {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.5rem;
   align-items: center;
+  min-width: 0;
 }
 
 .composer__form input {
-  flex: 1 1 11rem;
+  flex: 1 1 auto;
   min-width: 0;
   font-family: inherit;
   font-size: 0.9rem;
@@ -446,6 +383,8 @@
 }
 
 .composer__form select {
+  flex: 0 0 auto;
+  max-width: 7.5rem;
   font-family: inherit;
   font-size: 0.82rem;
   color: var(--canvas-ink);
@@ -459,38 +398,6 @@
 .composer__form select option {
   background: var(--bg-elev);
   color: var(--canvas-ink);
-}
-
-.composer__form button[type="submit"] {
-  flex-shrink: 0;
-  font-family: var(--font-display);
-  font-size: 0.82rem;
-  font-weight: 700;
-  background: var(--owner);
-  color: #fff;
-  border: 0;
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 0.95rem;
-  cursor: pointer;
-  transition: background var(--transition-fast);
-}
-
-.seat-contributor .composer__form button[type="submit"] {
-  background: var(--contributor);
-}
-
-.composer__form button[type="submit"]:hover:not(:disabled) {
-  filter: brightness(1.08);
-}
-
-.composer__form button[type="submit"]:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.composer__form button[type="submit"]:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
 }
 
 .contribute-rail__error {
@@ -922,49 +829,22 @@
   margin: 0;
 }
 
-.open-decision__link {
-  margin: 0;
-  padding: 0;
-  font: inherit;
-  font-size: 0.82rem;
-  color: var(--owner);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-.open-decision__link:hover {
-  opacity: 0.85;
-}
-
-.open-decision__link:focus-visible {
-  outline: none;
-  box-shadow: var(--focus-ring);
-  border-radius: 2px;
-}
-
-.open-decision__hint {
-  margin: 0 0 0.45rem;
-  font-size: 0.82rem;
-  color: var(--text-dim);
-}
-
-.open-decision__form {
+.open-decision__form,
+.open-decision__form--inline {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 0.4rem;
   align-items: center;
+  min-width: 0;
 }
 
 .open-decision__form input {
-  flex: 1 1 12rem;
+  flex: 1 1 auto;
   min-width: 0;
   margin: 0;
-  padding: 0.4rem 0.55rem;
+  padding: 0.5rem 0.1rem;
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 0.9rem;
   color: var(--canvas-ink);
   background: transparent;
   border: 0;
@@ -975,33 +855,6 @@
 .open-decision__form input:focus {
   outline: none;
   border-bottom-color: var(--owner);
-}
-
-.open-decision__form button[type="submit"] {
-  font-family: var(--font-display);
-  font-size: 0.8rem;
-  font-weight: 600;
-  padding: 0.35rem 0.75rem;
-  color: #fff;
-  background: var(--owner);
-  border: 0;
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-}
-
-.open-decision__form button[type="submit"]:disabled {
-  opacity: 0.55;
-  cursor: not-allowed;
-}
-
-.open-decision__cancel {
-  font: inherit;
-  font-size: 0.78rem;
-  color: var(--text-dim);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  padding: 0.35rem 0.4rem;
 }
 
 .open-decision__error {
@@ -1189,17 +1042,6 @@
 /* ── narrow viewports: sticky Decide + composer + touch targets ── */
 
 @media (max-width: 959px) {
-  .contribute-rail__create-toggle,
-  .contribute-rail__create-cancel {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    justify-self: start;
-    width: max-content;
-    min-height: 44px;
-    padding: 0.45rem 0;
-  }
-
   .composer__intents {
     gap: 0.2rem 0.85rem;
   }
@@ -1212,17 +1054,9 @@
     padding: 0.45rem 0.1rem;
   }
 
-  .composer__form {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.65rem;
-  }
-
   .composer__form input,
   .composer__form select,
-  .composer__form button[type="submit"] {
-    flex: 1 1 auto;
-    width: 100%;
+  .open-decision__form input {
     min-height: 44px;
   }
 

@@ -1,30 +1,26 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import type { Room } from "@/lib/types";
 
 type Props = {
   roomId: string
-  /** When true, room already has an open decision — softer "+ Open another" affordance. */
+  /** When true, room already has an open decision. */
   hasOpenDecision: boolean
   onUpdated: (room: Room) => void
 };
 
-/** Owner-only: open a decision outside the contribute tabs (rail taxonomy). */
+/** Owner-only: open a decision with a single-line Enter submit. */
 export function OpenDecisionControl({ roomId, hasOpenDecision, onUpdated }: Props) {
-  const [expanded, setExpanded] = useState(!hasOpenDecision);
   const [question, setQuestion] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!hasOpenDecision) setExpanded(true);
-  }, [hasOpenDecision]);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
     const value = question.trim();
-    if (!value) return;
+    if (!value || pending) return;
     setPending(true);
     setError(null);
     try {
@@ -45,7 +41,7 @@ export function OpenDecisionControl({ roomId, hasOpenDecision, onUpdated }: Prop
       }
       onUpdated(json.room);
       setQuestion("");
-      setExpanded(false);
+      queueMicrotask(() => inputRef.current?.focus());
     } catch {
       setError("Network error");
     } finally {
@@ -53,53 +49,23 @@ export function OpenDecisionControl({ roomId, hasOpenDecision, onUpdated }: Prop
     }
   }
 
-  if (!expanded) {
-    return (
-      <div className="open-decision">
-        <button
-          type="button"
-          className="open-decision__link"
-          onClick={() => setExpanded(true)}
-        >
-          + Open another decision
-        </button>
-      </div>
-    );
-  }
-
   return (
     <div className="open-decision open-decision--form">
-      {!hasOpenDecision ? (
-        <p className="open-decision__hint">Start with a decision question.</p>
-      ) : null}
-      <form className="open-decision__form" onSubmit={(e) => void onSubmit(e)}>
+      <form className="open-decision__form open-decision__form--inline" onSubmit={(e) => void onSubmit(e)}>
         <input
+          ref={inputRef}
           value={question}
           onChange={(e) => setQuestion(e.target.value)}
-          placeholder="What should we decide next?"
+          placeholder={
+            hasOpenDecision
+              ? "Open another decision — press Enter"
+              : "What should we decide? — press Enter"
+          }
           disabled={pending}
           required
           autoComplete="off"
           aria-label="New decision question"
-          autoFocus={hasOpenDecision}
         />
-        <button type="submit" disabled={pending || !question.trim()}>
-          {pending ? "Opening…" : "Open"}
-        </button>
-        {hasOpenDecision ? (
-          <button
-            type="button"
-            className="open-decision__cancel"
-            disabled={pending}
-            onClick={() => {
-              setExpanded(false);
-              setQuestion("");
-              setError(null);
-            }}
-          >
-            Cancel
-          </button>
-        ) : null}
       </form>
       {error ? (
         <p className="open-decision__error" role="alert">
